@@ -2580,7 +2580,7 @@ load();
 if (!data.impressum || !data.impressum.name) {
   data.impressum = { name: 'Kreshnik Dain', desc: 'A personal literary archive — books read, borrowed, sought and reflected upon.', year: '2026' };
 }
-init(); renderFooter(); setTimeout(function(){ if(isMob()) renderMobBooks(); }, 50);
+init(); renderFooter(); setTimeout(function(){ renderMobBooks(); }, 50);
 
 function openEventModal(){ document.getElementById('event-modal').classList.add('open'); var t=document.getElementById('ev-year'); if(t)setTimeout(function(){t.focus();},100); }
 function closeEventModal(){ document.getElementById('event-modal').classList.remove('open'); }
