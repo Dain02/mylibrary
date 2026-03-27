@@ -565,6 +565,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   /* Hide desktop table, show cards */
   .table-wrap table { display: none; }
   .table-wrap { padding: 0 1rem 2rem; overflow-x: hidden; }
+  #mob-book-cards { display: block; }
   .filter-bar { flex-direction: column; padding: .8rem 1rem 0; }
   .filter-bar input, .filter-bar select { width: 100%; }
   .stacks-topbar { padding: .8rem 1rem .3rem; }
@@ -590,6 +591,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 .ham-btn { display: none; }
 .mob-nav  { display: none; }
 .mob-bc   { display: none; }
+#mob-book-cards { display: none; }
 
 
 /* ── FOOTER / IMPRESSUM ── */
@@ -766,7 +768,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 @media(max-width:768px){.sort-bar{padding:0 1rem}}
 .pal-detail{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto;padding-top:var(--nav-h)}.pal-detail.open{display:block}.pal-detail-header{background:var(--surface2);border-bottom:2px solid var(--gold);padding:1.2rem 2rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10}.pal-back{background:none;border:1px solid rgba(245,234,212,.3);color:rgba(245,234,212,.75);font-family:Georgia,serif;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .9rem;border-radius:2px;cursor:pointer}.pal-back:hover{color:var(--light)}.pal-detail-title{font-family:Georgia,serif;font-size:1.3rem;font-weight:700;font-style:italic;color:var(--light)}.pal-detail-body{max-width:900px;margin:0 auto;padding:2rem 2rem 4rem}.pal-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.8rem}.pal-stat-box{background:var(--card);border:1px solid var(--bsoft);border-top:3px solid var(--olive);border-radius:var(--r);padding:1.1rem 1rem;text-align:center}.pal-stat-box .psn{font-family:Georgia,serif;font-size:1.8rem;font-weight:700;color:var(--gold2);line-height:1}.pal-stat-box .psl{font-family:Georgia,serif;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tmuted);margin-top:.3rem}.pal-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--r);overflow:hidden}.pal-table th{font-family:Georgia,serif;font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);font-weight:400;padding:.7rem 1rem;text-align:left;border-bottom:1px solid var(--olive)}.pal-table td{font-family:Georgia,serif;font-size:.88rem;color:var(--tsoft);padding:.65rem 1rem;border-bottom:1px solid var(--bsoft)}.pal-table tr:last-child td{border-bottom:none}.pal-table tr:hover td{background:rgba(255,255,255,.5)}.pal-bar-bg{height:7px;background:rgba(106,128,40,.15);border-radius:3px;overflow:hidden;min-width:60px}.pal-bar-fill{height:100%;border-radius:3px;background:var(--olive)}.pal-section-title{font-family:Georgia,serif;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--tfaint);margin:1.5rem 0 .8rem;display:flex;align-items:center;gap:.6rem}.pal-section-title::after{content:'';flex:1;height:1px;background:var(--bsoft)}.btn-expand-chart{font-family:Georgia,serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tmuted);background:none;border:1px solid var(--bsoft);border-radius:2px;padding:.25rem .65rem;cursor:pointer;float:right;margin-top:-.2rem}.btn-expand-chart:hover{color:var(--olive);border-color:var(--olive)}@media(max-width:768px){.pal-stat-row{grid-template-columns:repeat(2,1fr)}.pal-detail-body{padding:1.2rem 1rem 3rem}.pal-detail-header{padding:1rem}}
 
-.add-modal-bg{display:none;position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(42,20,8,.6);z-index:500;align-items:center;justify-content:center;padding:1rem}
+.add-modal-bg{display:none;position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(42,20,8,.6);z-index:1100;align-items:center;justify-content:center;padding:1rem}
 .add-modal-bg.open{display:flex}
 .add-modal-box{background:var(--card);border-radius:var(--r);border-top:3px solid var(--olive);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;padding:1.4rem 1.2rem 1.2rem;position:relative}
 .add-modal-title{font-family:Georgia,serif;font-size:1rem;font-weight:700;color:var(--text);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.2rem}
@@ -781,111 +783,368 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 .ac-item:last-child{border-bottom:none}
 .ac-item:hover,.ac-item:active{background:var(--card2);color:var(--text)}
 .ac-sub{font-size:.75rem;color:var(--tmuted);margin-left:.4rem}
-/* ── BOOK LIST (magazine rows) ── */
-#book-list { padding: 0 1.5rem 2rem; }
+/* ═══════════════════════════════════════
+   MOBILE REDESIGN — peach/beige frosted glass
+   Only affects max-width 768px
+═══════════════════════════════════════ */
+@media (max-width: 768px) {
 
-.bl-header {
-  display: flex;
-  padding: .4rem 1rem .4rem 1.4rem;
-  font-family: 'Georgia', serif;
-  font-size: .63rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--tfaint);
-  border-bottom: 1px solid var(--bsoft);
-  margin-bottom: .2rem;
-  gap: 0;
+  /* ── Background: warm sandy amber, not pink ── */
+  body {
+    background:
+      radial-gradient(ellipse at 15% 10%, rgba(220,160,80,.5) 0%, transparent 45%),
+      radial-gradient(ellipse at 85% 85%, rgba(200,140,60,.4) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 50%, rgba(240,210,150,.4) 0%, transparent 65%),
+      linear-gradient(160deg, #f2e0c0 0%, #ecd4a8 40%, #e8ce9e 70%, #f0daae 100%) !important;
+    background-attachment: fixed !important;
+  }
+
+  /* ── Nav bar: warm amber frosted ── */
+  nav {
+    background: rgba(242,228,195,.88) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+    border-bottom: 1px solid rgba(200,165,90,.3) !important;
+    box-shadow: 0 2px 20px rgba(160,110,40,.12) !important;
+  }
+  .nb-line1 { color: rgba(110,75,20,.65) !important; }
+  .nb-line2 { color: rgba(80,50,10,.9) !important; }
+  .btn-disc  { color: rgba(110,75,20,.6) !important; }
+  .ham-btn span { background: rgba(90,60,10,.75) !important; }
+
+  /* ── Page heroes ── */
+  .gh-hero, .p-hero {
+    background: rgba(230,210,160,.55) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid rgba(190,155,80,.25) !important;
+  }
+  .gh-title, .p-hero-title { color: rgba(60,38,8,.92) !important; }
+  .gh-sub, .p-hero-sub     { color: rgba(100,68,18,.6) !important; }
+
+  /* ── Quote: dark readable text on light hero ── */
+  .gh-quote-wrap blockquote { color: rgba(55,35,8,.85) !important; }
+  .gh-quote-wrap cite        { color: rgba(90,60,15,.65) !important; }
+  .btn-edit-q                { color: rgba(100,68,18,.45) !important; }
+
+  /* ── Stat tiles ── */
+  .stat-tile {
+    background: rgba(255,248,228,.75) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(200,165,90,.3) !important;
+    border-top: 3px solid rgba(170,120,40,.5) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 16px rgba(150,100,30,.1) !important;
+  }
+  .stn { color: rgba(150,90,20,.9) !important; }
+  .stl { color: rgba(110,72,18,.6) !important; }
+
+  /* ── Frosted glass cards ── */
+  .card, .item-card, .feed-card, .rg-card, .side-card,
+  .chart-card, .feat-card {
+    background: rgba(255,250,230,.75) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(210,180,100,.35) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 24px rgba(150,100,30,.1), 0 1px 4px rgba(150,100,30,.07) !important;
+  }
+
+  /* ── Mobile book cards ── */
+  #mob-book-cards > div {
+    background: rgba(255,250,230,.78) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(210,180,100,.35) !important;
+    border-left: 4px solid rgba(170,120,40,.65) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 20px rgba(150,100,30,.1) !important;
+    margin-bottom: .7rem !important;
+  }
+
+  /* ── Text ── */
+  .ic-title, .t-title, .dive-book-title, .rg-title, .fc-book {
+    color: rgba(60,38,8,.9) !important;
+  }
+  .ic-meta, .ic-detail, .t-author, .rg-author, .fc-stamp {
+    color: rgba(100,68,18,.65) !important;
+  }
+
+  /* ── Badges ── */
+  .badge-read    { background: rgba(90,130,40,.15) !important; color: rgba(50,80,10,.85) !important; border-color: rgba(90,130,40,.3) !important; }
+  .badge-unread  { background: rgba(170,120,40,.15) !important; color: rgba(120,72,10,.85) !important; border-color: rgba(170,120,40,.3) !important; }
+  .badge-reading { background: rgba(70,110,170,.15) !important; color: rgba(40,70,130,.85) !important; border-color: rgba(70,110,170,.3) !important; }
+  .pill { background: rgba(210,180,100,.3) !important; color: rgba(90,60,10,.8) !important; border-color: rgba(190,155,80,.4) !important; }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    background: rgba(150,95,20,.88) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 10px rgba(150,95,20,.25) !important;
+  }
+  .btn-ghost {
+    border-color: rgba(190,155,80,.5) !important;
+    color: rgba(100,68,18,.75) !important;
+    border-radius: 10px !important;
+  }
+
+  /* ── Inputs ── */
+  .filter-bar input, .filter-bar select,
+  .field input, .field select, .field textarea {
+    background: rgba(255,250,228,.85) !important;
+    border-color: rgba(200,165,90,.4) !important;
+    border-radius: 10px !important;
+    color: rgba(60,38,8,.9) !important;
+  }
+
+  /* ── Sort bar ── */
+  .sort-bar {
+    background: rgba(240,220,170,.4) !important;
+    border-radius: 10px !important;
+    margin: .5rem 1rem !important;
+    padding: .5rem .8rem !important;
+  }
+  .sort-bar label { color: rgba(100,68,18,.65) !important; }
+  .sort-bar select {
+    background: rgba(255,250,228,.85) !important;
+    border-color: rgba(200,165,90,.4) !important;
+    border-radius: 8px !important;
+  }
+
+  /* ── Slide-up sheet ── */
+  .sheet {
+    background: rgba(250,242,218,.94) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border-top: 1px solid rgba(210,175,90,.45) !important;
+    box-shadow: 0 -8px 40px rgba(140,95,20,.18) !important;
+  }
+  .sheet-handle  { background: rgba(170,130,50,.3) !important; }
+  .sheet-title, .sheet-section { color: rgba(140,95,20,.6) !important; }
+  .sheet-item    { color: rgba(60,38,8,.85) !important; }
+  .sheet-item:hover { background: rgba(210,180,100,.2) !important; }
+  .sheet-sub     { color: rgba(100,68,18,.7) !important; }
+  .sheet-overlay { background: rgba(80,45,5,.3) !important; }
+
+  /* ── Footer ── */
+  .app-footer {
+    background: rgba(230,210,160,.6) !important;
+    backdrop-filter: blur(12px) !important;
+    border-top: 1px solid rgba(190,155,80,.3) !important;
+  }
+  .footer-text, .footer-link { color: rgba(100,68,18,.55) !important; }
+
+  /* ── Modals ── */
+  .modal-box, .add-modal-box, .impr-box {
+    background: rgba(254,249,232,.96) !important;
+    border-radius: 20px !important;
+    border-color: rgba(210,180,100,.4) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+  }
+  .modal-bg, .add-modal-bg {
+    background: rgba(80,45,5,.3) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+  }
+
+  /* ── Misc ── */
+  .page { background: transparent !important; }
+  .gh-body { background: transparent !important; }
+  .mob-bc {
+    background: rgba(230,210,160,.55) !important;
+    color: rgba(100,68,18,.65) !important;
+    border-bottom: 1px solid rgba(190,155,80,.2) !important;
+    backdrop-filter: blur(10px) !important;
+  }
+  .mob-bc strong { color: rgba(60,38,8,.88) !important; }
+  .reading-item {
+    background: rgba(255,250,228,.72) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(210,180,100,.3) !important;
+  }
+  .sidebar .side-card {
+    background: rgba(255,250,228,.75) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(210,180,100,.3) !important;
+  }
 }
-.bl-header .bh-title  { flex: 3; }
-.bl-header .bh-author { flex: 2; }
-.bl-header .bh-genre  { flex: 1.5; }
-.bl-header .bh-year   { flex: .6; text-align: center; }
-.bl-header .bh-status { flex: 1; text-align: center; }
-.bl-header .bh-act    { width: 80px; }
 
-.bl-row {
+/* ── FILTER TOGGLE BUTTON ── */
+.btn-filter-toggle {
+  font-family: 'Georgia', serif;
+  font-size: .76rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  background: var(--card);
+  border: 1px solid var(--bsoft);
+  border-radius: 2px;
+  color: var(--tmuted);
+  padding: .42rem .9rem;
+  cursor: pointer;
+  transition: all .15s;
+  margin-left: auto;
+}
+.btn-filter-toggle:hover { border-color: var(--tmuted); color: var(--tsoft); }
+.btn-filter-toggle.active { background: var(--olive); color: #fff; border-color: var(--olive); }
+
+@media (max-width: 768px) {
+  /* Hide Add a Book button — FAB replaces it */
+  .stacks-topbar-desktop { display: none !important; }
+
+  /* Filter toggle styling on mobile */
+  .btn-filter-toggle {
+    background: rgba(255,250,228,.85) !important;
+    border-color: rgba(200,165,90,.4) !important;
+    border-radius: 10px !important;
+    color: rgba(100,68,18,.75) !important;
+  }
+  .btn-filter-toggle.active {
+    background: rgba(150,95,20,.88) !important;
+    color: #fff !important;
+    border-color: rgba(150,95,20,.88) !important;
+  }
+}
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  display: none;
+}
+/* ── POPUP MENUS — appear above their icon ── */
+.bn-popup {
+  display: none;
+  position: fixed;
+  bottom: 70px;
+  z-index: 2000;
+  background: rgba(252,246,230,.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(200,165,90,.35);
+  border-radius: 14px;
+  box-shadow: 0 -2px 24px rgba(140,90,20,.18), 0 4px 16px rgba(140,90,20,.1);
+  overflow: hidden;
+  min-width: 190px;
+  max-width: 230px;
+}
+.bn-popup.open { display: block; }
+.pop-item {
   display: flex;
   align-items: center;
-  padding: .7rem 1rem .7rem 1.4rem;
-  border-bottom: 1px solid var(--bsoft);
-  border-left: 3px solid transparent;
-  background: var(--card);
-  transition: border-left-color .15s, background .12s;
-  gap: 0;
-}
-.bl-row:hover { background: var(--card2); border-left-color: var(--olive); }
-
-.bl-title {
-  flex: 3;
+  gap: .55rem;
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(200,165,90,.15);
+  padding: .72rem 1rem;
   font-family: 'Georgia', serif;
-  font-size: .97rem;
-  font-style: italic;
-  color: var(--text);
+  font-size: .88rem;
+  color: rgba(60,38,8,.88);
   cursor: pointer;
-  padding-right: .8rem;
-  line-height: 1.3;
+  text-align: left;
+  transition: background .12s;
+  white-space: nowrap;
 }
-.bl-title:hover { color: var(--olive); }
-.bl-title small {
+.pop-item:last-child { border-bottom: none; }
+.pop-item:active { background: rgba(210,175,90,.22); }
+.pop-section {
+  font-family: 'Georgia', serif;
+  font-size: .58rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(140,95,20,.55);
+  padding: .55rem 1rem .2rem;
+  background: rgba(240,220,170,.22);
+}
+/* ── OVERLAY ── */
+.pop-overlay {
   display: none;
-  font-style: normal;
-  font-size: .72rem;
-  color: var(--tmuted);
-  margin-top: .15rem;
+  position: fixed;
+  inset: 0;
+  z-index: 1999;
+  background: transparent;
 }
-.bl-author { flex: 2; font-family: 'Georgia', serif; font-size: .82rem; color: var(--tmuted); padding-right: .6rem; }
-.bl-genre  { flex: 1.5; padding-right: .6rem; }
-.bl-year   { flex: .6; font-size: .8rem; color: var(--tmuted); text-align: center; }
-.bl-status { flex: 1; text-align: center; }
-.bl-act    { width: 80px; display: flex; gap: .2rem; justify-content: flex-end; flex-shrink: 0; }
+.pop-overlay.open { display: block; }
 
-/* ── MOBILE: collapse to clean cards ── */
+/* ── FAB — hidden on desktop ── */
+.fab { display: none; }
+
 @media (max-width: 768px) {
-  #book-list { padding: 0 .75rem 2rem; }
-
-  .bl-header { display: none; }
-
-  .bl-row {
-    flex-wrap: wrap;
-    padding: .9rem 1rem;
-    border-left: 4px solid var(--olive);
-    border-radius: var(--r);
-    margin-bottom: .5rem;
-    border-bottom: 1px solid var(--bsoft);
-    position: relative;
-    gap: 0;
-  }
-
-  .bl-title {
-    flex: 1 1 calc(100% - 80px);
-    font-size: 1rem;
-    padding-right: .5rem;
-  }
-  .bl-title small { display: block; }
-
-  .bl-author { display: none; }
-  .bl-genre  { display: none; }
-  .bl-year   { display: none; }
-  .bl-status { display: none; }
-
-  .bl-act {
-    width: 80px;
-    flex-shrink: 0;
-    align-self: flex-start;
-    padding-top: .1rem;
-  }
-
-  .bl-mob-meta {
-    flex: 1 1 100%;
-    display: flex;
-    gap: .35rem;
-    flex-wrap: wrap;
-    margin-top: .45rem;
+  /* ── Bottom nav: fixed at bottom ── */
+  .bottom-nav {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    z-index: 1001;
+    height: 62px;
+    background: rgba(242,228,195,.96);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border-top: 1px solid rgba(200,165,90,.3);
+    box-shadow: 0 -4px 20px rgba(140,90,20,.12);
+    padding: .3rem 0 .4rem;
+    justify-content: space-around;
     align-items: center;
   }
-}
-@media (min-width: 769px) {
-  .bl-mob-meta { display: none; }
+  .bn-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .12rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: .2rem .5rem;
+    border-radius: 10px;
+    flex: 1;
+    transition: background .12s;
+  }
+  .bn-item:active { background: rgba(170,120,40,.15); }
+  .bn-icon  { font-size: 1.35rem; line-height: 1; }
+  .bn-label {
+    font-family: 'Georgia', serif;
+    font-size: .55rem;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: rgba(110,72,18,.55);
+  }
+  .bn-item.active .bn-label { color: rgba(120,78,12,.95); font-weight: 700; }
+  .bn-item.active .bn-icon  { filter: saturate(1.5) brightness(.8); }
+
+  /* ── FAB: fixed bottom right ── */
+  .fab {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    position: fixed !important;
+    bottom: 74px !important;
+    right: 16px !important;
+    z-index: 1002;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(148,92,18,.92);
+    color: #fff;
+    font-size: 1.7rem;
+    line-height: 1;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(130,80,10,.38);
+    transition: transform .15s, background .15s;
+  }
+  .fab:active { transform: scale(.92); }
+
+  /* Push content above nav */
+  body { padding-bottom: 80px !important; }
+
+  /* Modal clears bottom nav */
+  .add-modal-bg { padding-bottom: 72px !important; }
+  .modal-bg { padding-bottom: 72px !important; }
+
+  /* Hide top hamburger */
+  .ham-btn { display: none !important; }
 }
 </style>
 </head>
@@ -930,34 +1189,56 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
     <button class="btn-disc" onclick="exportAll()" title="Export">⬇ export</button>
     <button class="btn-disc" onclick="document.getElementById('import-input').click()" title="Import">⬆ import</button>
     <input type="file" id="import-input" accept=".json" onchange="importAll(event)">
-    <button class="ham-btn" onclick="hamToggle()"><span></span><span></span><span></span></button>
+    <button class="ham-btn" onclick="sheetOpen()"><span></span><span></span><span></span></button>
   </div>
-
-<!-- ══ MOBILE MENU ══ -->
-<div class="mob-nav" id="mob-nav">
-  <button class="mn-page" onclick="mobGoPage('great-hall')">The Reading Room</button>
-  <button class="mn-page" id="mn-stacks" onclick="hamExpand('mn-stacks','subs-stacks')">The Stacks <span class="mn-arrow">&#9658;</span></button>
-  <div class="mn-subs" id="subs-stacks">
-    <button class="mn-sub" onclick="mobGoSub('the-stacks','volumes','The Stacks','All Volumes')">All Volumes</button>
-    <button class="mn-sub" onclick="mobGoSub('the-stacks','borrowed','The Stacks','On Loan')">On Loan</button>
-    <button class="mn-sub" onclick="mobGoSub('the-stacks','wanted','The Stacks','The Wish List')">The Wish List</button>
-    <button class="mn-sub" onclick="mobGoSub('the-stacks','reading','The Stacks','Currently Reading')">Currently Reading</button>
-  </div>
-  <button class="mn-page" onclick="mobGoPage('palantir')">The Insights</button>
-  <button class="mn-page" id="mn-annals" onclick="hamExpand('mn-annals','subs-annals')">The Record <span class="mn-arrow">&#9658;</span></button>
-  <div class="mn-subs" id="subs-annals">
-    <button class="mn-sub" onclick="mobGoSub('annals','timeline','The Record','Visual Timeline')">Visual Timeline</button>
-    <button class="mn-sub" onclick="mobGoSub('annals','events','The Record','World Events')">World Events</button>
-    <button class="mn-sub" onclick="mobGoSub('annals','commentary','The Record','World Reflections')">World Reflections</button>
-  </div>
-  <button class="mn-page" id="mn-redbook" onclick="hamExpand('mn-redbook','subs-redbook')">The Study <span class="mn-arrow">&#9658;</span></button>
-  <div class="mn-subs" id="subs-redbook">
-    <button class="mn-sub" onclick="mobGoSub('red-book','dive','The Study','Book Notes')">Book Notes</button>
-    <button class="mn-sub" onclick="mobGoSub('red-book','journal','The Study','My Literary Journey')">My Literary Journey</button>
-  </div>
-</div>
-<div class="mob-bc" id="mob-bc" style="display:none">The Reading Room</div>
+  <div class="mob-bc" id="mob-bc" style="display:none">The Reading Room</div>
 </nav>
+
+<!-- ══ OVERLAY ══ -->
+<div class="pop-overlay" id="pop-overlay" onclick="popCloseAll()"></div>
+
+<!-- ══ POPUP: STACKS (above 📚 icon, position 2 of 5) ══ -->
+<div class="bn-popup" id="pop-stacks" style="left:calc(20% * 1.5 - 100px)">
+  <button class="pop-item" onclick="sheetGoSub('the-stacks','volumes','The Stacks','All Volumes')">📖 All Volumes</button>
+  <button class="pop-item" onclick="sheetGoSub('the-stacks','borrowed','The Stacks','On Loan')">🤝 On Loan</button>
+  <button class="pop-item" onclick="sheetGoSub('the-stacks','wanted','The Stacks','The Wish List')">⭐ Wish List</button>
+  <button class="pop-item" onclick="sheetGoSub('the-stacks','reading','The Stacks','Currently Reading')">📌 Currently Reading</button>
+</div>
+
+<!-- ══ POPUP: RECORD (above 🗓 icon, position 4 of 5) ══ -->
+<div class="bn-popup" id="pop-record" style="right:calc(20% * 1.5 - 100px)">
+  <button class="pop-item" onclick="sheetGoSub('annals','timeline','The Record','Visual Timeline')">🗓 Visual Timeline</button>
+  <button class="pop-item" onclick="sheetGoSub('annals','events','The Record','World Events')">🌍 World Events</button>
+  <button class="pop-item" onclick="sheetGoSub('annals','commentary','The Record','World Reflections')">💬 World Reflections</button>
+</div>
+
+<!-- ══ POPUP: STUDY (above ✍️ icon, position 5 of 5) ══ -->
+<div class="bn-popup" id="pop-study" style="right:8px">
+  <button class="pop-item" onclick="sheetGoSub('red-book','dive','The Study','Book Notes')">🔍 Book Notes</button>
+  <button class="pop-item" onclick="sheetGoSub('red-book','journal','The Study','My Literary Journey')">✍️ My Literary Journey</button>
+</div>
+
+<!-- ══ BOTTOM NAV BAR — 5 icons, fixed bottom ══ -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bn-item active" id="bn-home"     onclick="bnGo('great-hall','bn-home')">
+    <span class="bn-icon">🏠</span><span class="bn-label">Home</span>
+  </button>
+  <button class="bn-item" id="bn-stacks"   onclick="popToggle('pop-stacks','bn-stacks')">
+    <span class="bn-icon">📚</span><span class="bn-label">Stacks</span>
+  </button>
+  <button class="bn-item" id="bn-insights" onclick="bnGo('palantir','bn-insights')">
+    <span class="bn-icon">📊</span><span class="bn-label">Insights</span>
+  </button>
+  <button class="bn-item" id="bn-record"   onclick="popToggle('pop-record','bn-record')">
+    <span class="bn-icon">🗓</span><span class="bn-label">Record</span>
+  </button>
+  <button class="bn-item" id="bn-study"    onclick="popToggle('pop-study','bn-study')">
+    <span class="bn-icon">✍️</span><span class="bn-label">Study</span>
+  </button>
+</nav>
+
+<!-- ══ FLOATING + BUTTON ══ -->
+<button class="fab" onclick="fabAddBook()">＋</button>
 
 
 <!-- ══════════════════ PAGE 1: GREAT HALL ══════════════════ -->
@@ -1048,7 +1329,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 
   <!-- ALL VOLUMES -->
   <div class="tab-panel active" id="stacks-volumes">
-    <div class="stacks-topbar"><button class="btn-primary" onclick="toggleAddForm()">+ Add a Book</button></div>
+    <div class="stacks-topbar stacks-topbar-desktop"><button class="btn-primary" onclick="toggleAddForm()">+ Add a Book</button></div>
     <div class="add-modal-bg" id="add-form-wrap" onclick="if(event.target===this)closeAddForm()">
     <div class="add-modal-box">
       <button class="add-modal-close" onclick="closeAddForm()">&#10005;</button>
@@ -1089,8 +1370,9 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
         <option value="year-asc">Year oldest first</option>
         <option value="year-desc">Year newest first</option>
       </select>
+      <button class="btn-filter-toggle" onclick="toggleFilterBar()" id="btn-filter-toggle">⚙ Filter</button>
     </div>
-    <div class="filter-bar">
+    <div class="filter-bar" id="filter-bar" style="display:none">
       <input type="text" id="f-search" placeholder="Search title or author…" oninput="renderTable()">
       <select id="f-genre" onchange="renderTable()"><option value="">All Genres</option><option>Art & Culture</option><option>Biography</option><option>Classic Literature</option><option>Comics / Graphic Novel</option><option>Cooking</option><option>Drama / Plays</option><option>Economics</option><option>Education</option><option>Essays / Criticism</option><option>Fantasy</option><option>Gardening</option><option>History</option><option>Horror</option><option>Kids</option><option>Literature / Fiction</option><option>Memoir</option><option>Music</option><option>Mystery / Thriller</option><option>Novel</option><option>Nature</option><option>Philosophy</option><option>Poetry</option><option>Politics</option><option>Psychology</option><option>Religion / Spirituality</option><option>Science</option><option>Science Fiction</option><option>Self-Help</option><option>Short Stories</option><option>Travel / Adventure</option><option>Other</option></select>
       <select id="f-lang" onchange="renderTable()"><option value="">All Languages</option><option value="en">English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option></select>
@@ -1099,9 +1381,11 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
       <span class="filter-count" id="filter-count"></span>
     </div>
     <div class="table-wrap">
-      <div id="book-list"></div>
+      <table><thead><tr><th>Title</th><th>Author</th><th>Genre</th><th>Language</th><th>Year</th><th>Status</th><th>Banned</th><th></th></tr></thead>
+      <tbody id="book-tbody"></tbody></table>
       <div id="tbl-empty" class="tbl-empty" style="display:none"><p>The stacks are empty — add your first book above.</p></div>
     </div>
+    <div id="mob-book-cards" style="padding:0 1rem 2rem"></div>
   </div>
 
   <!-- BORROWED SHELF -->
@@ -1536,6 +1820,20 @@ function updateStats() {
 }
 
 // ── BOOKS ─────────────────────────────────────────────────────────
+function toggleFilterBar() {
+  var bar = document.getElementById('filter-bar');
+  var btn = document.getElementById('btn-filter-toggle');
+  var isVisible = bar.style.display !== 'none';
+  bar.style.display = isVisible ? 'none' : 'flex';
+  if (btn) btn.classList.toggle('active', !isVisible);
+}
+function fabAddBook() {
+  showPage('the-stacks', null);
+  showStacksTab('volumes', null);
+  document.querySelectorAll('.bn-item').forEach(function(b){ b.classList.remove('active'); });
+  var s = document.getElementById('bn-stacks'); if(s) s.classList.add('active');
+  setTimeout(function(){ toggleAddForm(); }, 50);
+}
 function toggleAddForm() {
   var w = document.getElementById('add-form-wrap');
   w.classList.add('open');
@@ -1593,44 +1891,32 @@ function renderTable() {
       default:          return (a.num||0)-(b.num||0);
     }
   });
-  var list=document.getElementById('book-list');
+  var tbody=document.getElementById('book-tbody');
   var empty=document.getElementById('tbl-empty');
-  if(!list) return;
-  if(!data.books.length){ list.innerHTML=''; empty.style.display='block'; return; }
-  empty.style.display='none';
-  var html='<div class="bl-header">'
-    +'<div class="bh-title">Title</div>'
-    +'<div class="bh-author">Author</div>'
-    +'<div class="bh-genre">Genre</div>'
-    +'<div class="bh-year">Year</div>'
-    +'<div class="bh-status">Status</div>'
-    +'<div class="bh-act"></div>'
-    +'</div>';
-  filtered.forEach(function(b){
-    var bc=b.banned==='yes'?'#a03030':b.banned==='challenged'?'#8a6010':'';
-    var banBadge=b.banned!=='no'?'<span style="font-size:.68rem;color:#a03030;margin-left:.3rem">⊘ '+(b.banned==='yes'?'Banned':'Challenged')+'</span>':'';
-    html+='<div class="bl-row">'
-      +'<div class="bl-title" onclick="openBookDive('+b.id+')">'+esc(b.title)+banBadge
-        +'<small>'+esc(b.author||'')+'</small>'
-      +'</div>'
-      +'<div class="bl-author">'+esc(b.author||'')+'</div>'
-      +'<div class="bl-genre"><span class="pill">'+esc(b.genre||'')+'</span></div>'
-      +'<div class="bl-year">'+esc(b.year||'—')+'</div>'
-      +'<div class="bl-status"><span class="badge badge-'+b.status+'">'+b.status+'</span></div>'
-      +'<div class="bl-act">'
+  if(!tbody) return;
+  if(!data.books.length){tbody.innerHTML='';empty.style.display='block';}
+  else{
+    empty.style.display='none';
+    var rows='';
+    filtered.forEach(function(b){
+      var bc=b.banned==='yes'?'#a03030':b.banned==='challenged'?'#8a6010':'rgba(42,30,14,.28)';
+      rows+='<tr>'
+        
+        +'<td class="t-title">'+esc(b.title)+'</td>'
+        +'<td class="t-author">'+esc(b.author||'')+'</td>'
+        +'<td><span class="pill">'+esc(b.genre||'')+'</span></td>'
+        +'<td><span class="lang-dot '+(b.lang||'ot')+'">'+(LANG_L[b.lang]||b.lang||'')+'</span></td>'
+        +'<td class="t-year">'+esc(b.year||'--')+'</td>'
+        +'<td><span class="badge badge-'+b.status+'">'+b.status+'</span></td>'
+        +'<td style="font-size:.8rem;color:'+bc+'">'+(BAN_L[b.banned]||'--')+'</td>'
+        +'<td style="display:flex;gap:.3rem;align-items:center">'
         +'<button class="btn-icon-edit" title="Deep Dive" onclick="openBookDive('+b.id+')">&#128218;</button>'
         +'<button class="btn-icon-edit" title="Edit" onclick="openEditBook('+b.id+')">&#9998;</button>'
         +'<button class="btn-del" onclick="deleteBook('+b.id+')">&#10005;</button>'
-      +'</div>'
-      +'<div class="bl-mob-meta">'
-        +'<span class="pill" style="font-size:.67rem">'+esc(b.genre||'')+'</span>'
-        +'<span class="badge badge-'+b.status+'" style="font-size:.65rem">'+b.status+'</span>'
-        +(b.year?'<span style="font-size:.74rem;color:var(--tmuted)">'+esc(b.year)+'</span>':'')
-        +(b.banned!=='no'?'<span style="font-size:.7rem;color:#a03030">⊘ '+(b.banned==='yes'?'Banned':'Challenged')+'</span>':'')
-      +'</div>'
-    +'</div>';
-  });
-  list.innerHTML=html;
+        +'</td></tr>';
+    });
+    tbody.innerHTML=rows;
+  }
   var fc=document.getElementById('filter-count');
   if(fc) fc.textContent=filtered.length!==data.books.length
     ?filtered.length+' of '+data.books.length+' books'
@@ -2364,56 +2650,118 @@ function openBookDive(id) {
 
 
 
-// ══ MOBILE NAVIGATION ══════════════════════════════════════════════
-function hamToggle() {
-  document.getElementById('mob-nav').classList.toggle('show');
+// ══ BOTTOM NAV & POPUPS ════════════════════════════════════════════
+function popCloseAll() {
+  document.querySelectorAll('.bn-popup').forEach(function(p){ p.classList.remove('open'); });
+  document.getElementById('pop-overlay').classList.remove('open');
 }
-function hamClose() {
-  document.getElementById('mob-nav').classList.remove('show');
-}
-function hamExpand(btnId, subsId) {
-  var btn  = document.getElementById(btnId);
-  var subs = document.getElementById(subsId);
-  var isOpen = subs.classList.contains('show');
-  // Close all
-  document.querySelectorAll('.mn-subs').forEach(function(s){ s.classList.remove('show'); });
-  document.querySelectorAll('.mn-page').forEach(function(b){ b.classList.remove('open'); });
-  // Open this one if it was closed
+function popToggle(popId, btnId) {
+  var pop = document.getElementById(popId);
+  var btn = document.getElementById(btnId);
+  var isOpen = pop.classList.contains('open');
+  popCloseAll();
   if (!isOpen) {
-    subs.classList.add('show');
-    btn.classList.add('open');
+    // Position popup above the icon
+    var rect = btn.getBoundingClientRect();
+    var popW = 210;
+    var left = rect.left + (rect.width / 2) - (popW / 2);
+    // Keep within screen
+    if (left < 8) left = 8;
+    if (left + popW > window.innerWidth - 8) left = window.innerWidth - popW - 8;
+    pop.style.left  = left + 'px';
+    pop.style.right = 'auto';
+    pop.style.bottom = '70px';
+    pop.classList.add('open');
+    document.getElementById('pop-overlay').classList.add('open');
+    document.querySelectorAll('.bn-item').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  } else {
+    document.querySelectorAll('.bn-item').forEach(function(b){ b.classList.remove('active'); });
   }
+}
+function bnGo(page, btnId) {
+  popCloseAll();
+  showPage(page, null);
+  document.querySelectorAll('.bn-item').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById(btnId);
+  if (btn) btn.classList.add('active');
+}
+function sheetGoSub(page, tab, pageLabel, tabLabel) {
+  popCloseAll();
+  showPage(page, null);
+  if (page === 'the-stacks') showStacksTab(tab, null);
+  if (page === 'annals')     showAnnalsTab(tab, null);
+  if (page === 'red-book')   showRBTab(tab, null);
+  setBc(pageLabel + ' › <strong>' + tabLabel + '</strong>');
+  document.querySelectorAll('.bn-item').forEach(function(b){ b.classList.remove('active'); });
+  var map = {'the-stacks':'bn-stacks','annals':'bn-record','red-book':'bn-study'};
+  var btn = document.getElementById(map[page]);
+  if (btn) btn.classList.add('active');
+  if (tab === 'volumes') renderMobBooks();
 }
 function setBc(text) {
   var el = document.getElementById('mob-bc');
   if (el) el.innerHTML = text;
 }
-function mobGoPage(name) {
-  showPage(name, null);
-  hamClose();
-  var labels = {
-    'great-hall': 'The Reading Room',
-    'palantir':   'The Insights'
-  };
-  setBc('<strong>' + (labels[name] || name) + '</strong>');
-  document.querySelectorAll('.mn-subs').forEach(function(s){ s.classList.remove('show'); });
-  document.querySelectorAll('.mn-page').forEach(function(b){ b.classList.remove('open'); });
-}
-function mobGoSub(page, tab, pageLabel, tabLabel) {
-  showPage(page, null);
-  if (page === 'the-stacks') showStacksTab(tab, null);
-  if (page === 'annals')     showAnnalsTab(tab, null);
-  if (page === 'red-book')   showRBTab(tab, null);
-  hamClose();
-  document.querySelectorAll('.mn-subs').forEach(function(s){ s.classList.remove('show'); });
-  document.querySelectorAll('.mn-page').forEach(function(b){ b.classList.remove('open'); });
-  setBc(pageLabel + ' › <strong>' + tabLabel + '</strong>');
-  if (tab === 'volumes') renderMobBooks();
-}
+function mobGoPage(name) { showPage(name, null); popCloseAll(); }
+function hamClose() { popCloseAll(); }
+// keep sheetClose as alias
+function sheetClose() { popCloseAll(); }
+function sheetOpen() { popCloseAll(); }
+function sheetGoPage(name, label) { bnGo(name, 'bn-home'); }
 
 // ══ MOBILE BOOK CARDS ══════════════════════════════════════════════
 function isMob() { return window.innerWidth <= 768; }
-function renderMobBooks() { renderTable(); }
+
+function renderMobBooks() {
+  var mob = document.getElementById('mob-book-cards');
+  if(!mob) return;
+  var q  = (document.getElementById('f-search')||{value:''}).value.toLowerCase();
+  var fg = (document.getElementById('f-genre')||{value:''}).value;
+  var fl = (document.getElementById('f-lang')||{value:''}).value;
+  var fs = (document.getElementById('f-status')||{value:''}).value;
+  var fb = (document.getElementById('f-banned')||{value:''}).value;
+  var sb = (document.getElementById('sort-by')||{value:'num'}).value;
+  var filtered = data.books.filter(function(b) {
+    return (!q||b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q))
+      &&(!fg||b.genre===fg)&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb);
+  });
+  filtered.sort(function(a,b){
+    switch(sb){
+      case 'author-az': return getLastName(a.author).localeCompare(getLastName(b.author));
+      case 'author-za': return getLastName(b.author).localeCompare(getLastName(a.author));
+      case 'title-az':  return (a.title||'').toLowerCase().localeCompare((b.title||'').toLowerCase());
+      case 'title-za':  return (b.title||'').toLowerCase().localeCompare((a.title||'').toLowerCase());
+      case 'year-asc':  return (parseInt(a.year)||0)-(parseInt(b.year)||0);
+      case 'year-desc': return (parseInt(b.year)||0)-(parseInt(a.year)||0);
+      default:          return (a.num||0)-(b.num||0);
+    }
+  });
+  if(!filtered.length){
+    mob.innerHTML=data.books.length?'<div class="empty-state"><p>No books match your filters.</p></div>':'<div class="empty-state"><p>No books yet.</p></div>';
+    return;
+  }
+  var html='';
+  filtered.forEach(function(b){
+    html+='<div style="background:var(--card);border:1px solid var(--bsoft);border-left:4px solid var(--olive);border-radius:var(--r);padding:.9rem 1rem;position:relative;margin-bottom:.6rem">'
+      +'<div style="padding-right:3.5rem">'
+      
+      +'<div style="font-family:Georgia,serif;font-size:.98rem;font-style:italic;color:var(--text);cursor:pointer" onclick="openBookDive('+b.id+')">'+esc(b.title)+'</div>'
+      +'<div style="font-family:Georgia,serif;font-size:.8rem;color:var(--tmuted);margin-top:.1rem">'+esc(b.author||'')+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;align-items:center">'
+      +'<span class="pill" style="font-size:.68rem">'+esc(b.genre||'')+'</span>'
+      +'<span class="badge badge-'+b.status+'" style="font-size:.65rem">'+b.status+'</span>'
+      +(b.year?'<span style="font-size:.75rem;color:var(--tmuted)">'+esc(b.year)+'</span>':'')
+      +(b.banned!=='no'?'<span style="font-size:.72rem;color:#a03030">&#128683; '+(b.banned==='yes'?'Banned':'Challenged')+'</span>':'')
+      +'</div>'
+      +'<div style="position:absolute;top:.7rem;right:.6rem;display:flex;gap:.25rem">'
+      +'<button class="btn-icon-edit" onclick="openEditBook('+b.id+')">&#9998;</button>'
+      +'<button class="btn-del" onclick="deleteBook('+b.id+')">&#10005;</button>'
+      +'</div></div>';
+  });
+  mob.innerHTML=html;
+}
 
 function openImpr() {
   var d = data.impressum || {};
