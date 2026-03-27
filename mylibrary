@@ -1,0 +1,2755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Library</title>
+
+
+<script>
+// Minimal Chart.js compatible implementation
+var Chart = (function() {
+  function Chart(ctx, config) {
+    this.ctx = ctx;
+    this.config = config;
+    this.canvas = ctx.canvas;
+    this._draw();
+  }
+  Chart.defaults = { color: '#7a6040', font: { family: 'Georgia', size: 11 } };
+  Chart.prototype.destroy = function() {
+    var ctx = this.ctx;
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  };
+  Chart.prototype._draw = function() {
+    var cfg = this.config;
+    var type = cfg.type;
+    if(type === 'doughnut') this._drawDoughnut();
+    else if(type === 'bar') this._drawBar();
+  };
+  Chart.prototype._drawDoughnut = function() {
+    var ds = this.config.data.datasets[0];
+    var labels = this.config.data.labels;
+    var colors = ds.backgroundColor;
+    var data = ds.data;
+    var total = data.reduce(function(a,b){return a+b;},0);
+    if(!total) return;
+    var canvas = this.canvas;
+    var ctx = this.ctx;
+    var cx = canvas.width * 0.38, cy = canvas.height / 2;
+    var r = Math.min(cx, cy) * 0.82;
+    var inner = r * 0.6;
+    var angle = -Math.PI/2;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(var i=0;i<data.length;i++){
+      var slice = (data[i]/total) * Math.PI*2;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,r,angle,angle+slice);
+      ctx.closePath();
+      ctx.fillStyle = colors[i%colors.length];
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(cx,cy,inner,0,Math.PI*2);
+      ctx.fillStyle = '#faf3e4';
+      ctx.fill();
+      angle += slice;
+    }
+    // Legend
+    var lx = canvas.width*0.72, ly = cy - (labels.length*16)/2;
+    for(var j=0;j<labels.length;j++){
+      ctx.fillStyle = colors[j%colors.length];
+      ctx.fillRect(lx, ly+j*18, 11, 11);
+      ctx.fillStyle = '#3e2e18';
+      ctx.font = '11px Georgia';
+      ctx.fillText(labels[j]+' ('+data[j]+')', lx+15, ly+j*18+10);
+    }
+  };
+  Chart.prototype._drawBar = function() {
+    var cfg = this.config;
+    var ds = cfg.data.datasets[0];
+    var labels = cfg.data.labels;
+    var colors = ds.backgroundColor;
+    var data = ds.data;
+    var horiz = cfg.options && cfg.options.indexAxis === 'y';
+    var canvas = this.canvas;
+    var ctx = this.ctx;
+    var pad = 40;
+    var max = Math.max.apply(null, data) || 1;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle = 'rgba(120,90,20,.2)';
+    ctx.fillStyle = '#7a6040';
+    ctx.font = '10px Georgia';
+    if(!horiz) {
+      var bw = (canvas.width - pad*2) / (data.length || 1);
+      for(var i=0;i<data.length;i++){
+        var bh = ((data[i]/max) * (canvas.height - pad*2));
+        var bx = pad + i*bw + bw*0.1;
+        var by = canvas.height - pad - bh;
+        ctx.fillStyle = colors[i%colors.length];
+        ctx.fillRect(bx, by, bw*0.8, bh);
+        ctx.fillStyle = '#7a6040';
+        ctx.save(); ctx.translate(bx+bw*0.4, canvas.height-pad+4);
+        ctx.rotate(-0.5); ctx.textAlign='right';
+        ctx.fillText(labels[i].slice(0,14), 0, 0);
+        ctx.restore();
+      }
+    } else {
+      var rh = (canvas.height - pad*2) / (data.length || 1);
+      for(var i=0;i<data.length;i++){
+        var rw = ((data[i]/max) * (canvas.width - pad*2 - 120));
+        var rx = pad+120, ry = pad + i*rh + rh*0.1;
+        ctx.fillStyle = colors[i%colors.length];
+        ctx.fillRect(rx, ry, rw, rh*0.75);
+        ctx.fillStyle = '#3e2e18';
+        ctx.textAlign='right';
+        ctx.fillText(labels[i].slice(0,18), rx-4, ry+rh*0.5);
+        ctx.fillStyle = '#7a6040';
+        ctx.textAlign='left';
+        ctx.fillText(data[i], rx+rw+4, ry+rh*0.5);
+      }
+    }
+  };
+  return Chart;
+})();
+</script>
+<style>
+:root {
+  --bg:        #e8a84a;
+  --surface:   #c46638;
+  --surface2:  #b85830;
+  --card:      #faf3e4;
+  --card2:     #f3ead6;
+  --border:    rgba(160,90,20,0.28);
+  --bsoft:     rgba(160,90,20,0.16);
+  --gold:      #5a6e20;
+  --gold2:     #6a8028;
+  --gold-l:    #8aaa38;
+  --olive:     #7a9040;
+  --olive2:    #8aaa50;
+  --text:      #2a1e0e;
+  --tsoft:     #3e2e18;
+  --tmuted:    #7a6040;
+  --tfaint:    #aa9060;
+  --light:     #f5ead4;
+  --nav-h:     60px;
+  --r:         3px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:300;min-height:100vh;background-image:radial-gradient(ellipse at 5% 0%,rgba(255,220,120,.15) 0%,transparent 40%),radial-gradient(ellipse at 95% 100%,rgba(140,80,10,.12) 0%,transparent 45%)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);background:var(--surface2);border-bottom:2px solid var(--gold);display:flex;align-items:center;padding:0 2rem;gap:0;box-shadow:0 2px 18px rgba(50,8,0,.28)}
+.nav-brand{font-family:'Georgia',serif;font-weight:700;color:var(--light);letter-spacing:.04em;flex-shrink:0;display:flex;flex-direction:column;line-height:1.15;text-align:left}
+.nb-line1{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;opacity:.75;font-weight:400}
+.nb-line2{font-size:1.15rem;font-weight:700;letter-spacing:.04em}
+.nav-sep{width:1px;height:20px;background:rgba(245,234,212,.22);margin:0 1rem;flex-shrink:0}
+.nav-links{display:flex;align-items:stretch;list-style:none;height:var(--nav-h);flex:1}
+.nav-links li{display:flex;align-items:center;position:relative}
+.nav-links li>button{font-family:'Georgia',serif;font-size:.76rem;letter-spacing:.11em;text-transform:uppercase;color:rgba(245,234,212,.62);background:none;border:none;border-bottom:2px solid transparent;padding:0 .7rem;height:100%;cursor:pointer;transition:all .18s;white-space:nowrap}
+.nav-links li>button:hover{color:var(--light);background:rgba(255,255,255,.05)}
+.nav-links li>button.active{color:var(--light);border-bottom-color:var(--gold-l)}
+/* dropdown */
+.nav-sub .sub-menu{display:none;position:absolute;top:100%;left:0;background:var(--surface2);border:1px solid var(--gold);border-top:none;min-width:185px;box-shadow:0 8px 24px rgba(40,8,0,.35);z-index:300}
+.nav-sub:hover .sub-menu{display:block}
+.nav-sub .sub-menu a{display:block;padding:.55rem 1rem;font-family:'Georgia',serif;font-size:.76rem;color:rgba(245,234,212,.65);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.05);transition:all .15s}
+.nav-sub .sub-menu a:hover{color:var(--light);background:rgba(255,255,255,.05)}
+.nav-sync{display:flex;gap:.2rem;align-items:center;margin-left:auto;flex-shrink:0}
+.btn-disc{font-size:.68rem;color:rgba(245,234,212,.22);background:none;border:none;cursor:pointer;padding:.3rem .5rem;transition:color .2s}
+.btn-disc:hover{color:rgba(245,234,212,.55)}
+#import-input{display:none}
+
+/* PAGES */
+.page{display:none;padding-top:var(--nav-h);min-height:100vh}
+.page.active{display:block}
+
+/* PAGE HERO */
+.p-hero{background:var(--surface2);border-bottom:1px solid var(--gold);padding:2rem 3rem 1.8rem;position:relative;overflow:hidden}
+.p-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,180,60,.06) 0%,transparent 60%);pointer-events:none}
+.p-hero-inner{max-width:1140px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;position:relative;z-index:1}
+.p-hero-title{font-family:'Georgia',serif;font-size:2.2rem;font-weight:700;color:var(--light);letter-spacing:.02em;line-height:1}
+.p-hero-sub{font-family:'Georgia',serif;font-size:.73rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,212,.42);margin-top:.3rem}
+
+/* INNER TABS */
+.page-tabs{background:var(--surface2);border-bottom:1px solid var(--gold);padding:0 3rem;display:flex;gap:0}
+.page-tab{font-family:'Georgia',serif;font-size:.76rem;letter-spacing:.13em;text-transform:uppercase;color:rgba(245,234,212,.48);background:none;border:none;border-bottom:3px solid transparent;padding:.85rem 1.2rem;cursor:pointer;transition:all .18s}
+.page-tab:hover{color:rgba(245,234,212,.8)}
+.page-tab.active{color:var(--light);border-bottom-color:var(--gold-l)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* BODY WRAPPER */
+.p-body{max-width:1140px;margin:0 auto;padding:2rem 3rem 4rem}
+
+/* BUTTONS */
+.btn-primary{background:var(--olive);color:#fff;border:none;padding:.6rem 1.4rem;font-family:'Georgia',serif;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:var(--r);transition:background .18s;white-space:nowrap;flex-shrink:0}
+.btn-primary:hover{background:var(--olive2)}
+.btn-ghost{background:transparent;color:var(--tmuted);border:1px solid var(--border);padding:.5rem 1rem;font-family:'Georgia',serif;font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:var(--r);transition:all .18s}
+.btn-ghost:hover{border-color:var(--tmuted);color:var(--tsoft)}
+.btn-gold{background:var(--gold2);color:#fff;border:none;padding:.6rem 1.4rem;font-family:'Georgia',serif;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:var(--r);transition:background .18s}
+.btn-gold:hover{background:var(--gold-l)}
+
+/* SECTION LABEL */
+.slabel{font-family:'Georgia',serif;font-size:.67rem;letter-spacing:.2em;text-transform:uppercase;color:var(--tfaint);margin-bottom:.9rem;display:flex;align-items:center;gap:.6rem}
+.slabel::after{content:'';flex:1;height:1px;background:var(--bsoft)}
+
+/* FIELD */
+.field label{display:block;font-family:'Georgia',serif;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--tmuted);margin-bottom:.28rem}
+.field input,.field select,.field textarea{width:100%;background:var(--card2);border:1px solid var(--bsoft);border-radius:2px;color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:.83rem;font-weight:300;padding:.5rem .7rem;outline:none;transition:border-color .18s;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--olive)}
+.field textarea{resize:vertical;line-height:1.65}
+.field select option{background:#f3ead6}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:.85rem}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.85rem;margin-bottom:.85rem}
+.grid-5{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr;gap:.85rem;margin-bottom:.85rem}
+.grid-1{display:grid;grid-template-columns:1fr;gap:.85rem;margin-bottom:.85rem}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--bsoft);border-radius:var(--r);padding:1.8rem 2rem}
+.card-l{border-left:4px solid var(--olive)}
+.card-lg{border-left:4px solid var(--gold2)}
+.card-t{border-top:3px solid var(--olive)}
+.card-tg{border-top:3px solid var(--gold2)}
+.form-actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:.8rem}
+
+/* INLINE TOGGLE FORM */
+.toggle-form{display:none;margin-bottom:1.5rem}
+.toggle-form.open{display:block}
+
+/* CARDS GRID */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem;margin-top:1.2rem}
+.item-card{background:var(--card);border:1px solid var(--bsoft);border-left:4px solid var(--olive);border-radius:var(--r);padding:1.2rem 1.4rem;position:relative}
+.item-card.returned{border-left-color:var(--gold2);opacity:.75}
+.ic-title{font-family:'Georgia',serif;font-size:1rem;font-style:italic;color:var(--text);margin-bottom:.15rem}
+.ic-meta{font-family:'Georgia',serif;font-size:.82rem;color:var(--tmuted);margin-bottom:.5rem}
+.ic-detail{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:.78rem;color:var(--tsoft);line-height:1.65}
+.ic-detail span{color:var(--tmuted)}
+.ic-actions{display:flex;gap:.5rem;margin-top:.9rem;flex-wrap:wrap;align-items:center}
+.ic-del{position:absolute;top:.7rem;right:.8rem;background:none;border:none;color:rgba(42,30,14,.2);cursor:pointer;font-size:.85rem;transition:color .15s}
+.ic-del:hover{color:#a03030}
+.empty-state{text-align:center;padding:3.5rem 2rem}
+.empty-state p{font-family:'Georgia',serif;font-size:.95rem;font-style:italic;color:rgba(42,30,14,.38)}
+
+/* BADGES */
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:2px;font-family:'Georgia',serif;font-size:.67rem;letter-spacing:.09em;text-transform:uppercase;font-weight:500}
+.badge-read{background:rgba(90,110,32,.13);color:#3e5010;border:1px solid rgba(90,110,32,.35)}
+.badge-unread{background:rgba(160,90,20,.12);color:#6a4010;border:1px solid rgba(160,90,20,.3)}
+.badge-reading{background:rgba(74,110,158,.13);color:#3a5e8a;border:1px solid rgba(74,110,158,.35)}
+.badge-banned{background:rgba(160,48,48,.12);color:#a03030;border:1px solid rgba(160,48,48,.3)}
+.badge-challenged{background:rgba(138,96,16,.12);color:#7a5810;border:1px solid rgba(138,96,16,.3)}
+.pill{font-family:'Georgia',serif;font-size:.7rem;letter-spacing:.06em;padding:.16rem .55rem;border-radius:2px;border:1px solid var(--border);color:var(--tmuted)}
+
+/* LANG DOTS */
+.lang-dot{display:inline-flex;align-items:center;gap:.38rem;font-family:'Georgia',serif;font-size:.8rem;color:var(--tsoft)}
+.lang-dot::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.en::before{background:#4a8aaa}.sq::before{background:#aa4040}.de::before{background:#c8a020}.ot::before{background:#8a7060}
+
+/* ── PAGE 1: GREAT HALL ── */
+.gh-hero{background:var(--surface2);border-bottom:1px solid var(--gold);padding:2.8rem 3rem 2.4rem;position:relative;overflow:hidden}
+.gh-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,180,60,.06) 0%,transparent 60%);pointer-events:none}
+.gh-hero-inner{max-width:1140px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;position:relative;z-index:1}
+.gh-title{font-family:'Georgia',serif;font-size:2.8rem;font-weight:700;color:var(--light);line-height:1;letter-spacing:.02em}
+.gh-sub{font-family:'Georgia',serif;font-size:.76rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,234,212,.42);margin-top:.4rem}
+.gh-quote-wrap{max-width:390px;text-align:right}
+.gh-quote-wrap blockquote{font-family:'Georgia',serif;font-size:.97rem;font-style:italic;color:rgba(245,234,212,.8);line-height:1.75}
+.gh-quote-wrap cite{display:block;margin-top:.5rem;font-family:'Georgia',serif;font-size:.76rem;font-style:normal;color:rgba(245,234,212,.4);letter-spacing:.08em}
+.btn-edit-q{display:block;margin-top:.5rem;background:none;border:none;font-family:'Georgia',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,234,212,.28);cursor:pointer;transition:color .18s;width:100%;text-align:right}
+.btn-edit-q:hover{color:rgba(245,234,212,.6)}
+.quote-edit-form{display:none;margin-top:.6rem}
+.quote-edit-form textarea,.quote-edit-form input{width:100%;background:rgba(0,0,0,.18);border:1px solid rgba(245,234,212,.2);border-radius:2px;color:rgba(245,234,212,.85);font-family:'Georgia',serif;font-size:.9rem;font-style:italic;padding:.55rem .75rem;outline:none;resize:vertical;line-height:1.65;margin-bottom:.4rem;transition:border-color .18s}
+.quote-edit-form input{font-style:normal;font-size:.78rem;resize:none}
+.quote-edit-form textarea:focus,.quote-edit-form input:focus{border-color:rgba(245,234,212,.45)}
+.gh-body{max-width:1140px;margin:0 auto;padding:2.5rem 3rem 4rem;display:grid;grid-template-columns:1fr 370px;gap:1.8rem}
+.stat-strip{grid-column:1;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.stat-tile{background:var(--card);border:1px solid var(--bsoft);border-top:3px solid var(--olive);border-radius:var(--r);padding:1.3rem 1rem 1rem;text-align:center;transition:border-top-color .18s,transform .15s}
+.stat-tile:hover{border-top-color:var(--gold2);transform:translateY(-2px)}
+.stat-tile[onclick]{transition:border-top-color .18s,transform .15s,box-shadow .15s}
+.stat-tile[onclick]:hover{box-shadow:0 4px 16px rgba(42,20,8,.15)}
+.stn{font-family:'Georgia',serif;font-size:2.2rem;font-weight:700;color:var(--gold2);line-height:1}
+.stl{font-family:'Georgia',serif;font-size:.67rem;letter-spacing:.16em;text-transform:uppercase;color:var(--tmuted);margin-top:.3rem}
+.sidebar{grid-column:2;grid-row:1/4;display:flex;flex-direction:column;gap:1.5rem}
+.side-card{background:var(--card);border:1px solid var(--bsoft);border-top:3px solid var(--gold2);border-radius:var(--r);padding:1.5rem}
+.notice-ta{width:100%;min-height:150px;background:var(--card2);border:1px solid var(--bsoft);border-radius:2px;padding:.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:.83rem;font-weight:300;color:var(--tsoft);line-height:1.7;resize:vertical;outline:none;transition:border-color .18s}
+.notice-ta:focus{border-color:var(--gold2)}
+.notice-ta::placeholder{color:var(--tfaint);font-style:italic;font-size:.8rem}
+.notice-list{display:flex;flex-direction:column;gap:.8rem;margin-top:1rem}
+.notice-item{background:var(--card2);border-left:3px solid var(--gold2);padding:.7rem .9rem;border-radius:0 2px 2px 0;position:relative}
+.ni-date{font-family:'Georgia',serif;font-size:.66rem;color:var(--tfaint);letter-spacing:.07em;margin-bottom:.25rem}
+.ni-text{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:.82rem;color:var(--tsoft);line-height:1.65;word-break:break-word;padding-right:1.2rem}
+.ni-del{position:absolute;top:.5rem;right:.6rem;background:none;border:none;color:rgba(42,30,14,.2);cursor:pointer;font-size:.78rem;transition:color .15s}
+.ni-del:hover{color:#a03030}
+.reading-item{display:flex;align-items:flex-start;gap:.7rem;padding:.65rem 0;border-bottom:1px solid var(--bsoft)}
+.reading-item:last-child{border-bottom:none;padding-bottom:0}
+.r-spine{width:5px;min-width:5px;height:44px;border-radius:2px;flex-shrink:0}
+.r-title{font-family:'Georgia',serif;font-size:.88rem;font-style:italic;color:var(--text)}
+.r-who{font-family:'Georgia',serif;font-size:.76rem;color:var(--tmuted);margin-top:.15rem}
+.reading-empty{font-family:'Georgia',serif;font-size:.82rem;color:var(--tfaint);font-style:italic;text-align:center;padding:.8rem 0}
+
+/* FEATURED CARD */
+.feat-card{grid-column:1;background:var(--card);border:1px solid var(--bsoft);border-left:4px solid var(--olive);border-radius:var(--r);padding:2rem}
+.feat-tags{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+.tag{font-family:'Georgia',serif;font-size:.71rem;letter-spacing:.06em;padding:.18rem .65rem;border-radius:2px;border:1px solid var(--bsoft);color:var(--tmuted)}
+.tag-g{border-color:var(--olive);color:var(--olive)}
+.tag-l{border-color:var(--gold2);color:var(--gold2)}
+
+/* ── PAGE 2: STACKS ── */
+.stacks-topbar{max-width:1140px;margin:0 auto;padding:1.2rem 1rem .5rem;display:flex;justify-content:flex-end;flex-shrink:0}
+.filter-bar{max-width:1140px;margin:.5rem auto 0;padding:0 3rem;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
+.filter-bar input,.filter-bar select{background:var(--card);border:1px solid var(--bsoft);border-radius:2px;color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:.82rem;font-weight:300;padding:.46rem .72rem;outline:none;transition:border-color .18s;-webkit-appearance:none}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--gold2)}
+.filter-bar input{flex:1;min-width:180px}
+.filter-count{font-family:'Georgia',serif;font-size:.74rem;color:var(--tmuted);margin-left:auto;letter-spacing:.08em}
+.table-wrap{max-width:1140px;margin:1rem auto 0;padding:0 3rem 4rem;overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:1px solid var(--olive)}
+thead th{font-family:'Georgia',serif;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);font-weight:400;padding:.6rem .8rem;text-align:left;white-space:nowrap}
+tbody tr{border-bottom:1px solid rgba(120,90,20,.15);transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.2)}
+tbody td{padding:.72rem .8rem;font-size:.84rem;vertical-align:middle}
+td.t-title{font-family:'Georgia',serif;font-size:.95rem;font-style:italic;color:var(--text)}
+td.t-author{font-family:'Georgia',serif;font-size:.84rem;color:var(--tmuted)}
+td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tmuted)}
+.btn-del{background:none;border:none;color:rgba(42,30,14,.22);cursor:pointer;font-size:.9rem;transition:color .15s}
+.btn-del:hover{color:#a03030}
+.tbl-empty{text-align:center;padding:4rem 2rem}
+.tbl-empty p{font-family:'Georgia',serif;font-size:.95rem;font-style:italic;color:rgba(42,30,14,.38)}
+.add-form-wrap{max-width:1140px;margin:0 auto;padding:0 3rem;overflow:hidden;max-height:0;transition:max-height .35s ease}
+.add-form-wrap.open{max-height:500px}
+
+/* ── TIMELINE ── */
+.tl-controls{max-width:1140px;margin:0 auto;padding:1.5rem 3rem 0;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
+.tl-controls select,.tl-controls input{background:var(--card);border:1px solid var(--bsoft);border-radius:2px;color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:.82rem;font-weight:300;padding:.46rem .72rem;outline:none;transition:border-color .18s;-webkit-appearance:none}
+.tl-controls input{width:200px}
+.tl-legend{display:flex;gap:.9rem;align-items:center;flex-wrap:wrap;margin-left:auto}
+.dot-row{display:flex;align-items:center;gap:.38rem;font-family:'Georgia',serif;font-size:.73rem;color:var(--tsoft);opacity:.8}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dot-book{background:var(--olive)}.dot-ban{background:#a03030}.dot-hist{background:#4a6e9e}.dot-pol{background:#7a3a9e}.dot-per{background:#b07828}.dot-cul{background:#4a8e6e}
+.tl-wrap{max-width:1140px;margin:1.5rem auto 0;padding:0 3rem 4rem}
+.decade-band{margin-bottom:2.5rem}
+.decade-hd{font-family:'Georgia',serif;font-size:1.35rem;font-weight:700;font-style:italic;color:var(--olive2);margin-bottom:.9rem;display:flex;align-items:center;gap:1rem}
+.decade-hd::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,var(--olive),transparent);opacity:.35}
+.decade-line{position:relative;padding-left:2rem;border-left:2px solid rgba(106,128,40,.28);display:flex;flex-direction:column}
+.tl-item{position:relative;padding:.55rem 0 .55rem 1.5rem;transition:background .15s;border-radius:2px}
+.tl-item:hover{background:rgba(255,255,255,.15)}
+.tl-item::before{content:'';position:absolute;left:-.62rem;top:1rem;width:10px;height:10px;border-radius:50%;border:2px solid var(--card);background:var(--olive);flex-shrink:0}
+.tl-item.t-book::before{background:var(--olive)}
+.tl-item.t-ban::before{background:#a03030}
+.tl-item.t-historical::before{background:#4a6e9e}
+.tl-item.t-political::before{background:#7a3a9e}
+.tl-item.t-personal::before{background:#b07828}
+.tl-item.t-cultural::before{background:#4a8e6e}
+.tl-yr{font-family:'Georgia',serif;font-size:.95rem;font-weight:700;letter-spacing:.04em;color:var(--text);margin-bottom:.2rem}
+.tl-ttl{font-family:'Georgia',serif;font-size:.93rem;font-style:italic;color:var(--text);line-height:1.3}
+.tl-sub{font-family:'Georgia',serif;font-size:.78rem;color:var(--tmuted);margin-top:.1rem;line-height:1.5}
+.tl-badge{display:inline-block;font-family:'Georgia',serif;font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:.2rem .6rem;border-radius:3px;margin-left:.45rem;vertical-align:middle}
+.tb-book{background:var(--olive);color:#fff;border:1px solid var(--olive)}
+.tb-ban{background:#a03030;color:#fff;border:1px solid #a03030}
+.tb-historical{background:#4a6e9e;color:#fff;border:1px solid #4a6e9e}
+.tb-political{background:#7a3a9e;color:#fff;border:1px solid #7a3a9e}
+.tb-personal{background:#b07828;color:#fff;border:1px solid #b07828}
+.tb-cultural{background:#4a8e6e;color:#fff;border:1px solid #4a8e6e}
+.tl-del{position:absolute;right:.5rem;top:.6rem;background:none;border:none;color:rgba(42,30,14,.18);cursor:pointer;font-size:.76rem;transition:color .15s}
+.tl-del:hover{color:#a03030}
+.tl-empty{text-align:center;padding:3rem 2rem;font-family:'Georgia',serif;font-size:.93rem;font-style:italic;color:rgba(42,30,14,.35)}
+
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem}
+.chart-wide{grid-column:1/-1}
+.chart-card{background:var(--card);border:1px solid var(--bsoft);border-top:3px solid var(--olive);border-radius:var(--r);padding:1.6rem 1.8rem}
+.chart-card h3{font-family:'Georgia',serif;font-size:.67rem;letter-spacing:.2em;text-transform:uppercase;color:var(--tfaint);margin-bottom:1.2rem}
+.ch-wrap{position:relative}
+.ch-donut{height:240px}.ch-bar{height:250px}.ch-hbar{height:280px}
+.no-data-msg{text-align:center;padding:2.5rem 1rem;font-family:'Georgia',serif;font-size:.88rem;font-style:italic;color:var(--tfaint)}
+.banned-list{display:flex;flex-direction:column;gap:.6rem;margin-top:.5rem}
+.banned-item{display:flex;align-items:flex-start;justify-content:space-between;gap:.8rem;padding:.7rem .9rem;background:var(--card2);border-left:3px solid #a03030;border-radius:0 2px 2px 0}
+.bi-title{font-family:'Georgia',serif;font-size:.9rem;font-style:italic;color:var(--text)}
+.bi-meta{font-family:'Georgia',serif;font-size:.78rem;color:var(--tmuted);margin-top:.1rem}
+
+/* COMMENTARY / JOURNAL */
+.feed{display:flex;flex-direction:column;gap:1.2rem}
+.feed-card{background:var(--card);border:1px solid var(--bsoft);border-radius:var(--r);padding:1.5rem 1.8rem;position:relative}
+.fc-header{display:flex;align-items:baseline;gap:.7rem;margin-bottom:.8rem;flex-wrap:wrap}
+.fc-book{font-family:'Georgia',serif;font-size:1rem;font-style:italic;color:var(--text)}
+.fc-type{font-family:'Georgia',serif;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.11rem .48rem;border-radius:2px}
+.fc-stamp{font-family:'Georgia',serif;font-size:.7rem;color:var(--tfaint);margin-left:auto;letter-spacing:.05em}
+.fc-body{font-family:'Georgia',serif;font-size:1rem;line-height:1.8;color:var(--tsoft);white-space:pre-wrap}
+.fc-del{position:absolute;top:.9rem;right:1rem;background:none;border:none;color:rgba(42,30,14,.2);cursor:pointer;font-size:.85rem;transition:color .15s}
+.fc-del:hover{color:#a03030}
+.feed-empty{text-align:center;padding:3rem 2rem;font-family:'Georgia',serif;font-size:.93rem;font-style:italic;color:rgba(42,30,14,.35)}
+.tc-insight{background:rgba(74,110,158,.11);color:#4a6e9e;border:1px solid rgba(74,110,158,.26)}
+.tc-review{background:rgba(106,128,40,.12);color:var(--olive2);border:1px solid rgba(106,128,40,.28)}
+.tc-commentary,.tc-reflection{background:rgba(176,120,40,.11);color:#b07828;border:1px solid rgba(176,120,40,.26)}
+.tc-note,.tc-analysis{background:rgba(42,30,14,.07);color:var(--tmuted);border:1px solid var(--bsoft)}
+
+/* RED BOOK DEEP DIVE */
+.rb-selector{background:var(--card);border:1px solid var(--bsoft);border-left:4px solid var(--gold2);border-radius:var(--r);padding:1.3rem 1.8rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.rb-selector label{font-family:'Georgia',serif;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--tmuted);white-space:nowrap}
+.rb-selector select{flex:1;min-width:200px;background:var(--card2);border:1px solid var(--bsoft);border-radius:2px;color:var(--text);font-family:'Georgia',serif;font-size:.95rem;font-style:italic;padding:.5rem .8rem;outline:none;transition:border-color .18s;-webkit-appearance:none}
+.rb-selector select:focus{border-color:var(--olive)}
+.rb-selector select option{background:#f3ead6;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-style:normal}
+.dive-book-title{font-family:'Georgia',serif;font-size:1.55rem;font-weight:700;font-style:italic;color:var(--text);line-height:1.2}
+.dive-book-author{font-family:'Georgia',serif;font-size:1rem;color:var(--tmuted);margin-top:.2rem;margin-bottom:1.4rem}
+.quote-field input,.quote-field textarea{font-family:'Georgia',serif;font-size:.95rem;font-style:italic}
+
+
+/* READING GOALS */
+.rg-card{background:var(--card);border:1px solid var(--bsoft);border-left:4px solid #3a5e8a;border-radius:var(--r);padding:1.4rem 1.6rem;position:relative}
+.rg-title{font-family:'Georgia',serif;font-size:1.05rem;font-style:italic;color:var(--text);margin-bottom:.15rem}
+.rg-author{font-family:'Georgia',serif;font-size:.84rem;color:var(--tmuted);margin-bottom:1rem}
+.rg-dates{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.9rem}
+.rg-field label{display:block;font-family:'Georgia',serif;font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;color:var(--tmuted);margin-bottom:.25rem}
+.rg-field input{width:100%;background:var(--card2);border:1px solid var(--bsoft);border-radius:2px;color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:.83rem;font-weight:300;padding:.46rem .65rem;outline:none;transition:border-color .18s}
+.rg-field input:focus{border-color:#3a5e8a}
+.rg-progress{margin-top:.5rem}
+.rg-prog-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.35rem}
+.rg-prog-txt{font-family:'Georgia',serif;font-size:.76rem;color:var(--tmuted)}
+.rg-prog-pct{font-family:'Georgia',serif;font-size:1rem;font-weight:700;color:#3a5e8a}
+.rg-bar-bg{height:6px;background:rgba(58,94,138,.15);border-radius:3px;overflow:hidden}
+.rg-bar-fill{height:100%;background:linear-gradient(90deg,#3a5e8a,#5a8aaa);border-radius:3px;transition:width .4s ease}
+.rg-done-badge{display:inline-block;font-family:'Georgia',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:.12rem .5rem;border-radius:2px;background:rgba(160,48,48,.1);color:#a03030;border:1px solid rgba(160,48,48,.25)}
+.rg-done-badge.ontrack{background:rgba(58,94,138,.1);color:#3a5e8a;border-color:rgba(58,94,138,.25)}
+.rg-done-badge.done{background:rgba(90,110,32,.12);color:#3e5010;border-color:rgba(90,110,32,.3)}
+.rg-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:.9rem}
+
+
+/* EDIT MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(42,20,8,.45);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal-box{background:var(--card);border:1px solid var(--border);border-top:3px solid var(--olive);border-radius:var(--r);padding:2rem 2.2rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 8px 40px rgba(42,20,8,.35)}
+.modal-title{font-family:'Georgia',serif;font-size:1.2rem;font-style:italic;color:var(--text);margin-bottom:1.4rem}
+.modal-close{position:absolute;top:1rem;right:1.1rem;background:none;border:none;font-size:1.1rem;color:var(--tmuted);cursor:pointer;transition:color .15s}
+.modal-close:hover{color:var(--text)}
+
+
+.btn-icon-del{background:none;border:none;color:rgba(42,30,14,.22);cursor:pointer;font-size:.85rem;padding:.1rem .3rem;transition:color .15s;line-height:1}
+.btn-icon-del:hover{color:#a03030}
+.btn-icon-edit{background:none;border:none;color:rgba(42,30,14,.22);cursor:pointer;font-size:.88rem;padding:.1rem .3rem;transition:color .15s;line-height:1}
+.btn-icon-edit:hover{color:var(--olive)}
+
+
+/* RESPONSIVE */
+@media(max-width:980px){
+  .gh-hero,.p-hero{padding:1.8rem 1.5rem 1.6rem}
+  .gh-body{grid-template-columns:1fr;padding:1.5rem 1.5rem 3rem}
+  .sidebar{grid-column:1;grid-row:auto}
+  .stat-strip{grid-template-columns:repeat(2,1fr)}
+  .p-body,.tl-wrap,.tl-controls,.table-wrap,.filter-bar,.stacks-topbar,.add-form-wrap{padding-left:1.5rem;padding-right:1.5rem}
+  .charts-grid{grid-template-columns:1fr}
+  .chart-wide{grid-column:1}
+  .grid-5,.grid-3{grid-template-columns:1fr 1fr}
+  .page-tabs{padding:0 1.5rem}
+}
+@media(max-width:560px){
+  nav{padding:0 1rem}
+  .nav-brand{font-size:.95rem}
+  .nav-sep{margin:0 .5rem}
+  .nav-links li>button{font-size:.62rem;padding:0 .42rem;letter-spacing:.05em}
+  .stat-strip{grid-template-columns:repeat(2,1fr)}
+  .grid-5,.grid-3,.grid-2{grid-template-columns:1fr}
+  .gh-title{font-size:2rem}
+  .gh-hero-inner{flex-direction:column;align-items:flex-start;gap:1rem}
+  .gh-quote-wrap{text-align:left;max-width:100%}
+}
+
+/* ═══════════════════════════════════════
+   MOBILE ONLY — max-width 768px
+═══════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Hide desktop nav links */
+  .nav-links { display: none !important; }
+  .nav-sep   { display: none !important; }
+
+  /* Hamburger button */
+  .ham-btn {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: .5rem;
+    margin-left: .5rem;
+  }
+  .ham-btn span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--light);
+    border-radius: 2px;
+  }
+
+  /* Mobile menu panel */
+  .mob-nav {
+    display: none;
+    position: fixed;
+    top: var(--nav-h);
+    left: 0; right: 0;
+    z-index: 999;
+    background: var(--surface2);
+    border-bottom: 2px solid var(--gold);
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    overflow-y: auto;
+    max-height: calc(100vh - var(--nav-h));
+  }
+  .mob-nav.show { display: block; }
+
+  /* Menu items */
+  .mn-page {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: Georgia, serif;
+    font-size: .95rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(245,234,212,.8);
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(245,234,212,.08);
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    text-align: left;
+  }
+  .mn-page:hover { background: rgba(255,255,255,.05); color: var(--light); }
+  .mn-arrow { font-size: .7rem; transition: transform .2s; }
+  .mn-page.open .mn-arrow { transform: rotate(90deg); }
+
+  .mn-subs { display: none; }
+  .mn-subs.show { display: block; }
+
+  .mn-sub {
+    width: 100%;
+    display: block;
+    font-family: Georgia, serif;
+    font-size: .85rem;
+    color: rgba(245,234,212,.55);
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(245,234,212,.04);
+    padding: .75rem 1.5rem .75rem 2.5rem;
+    cursor: pointer;
+    text-align: left;
+  }
+  .mn-sub:hover { background: rgba(255,255,255,.04); color: var(--light); }
+
+  /* Breadcrumb bar */
+  .mob-bc {
+    display: none;
+    background: var(--surface2);
+    border-bottom: 1px solid rgba(245,234,212,.1);
+    font-family: Georgia, serif;
+    font-size: .7rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(245,234,212,.4);
+    padding: .45rem 1rem;
+  }
+  .mob-bc strong { color: rgba(245,234,212,.75); font-weight: normal; }
+
+  /* Hide inner tab bars */
+  .page-tabs { display: none !important; }
+
+  /* Nav brand → home */
+  .nav-brand { cursor: pointer; }
+
+  /* Page padding */
+  .p-hero { padding: 1.2rem 1rem 1rem; }
+  .p-hero-title { font-size: 1.4rem; }
+  .p-body { padding: 1rem 1rem 3rem; }
+  .gh-hero { padding: 1.5rem 1rem 1.4rem; }
+  .gh-title { font-size: 1.8rem; }
+  .gh-body { padding: 1.2rem 1rem 3rem; }
+  .stat-strip { grid-template-columns: repeat(2,1fr); gap: .7rem; }
+
+  /* Hide desktop table, show cards */
+  .table-wrap table { display: none; }
+  .table-wrap { padding: 0 1rem 2rem; overflow-x: hidden; }
+  .filter-bar { flex-direction: column; padding: .8rem 1rem 0; }
+  .filter-bar input, .filter-bar select { width: 100%; }
+  .stacks-topbar { padding: .8rem 1rem .3rem; }
+  .add-form-wrap { padding: 0 1rem; }
+  .add-form-wrap.open { padding: .8rem 1rem 0; }
+
+  /* Charts single column */
+  .charts-grid { grid-template-columns: 1fr !important; }
+  .chart-wide { grid-column: 1 !important; }
+  .ch-donut { height: 200px; }
+  .ch-bar   { height: 200px; }
+  .ch-hbar  { height: 220px; }
+
+  /* Cards grid single column */
+  .cards-grid { grid-template-columns: 1fr; }
+
+  /* Comment rows */
+  .comment-row { grid-template-columns: 1fr; }
+  .grid-2, .grid-3, .grid-5 { grid-template-columns: 1fr; }
+}
+
+/* Ham button hidden on desktop */
+.ham-btn { display: none; }
+.mob-nav  { display: none; }
+.mob-bc   { display: none; }
+
+
+/* ── FOOTER / IMPRESSUM ── */
+.app-footer {
+  background: var(--surface2);
+  border-top: 1px solid var(--gold);
+  padding: .9rem 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: 2rem;
+}
+.footer-text {
+  font-family: Georgia, serif;
+  font-size: .72rem;
+  letter-spacing: .08em;
+  color: rgba(245,234,212,.38);
+}
+.footer-link {
+  font-family: Georgia, serif;
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(245,234,212,.38);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color .18s;
+  text-decoration: underline;
+}
+.footer-link:hover { color: rgba(245,234,212,.7); }
+
+/* Impressum modal */
+.impr-modal {
+  position: fixed; inset: 0;
+  background: rgba(42,20,8,.5);
+  z-index: 600;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.impr-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--gold2);
+  border-radius: var(--r);
+  padding: 2rem 2.2rem;
+  max-width: 500px; width: 100%;
+  position: relative;
+}
+.impr-title {
+  font-family: Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1.2rem;
+}
+.impr-field { margin-bottom: .9rem; }
+.impr-field label {
+  display: block;
+  font-family: Georgia, serif;
+  font-size: .65rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--tmuted);
+  margin-bottom: .28rem;
+}
+.impr-field input, .impr-field textarea {
+  width: 100%;
+  background: var(--card2);
+  border: 1px solid var(--bsoft);
+  border-radius: 2px;
+  color: var(--text);
+  font-family: Georgia, serif;
+  font-size: .88rem;
+  padding: .5rem .7rem;
+  outline: none;
+  transition: border-color .18s;
+}
+.impr-field input:focus, .impr-field textarea:focus { border-color: var(--olive); }
+.impr-display {
+  font-family: Georgia, serif;
+  font-size: .88rem;
+  color: var(--tsoft);
+  line-height: 1.75;
+}
+
+/* ── ENTRY COMMENTS ── */
+.entry-comments {
+  margin-top: .9rem;
+  border-top: 1px solid var(--bsoft);
+  padding-top: .7rem;
+}
+.btn-toggle-comments {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  font-size: .76rem;
+  color: var(--tmuted);
+  padding: 0;
+  transition: color .18s;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.btn-toggle-comments:hover { color: var(--olive); }
+.comment-panel {
+  display: none;
+  margin-top: .8rem;
+}
+.comment-panel.open { display: block; }
+.comment-list { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .7rem; }
+.ec-item {
+  background: var(--card2);
+  border-left: 3px solid var(--gold2);
+  border-radius: 0 2px 2px 0;
+  padding: .55rem .8rem;
+  position: relative;
+}
+.ec-name {
+  font-family: Georgia, serif;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--gold2);
+  margin-bottom: .2rem;
+}
+.ec-text {
+  font-family: Georgia, serif;
+  font-size: .85rem;
+  color: var(--tsoft);
+  line-height: 1.6;
+}
+.ec-stamp {
+  font-family: Georgia, serif;
+  font-size: .65rem;
+  color: var(--tfaint);
+  margin-top: .2rem;
+}
+.ec-del {
+  position: absolute; top: .4rem; right: .5rem;
+  background: none; border: none;
+  color: rgba(42,30,14,.2); cursor: pointer;
+  font-size: .75rem; transition: color .15s;
+}
+.ec-del:hover { color: #a03030; }
+.ec-form { display: grid; grid-template-columns: 1fr 2fr auto; gap: .5rem; align-items: end; }
+.ec-form input {
+  background: var(--card2); border: 1px solid var(--bsoft);
+  border-radius: 2px; color: var(--text);
+  font-family: Georgia, serif; font-size: .83rem;
+  padding: .42rem .6rem; outline: none;
+  transition: border-color .18s;
+}
+.ec-form input:focus { border-color: var(--olive); }
+.ec-form button {
+  background: var(--olive); color: #fff; border: none;
+  padding: .42rem .85rem; border-radius: 2px;
+  font-family: Georgia, serif; font-size: .76rem;
+  letter-spacing: .08em; text-transform: uppercase;
+  cursor: pointer; white-space: nowrap;
+  transition: background .18s;
+}
+.ec-form button:hover { background: var(--olive2); }
+@media (max-width: 600px) {
+  .ec-form { grid-template-columns: 1fr; }
+  .app-footer { padding: .9rem 1rem; }
+}
+
+.sort-bar{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;max-width:1140px;margin:.6rem auto 0;padding:0 3rem}
+.sort-bar label{font-family:Georgia,serif;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tmuted)}
+.sort-bar select{background:var(--card);border:1px solid var(--bsoft);border-radius:2px;color:var(--text);font-family:Georgia,serif;font-size:.82rem;padding:.42rem .7rem;outline:none;-webkit-appearance:none}
+@media(max-width:768px){.sort-bar{padding:0 1rem}}
+.pal-detail{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto;padding-top:var(--nav-h)}.pal-detail.open{display:block}.pal-detail-header{background:var(--surface2);border-bottom:2px solid var(--gold);padding:1.2rem 2rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10}.pal-back{background:none;border:1px solid rgba(245,234,212,.3);color:rgba(245,234,212,.75);font-family:Georgia,serif;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .9rem;border-radius:2px;cursor:pointer}.pal-back:hover{color:var(--light)}.pal-detail-title{font-family:Georgia,serif;font-size:1.3rem;font-weight:700;font-style:italic;color:var(--light)}.pal-detail-body{max-width:900px;margin:0 auto;padding:2rem 2rem 4rem}.pal-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.8rem}.pal-stat-box{background:var(--card);border:1px solid var(--bsoft);border-top:3px solid var(--olive);border-radius:var(--r);padding:1.1rem 1rem;text-align:center}.pal-stat-box .psn{font-family:Georgia,serif;font-size:1.8rem;font-weight:700;color:var(--gold2);line-height:1}.pal-stat-box .psl{font-family:Georgia,serif;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tmuted);margin-top:.3rem}.pal-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--r);overflow:hidden}.pal-table th{font-family:Georgia,serif;font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);font-weight:400;padding:.7rem 1rem;text-align:left;border-bottom:1px solid var(--olive)}.pal-table td{font-family:Georgia,serif;font-size:.88rem;color:var(--tsoft);padding:.65rem 1rem;border-bottom:1px solid var(--bsoft)}.pal-table tr:last-child td{border-bottom:none}.pal-table tr:hover td{background:rgba(255,255,255,.5)}.pal-bar-bg{height:7px;background:rgba(106,128,40,.15);border-radius:3px;overflow:hidden;min-width:60px}.pal-bar-fill{height:100%;border-radius:3px;background:var(--olive)}.pal-section-title{font-family:Georgia,serif;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--tfaint);margin:1.5rem 0 .8rem;display:flex;align-items:center;gap:.6rem}.pal-section-title::after{content:'';flex:1;height:1px;background:var(--bsoft)}.btn-expand-chart{font-family:Georgia,serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tmuted);background:none;border:1px solid var(--bsoft);border-radius:2px;padding:.25rem .65rem;cursor:pointer;float:right;margin-top:-.2rem}.btn-expand-chart:hover{color:var(--olive);border-color:var(--olive)}@media(max-width:768px){.pal-stat-row{grid-template-columns:repeat(2,1fr)}.pal-detail-body{padding:1.2rem 1rem 3rem}.pal-detail-header{padding:1rem}}
+
+.add-modal-bg{display:none;position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(42,20,8,.6);z-index:500;align-items:center;justify-content:center;padding:1rem}
+.add-modal-bg.open{display:flex}
+.add-modal-box{background:var(--card);border-radius:var(--r);border-top:3px solid var(--olive);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;padding:1.4rem 1.2rem 1.2rem;position:relative}
+.add-modal-title{font-family:Georgia,serif;font-size:1rem;font-weight:700;color:var(--text);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.2rem}
+.add-modal-close{position:absolute;top:.8rem;right:.8rem;background:none;border:none;font-size:1.1rem;color:var(--tmuted);cursor:pointer;line-height:1;padding:.2rem .4rem}
+.add-modal-close:hover{color:var(--text)}
+
+@media(max-width:600px){.form-actions{justify-content:stretch}.form-actions .btn-ghost,.form-actions .btn-primary{flex:1;font-size:.7rem;padding:.45rem .5rem;text-align:center}}
+.ac-wrap{position:relative}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--olive);border-top:none;border-radius:0 0 4px 4px;max-height:180px;overflow-y:auto;z-index:200;display:none;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.ac-list.open{display:block}
+.ac-item{padding:.5rem .8rem;font-family:Georgia,serif;font-size:.86rem;color:var(--tsoft);cursor:pointer;border-bottom:1px solid var(--bsoft)}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item:active{background:var(--card2);color:var(--text)}
+.ac-sub{font-size:.75rem;color:var(--tmuted);margin-left:.4rem}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand" onclick="mobGoPage('great-hall')">
+    <span class="nb-line1">Personal</span>
+    <span class="nb-line2">Library</span>
+  </div>
+  <div class="nav-sep"></div>
+  <ul class="nav-links">
+    <li><button class="active" onclick="showPage('great-hall',this)">The Reading Room</button></li>
+    <li class="nav-sub">
+      <button onclick="showPage('the-stacks',this)">The Stacks ▾</button>
+      <div class="sub-menu">
+        <a href="#" onclick="showPage('the-stacks',null);showStacksTab('volumes',null);return false;">All Volumes</a>
+        <a href="#" onclick="showPage('the-stacks',null);showStacksTab('borrowed',null);return false;">On Loan</a>
+        <a href="#" onclick="showPage('the-stacks',null);showStacksTab('wanted',null);return false;">The Wish List</a>
+        <a href="#" onclick="showPage('the-stacks',null);showStacksTab('reading',null);return false;">Currently Reading</a>
+      </div>
+    </li>
+    <li><button onclick="showPage('palantir',this)">The Insights</button></li>
+    <li class="nav-sub">
+      <button onclick="showPage('annals',this)">The Record ▾</button>
+      <div class="sub-menu">
+        <a href="#" onclick="showPage('annals',null);showAnnalsTab('timeline',null);return false;">Visual Timeline</a>
+        <a href="#" onclick="showPage('annals',null);showAnnalsTab('events',null);return false;">World Events</a>
+        <a href="#" onclick="showPage('annals',null);showAnnalsTab('commentary',null);return false;">World Reflections</a>
+      </div>
+    </li>
+    <li class="nav-sub">
+      <button onclick="showPage('red-book',this)">The Study ▾</button>
+      <div class="sub-menu">
+        <a href="#" onclick="showPage('red-book',null);showRBTab('dive',null);return false;">Book Notes</a>
+        <a href="#" onclick="showPage('red-book',null);showRBTab('journal',null);return false;">My Literary Journey</a>
+      </div>
+    </li>
+  </ul>
+  <div class="nav-sync">
+    <button class="btn-disc" onclick="exportAll()" title="Export">⬇ export</button>
+    <button class="btn-disc" onclick="document.getElementById('import-input').click()" title="Import">⬆ import</button>
+    <input type="file" id="import-input" accept=".json" onchange="importAll(event)">
+    <button class="ham-btn" onclick="hamToggle()"><span></span><span></span><span></span></button>
+  </div>
+
+<!-- ══ MOBILE MENU ══ -->
+<div class="mob-nav" id="mob-nav">
+  <button class="mn-page" onclick="mobGoPage('great-hall')">The Reading Room</button>
+  <button class="mn-page" id="mn-stacks" onclick="hamExpand('mn-stacks','subs-stacks')">The Stacks <span class="mn-arrow">&#9658;</span></button>
+  <div class="mn-subs" id="subs-stacks">
+    <button class="mn-sub" onclick="mobGoSub('the-stacks','volumes','The Stacks','All Volumes')">All Volumes</button>
+    <button class="mn-sub" onclick="mobGoSub('the-stacks','borrowed','The Stacks','On Loan')">On Loan</button>
+    <button class="mn-sub" onclick="mobGoSub('the-stacks','wanted','The Stacks','The Wish List')">The Wish List</button>
+    <button class="mn-sub" onclick="mobGoSub('the-stacks','reading','The Stacks','Currently Reading')">Currently Reading</button>
+  </div>
+  <button class="mn-page" onclick="mobGoPage('palantir')">The Insights</button>
+  <button class="mn-page" id="mn-annals" onclick="hamExpand('mn-annals','subs-annals')">The Record <span class="mn-arrow">&#9658;</span></button>
+  <div class="mn-subs" id="subs-annals">
+    <button class="mn-sub" onclick="mobGoSub('annals','timeline','The Record','Visual Timeline')">Visual Timeline</button>
+    <button class="mn-sub" onclick="mobGoSub('annals','events','The Record','World Events')">World Events</button>
+    <button class="mn-sub" onclick="mobGoSub('annals','commentary','The Record','World Reflections')">World Reflections</button>
+  </div>
+  <button class="mn-page" id="mn-redbook" onclick="hamExpand('mn-redbook','subs-redbook')">The Study <span class="mn-arrow">&#9658;</span></button>
+  <div class="mn-subs" id="subs-redbook">
+    <button class="mn-sub" onclick="mobGoSub('red-book','dive','The Study','Book Notes')">Book Notes</button>
+    <button class="mn-sub" onclick="mobGoSub('red-book','journal','The Study','My Literary Journey')">My Literary Journey</button>
+  </div>
+</div>
+<div class="mob-bc" id="mob-bc" style="display:none">The Reading Room</div>
+</nav>
+
+
+<!-- ══════════════════ PAGE 1: GREAT HALL ══════════════════ -->
+<div class="page active" id="page-great-hall">
+  <div class="gh-hero">
+    <div class="gh-hero-inner">
+      <div>
+        <div class="gh-title">The Reading Room</div>
+        <div class="gh-sub">Welcome to your personal library</div>
+      </div>
+      <div class="gh-quote-wrap">
+        <div id="q-display">
+          <blockquote id="q-text">"There is nothing like looking, if you want to find something."</blockquote>
+          <cite id="q-attr">— Gandalf, The Hobbit</cite>
+          <button class="btn-edit-q" onclick="toggleQuoteEdit(true)">✎ change quote</button>
+        </div>
+        <div class="quote-edit-form" id="q-edit">
+          <textarea id="q-ta" rows="3" placeholder="Your quote…"></textarea>
+          <input type="text" id="q-attr-ta" placeholder="— Author, Book">
+          <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.4rem">
+            <button class="btn-ghost" style="color:rgba(245,234,212,.5);border-color:rgba(245,234,212,.2)" onclick="toggleQuoteEdit(false)">Cancel</button>
+            <button class="btn-primary" onclick="saveQuote()">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="gh-body">
+    <div class="stat-strip">
+      <div class="stat-tile" onclick="showPage('the-stacks',null);showStacksTab('volumes',null);document.getElementById('f-status').value='';renderTable()" style="cursor:pointer" title="Go to All Volumes"><div class="stn" id="qs-total">0</div><div class="stl">Volumes Held</div></div>
+      <div class="stat-tile" onclick="showPage('the-stacks',null);showStacksTab('volumes',null);document.getElementById('f-status').value='read';renderTable()" style="cursor:pointer" title="Go to Read books"><div class="stn" id="qs-read">0</div><div class="stl">Read</div></div>
+      <div class="stat-tile" onclick="showPage('the-stacks',null);showStacksTab('borrowed',null)" style="cursor:pointer" title="Go to On Loan"><div class="stn" id="qs-loan">0</div><div class="stl">On Loan</div></div>
+      <div class="stat-tile" onclick="showPage('the-stacks',null);showStacksTab('wanted',null)" style="cursor:pointer" title="Go to The Wish List"><div class="stn" id="qs-wish">0</div><div class="stl">Wish List</div></div>
+    </div>
+    <div class="feat-card">
+      <div class="slabel">✦ The Hobbit — Featured Volume</div>
+      <div class="grid-2">
+        <div class="field"><label>Title</label><input type="text" id="feat-title" value="The Hobbit"></div>
+        <div class="field"><label>Author</label><input type="text" id="feat-author" value="J.R.R. Tolkien"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Genre</label>
+          <select id="feat-genre"><option>Art & Culture</option><option>Biography</option><option>Classic Literature</option><option>Comics / Graphic Novel</option><option>Cooking</option><option>Drama / Plays</option><option>Economics</option><option>Education</option><option>Essays / Criticism</option><option selected>Fantasy</option><option>Gardening</option><option>History</option><option>Horror</option><option>Kids</option><option>Literature / Fiction</option><option>Memoir</option><option>Music</option><option>Mystery / Thriller</option><option>Novel</option><option>Nature</option><option>Philosophy</option><option>Poetry</option><option>Politics</option><option>Psychology</option><option>Religion / Spirituality</option><option>Science</option><option>Science Fiction</option><option>Self-Help</option><option>Short Stories</option><option>Travel / Adventure</option><option>Other</option></select>
+        </div>
+        <div class="field"><label>Language</label>
+          <select id="feat-lang">
+            <option value="en" selected>English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-1">
+        <div class="field"><label>Description</label><textarea id="feat-desc" rows="3">The tale of Bilbo Baggins, a hobbit who journeys to the Lonely Mountain with a company of dwarves to reclaim their treasure from the dragon Smaug.</textarea></div>
+      </div>
+      <div class="grid-1">
+        <div class="field"><label>Why I want to read it / My thoughts</label><textarea id="feat-notes" rows="2" placeholder="Add your personal notes…"></textarea></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end"><button class="btn-primary" onclick="saveFeatured()">Save Changes</button></div>
+      <div class="feat-tags" id="feat-tags"></div>
+    </div>
+    <div class="sidebar">
+      <div class="side-card">
+        <div class="slabel">The Notice Board</div>
+        <textarea class="notice-ta" id="notice-input" placeholder="Paste an article, note or link about books…&#10;&#10;Click Pin to Board to save it."></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:.6rem"><button class="btn-gold" onclick="addNotice()">📌 Pin to Board</button></div>
+        <div class="notice-list" id="notice-list"></div>
+      </div>
+      <div class="side-card">
+        <div class="slabel">Currently Reading</div>
+        <div id="reading-list"><div class="reading-empty">The shelves await their readers…</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 2: THE STACKS ══════════════════ -->
+<div class="page" id="page-the-stacks">
+  <div class="p-hero">
+    <div class="p-hero-inner">
+      <div><div class="p-hero-title">The Stacks</div><div class="p-hero-sub" id="stacks-sub">All Volumes</div></div>
+    </div>
+  </div>
+  <div class="page-tabs" id="stacks-tabs">
+    <button class="page-tab active" onclick="showStacksTab('volumes',this)">All Volumes</button>
+    <button class="page-tab" onclick="showStacksTab('borrowed',this)">On Loan</button>
+    <button class="page-tab" onclick="showStacksTab('wanted',this)">The Wish List</button>
+    <button class="page-tab" onclick="showStacksTab('reading',this)">Currently Reading</button>
+  </div>
+
+  <!-- ALL VOLUMES -->
+  <div class="tab-panel active" id="stacks-volumes">
+    <div class="stacks-topbar"><button class="btn-primary" onclick="toggleAddForm()">+ Add a Book</button></div>
+    <div class="add-modal-bg" id="add-form-wrap" onclick="if(event.target===this)closeAddForm()">
+    <div class="add-modal-box">
+      <button class="add-modal-close" onclick="closeAddForm()">&#10005;</button>
+      <div class="add-modal-title">Add a Book</div>
+      <div class="grid-5">
+          <div class="field"><label>Title</label><input type="text" id="in-title" placeholder="Book title…"></div>
+          <div class="field"><label>Author</label><input type="text" id="in-author" placeholder="Author name…"></div>
+          <div class="field"><label>Genre</label>
+            <select id="in-genre"><option value="">Select…</option><option>Art & Culture</option><option>Biography</option><option>Classic Literature</option><option>Comics / Graphic Novel</option><option>Cooking</option><option>Drama / Plays</option><option>Economics</option><option>Education</option><option>Essays / Criticism</option><option>Fantasy</option><option>Gardening</option><option>History</option><option>Horror</option><option>Kids</option><option>Literature / Fiction</option><option>Memoir</option><option>Music</option><option>Mystery / Thriller</option><option>Novel</option><option>Nature</option><option>Philosophy</option><option>Poetry</option><option>Politics</option><option>Psychology</option><option>Religion / Spirituality</option><option>Science</option><option>Science Fiction</option><option>Self-Help</option><option>Short Stories</option><option>Travel / Adventure</option><option>Other</option></select>
+          </div>
+          <div class="field"><label>Language</label>
+            <select id="in-lang"><option value="">Select…</option><option value="en">English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option></select>
+          </div>
+          <div class="field"><label>Status</label>
+            <select id="in-status"><option value="unread">Unread</option><option value="reading">Currently Reading</option><option value="read">Read</option></select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label>Year Published</label><input type="number" id="in-year" placeholder="e.g. 1954" min="0" max="2099"></div>
+          <div class="field"><label>Banned?</label>
+            <select id="in-banned"><option value="no">No</option><option value="yes">Banned</option><option value="challenged">Challenged</option></select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-ghost" onclick="closeAddForm()">Cancel</button>
+          <button class="btn-primary" onclick="addBook()">Add to Vault</button>
+        </div>
+      </div>
+    </div>
+  <div class="sort-bar">
+      <label>Sort by</label>
+      <select id="sort-by" onchange="renderTable()">
+        <option value="num">Catalogue</option>
+        <option value="author-az">Author A to Z</option>
+        <option value="author-za">Author Z to A</option>
+        <option value="title-az">Title A to Z</option>
+        <option value="title-za">Title Z to A</option>
+        <option value="year-asc">Year oldest first</option>
+        <option value="year-desc">Year newest first</option>
+      </select>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="f-search" placeholder="Search title or author…" oninput="renderTable()">
+      <select id="f-genre" onchange="renderTable()"><option value="">All Genres</option><option>Art & Culture</option><option>Biography</option><option>Classic Literature</option><option>Comics / Graphic Novel</option><option>Cooking</option><option>Drama / Plays</option><option>Economics</option><option>Education</option><option>Essays / Criticism</option><option>Fantasy</option><option>Gardening</option><option>History</option><option>Horror</option><option>Kids</option><option>Literature / Fiction</option><option>Memoir</option><option>Music</option><option>Mystery / Thriller</option><option>Novel</option><option>Nature</option><option>Philosophy</option><option>Poetry</option><option>Politics</option><option>Psychology</option><option>Religion / Spirituality</option><option>Science</option><option>Science Fiction</option><option>Self-Help</option><option>Short Stories</option><option>Travel / Adventure</option><option>Other</option></select>
+      <select id="f-lang" onchange="renderTable()"><option value="">All Languages</option><option value="en">English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option></select>
+      <select id="f-status" onchange="renderTable()"><option value="">All Status</option><option value="reading">Reading</option><option value="read">Read</option><option value="unread">Unread</option></select>
+      <select id="f-banned" onchange="renderTable()"><option value="">All Books</option><option value="yes">Banned</option><option value="challenged">Challenged</option></select>
+      <span class="filter-count" id="filter-count"></span>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Title</th><th>Author</th><th>Genre</th><th>Language</th><th>Year</th><th>Status</th><th>Banned</th><th></th></tr></thead>
+      <tbody id="book-tbody"></tbody></table>
+      <div id="tbl-empty" class="tbl-empty" style="display:none"><p>The stacks are empty — add your first book above.</p></div>
+    </div>
+    <div id="mob-book-cards" style="padding:0 1rem 2rem"></div>
+  </div>
+
+  <!-- BORROWED SHELF -->
+  <div class="tab-panel" id="stacks-borrowed">
+    <div class="p-body">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem"><button class="btn-primary" onclick="toggleBorrowForm()">+ Lend a Book</button></div>
+      <div class="toggle-form" id="borrow-form">
+        <div class="card card-lg">
+          <div class="grid-3">
+            <div class="field"><label>Book Title</label><div class="ac-wrap"><input type="text" id="b-title" placeholder="Book title..." oninput="acOpen('b-title','ac-bt')" onblur="setTimeout(function(){var l=document.getElementById('ac-bt');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off"><div class="ac-list" id="ac-bt"></div></div></div>
+            <div class="field"><label>Borrower Name</label><input type="text" id="b-reader" placeholder="Who is borrowing it…"></div>
+            <div class="field"><label>Date Loaned</label><input type="date" id="b-date"></div>
+          </div>
+          <div class="grid-3">
+            <div class="field"><label>Expected Return</label><input type="date" id="b-return"></div>
+            <div class="field"><label>Phone / Contact</label><input type="text" id="b-contact" placeholder="Optional…"></div>
+            <div class="field"><label>Notes</label><input type="text" id="b-notes" placeholder="Any notes…"></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-ghost" onclick="toggleBorrowForm()">Cancel</button>
+            <button class="btn-primary" onclick="addLoan()">Record Loan</button>
+          </div>
+        </div>
+      </div>
+      <div id="loans-list"><div class="empty-state"><p>No books currently on loan.</p></div></div>
+    </div>
+  </div>
+
+  <!-- WANTED BOOKS -->
+  <div class="tab-panel" id="stacks-wanted">
+    <div class="p-body">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem"><button class="btn-primary" onclick="toggleWantedForm()">+ Add a Book</button></div>
+      <div class="toggle-form" id="wanted-form">
+        <div class="card card-lg">
+          <div class="grid-3">
+            <div class="field"><label>Title</label><input type="text" id="w-title" placeholder="Title…"></div>
+            <div class="field"><label>Author</label><input type="text" id="w-author" placeholder="Author…"></div>
+            <div class="field"><label>Genre</label>
+              <select id="w-genre"><option value="">Select…</option><option>Art & Culture</option><option>Biography</option><option>Classic Literature</option><option>Comics / Graphic Novel</option><option>Cooking</option><option>Drama / Plays</option><option>Economics</option><option>Education</option><option>Essays / Criticism</option><option>Fantasy</option><option>Gardening</option><option>History</option><option>Horror</option><option>Kids</option><option>Literature / Fiction</option><option>Memoir</option><option>Music</option><option>Mystery / Thriller</option><option>Novel</option><option>Nature</option><option>Philosophy</option><option>Poetry</option><option>Politics</option><option>Psychology</option><option>Religion / Spirituality</option><option>Science</option><option>Science Fiction</option><option>Self-Help</option><option>Short Stories</option><option>Travel / Adventure</option><option>Other</option></select>
+            </div>
+          </div>
+          <div class="grid-3">
+            <div class="field"><label>Language</label>
+              <select id="w-lang"><option value="">Select…</option><option value="en">English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option></select>
+            </div>
+            <div class="field"><label>Where to Find</label><input type="text" id="w-source" placeholder="Shop, website…"></div>
+            <div class="field"><label>Priority</label>
+              <select id="w-priority"><option value="normal">Normal</option><option value="high">High — really want it</option><option value="low">Low — someday</option></select>
+            </div>
+          </div>
+          <div class="grid-1">
+            <div class="field"><label>Notes</label><textarea id="w-notes" rows="2" placeholder="What drew you to this book…"></textarea></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-ghost" onclick="toggleWantedForm()">Cancel</button>
+            <button class="btn-primary" onclick="addWanted()">To the List</button>
+          </div>
+        </div>
+      </div>
+      <div id="wanted-list"><div class="empty-state"><p>Your wanted list is empty.</p></div></div>
+    </div>
+  </div>
+
+  <!-- NOW READING -->
+  <div class="tab-panel" id="stacks-reading">
+    <div class="p-body">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+        <button class="btn-primary" onclick="toggleReadingForm()">+ Currently Reading</button>
+      </div>
+      <div class="toggle-form" id="reading-form">
+        <div class="card card-lg" style="margin-bottom:1.5rem">
+          <div class="grid-2">
+            <div class="field"><label>Book Title</label>
+              <div class="ac-wrap"><input type="text" id="rg-book" placeholder="Start typing a title..." oninput="acOpen('rg-book','ac-rg')" onblur="setTimeout(function(){var l=document.getElementById('ac-rg');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off"><div class="ac-list" id="ac-rg"></div></div>
+              
+            </div>
+            <div class="field"><label>Reader</label>
+              <input type="text" id="rg-reader" placeholder="Who walks these pages...">
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label>Started Reading</label><input type="date" id="rg-start"></div>
+            <div class="field"><label>Finish By (Goal)</label><input type="date" id="rg-target"></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-ghost" onclick="toggleReadingForm()">Cancel</button>
+            <button class="btn-primary" onclick="addReadingEntry()">Start Tracking</button>
+          </div>
+        </div>
+      </div>
+      <div id="reading-goals-list"><div class="empty-state"><p>Nothing being tracked yet — add a book above.</p></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════ PAGE 3: PALANTÍR ══════════════════ -->
+<div class="page" id="page-palantir">
+  <div class="p-hero"><div class="p-hero-inner"><div><div class="p-hero-title">The Insights</div><div class="p-hero-sub">The patterns of your collection</div></div></div></div>
+  <div class="p-body">
+    <div id="pal-empty" class="empty-state" style="display:none"><p>Add books to your collection to see your statistics.</p></div>
+    <div id="pal-content">
+      <div class="charts-grid">
+        <div class="chart-card"><h3>By Genre <button class="btn-expand-chart" onclick="openPalDetail('genre')">Expand</button></h3><div class="ch-wrap ch-donut"><canvas id="ch-genre"></canvas></div></div>
+        <div class="chart-card"><h3>Read vs Unread <button class="btn-expand-chart" onclick="openPalDetail('status')">Expand</button></h3><div class="ch-wrap ch-donut"><canvas id="ch-status"></canvas></div></div>
+        <div class="chart-card"><h3>By Language <button class="btn-expand-chart" onclick="openPalDetail('language')">Expand</button></h3><div class="ch-wrap ch-donut"><canvas id="ch-lang"></canvas></div></div>
+        <div class="chart-card"><h3>Top Authors <button class="btn-expand-chart" onclick="openPalDetail('authors')">Expand</button></h3><div class="ch-wrap ch-bar"><canvas id="ch-authors"></canvas></div></div>
+        <div class="chart-card chart-wide"><h3>Collection by Genre — Full Breakdown</h3><div class="ch-wrap ch-hbar"><canvas id="ch-genre-bar"></canvas></div></div>
+      </div>
+      <div class="chart-card" style="margin-top:1.5rem">
+        <h3>Banned &amp; Challenged <button class="btn-expand-chart" onclick="openPalDetail('banned')">Expand</button></h3>
+        <div id="banned-wrap"><div class="no-data-msg">No banned or challenged books recorded yet.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 4: THE ANNALS ══════════════════ -->
+<div class="page" id="page-annals">
+  <div class="p-hero"><div class="p-hero-inner"><div><div class="p-hero-title">The Record</div><div class="p-hero-sub" id="annals-sub">Visual Timeline</div></div></div></div>
+  <div class="page-tabs" id="annals-tabs">
+    <button class="page-tab active" onclick="showAnnalsTab('timeline',this)">Visual Timeline</button>
+    <button class="page-tab" onclick="showAnnalsTab('events',this)">World Events</button>
+    <button class="page-tab" onclick="showAnnalsTab('commentary',this)">World Reflections</button>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="tab-panel active" id="annals-timeline">
+    <div class="tl-controls">
+      <select id="tl-type" onchange="renderTimeline()"><option value="">All types</option><option value="book">Books</option><option value="ban">Banned</option><option value="historical">Historical</option><option value="political">Political</option><option value="personal">Personal</option><option value="cultural">Cultural</option></select>
+      <input type="text" id="tl-q" placeholder="Search timeline…" oninput="renderTimeline()">
+      <div class="tl-legend">
+        <span class="dot-row"><span class="dot dot-book"></span>Book</span>
+        <span class="dot-row"><span class="dot dot-ban"></span>Banned</span>
+        <span class="dot-row"><span class="dot dot-hist"></span>Historical</span>
+        <span class="dot-row"><span class="dot dot-pol"></span>Political</span>
+        <span class="dot-row"><span class="dot dot-per"></span>Personal</span>
+        <span class="dot-row"><span class="dot dot-cul"></span>Cultural</span>
+      </div>
+    </div>
+    <div class="tl-wrap" id="tl-wrap"></div>
+  </div>
+
+  <!-- WORLD EVENTS -->
+  <div class="tab-panel" id="annals-events">
+    <div class="p-body">
+      <div style="text-align:right;padding:.5rem 0 .8rem"><button class="btn-primary" onclick="openEventModal()">+ Add World Event</button></div>
+<div class="add-modal-bg" id="event-modal" onclick="if(event.target===this)closeEventModal()">
+  <div class="add-modal-box">
+    <button class="add-modal-close" onclick="closeEventModal()">&#10005;</button>
+    <div class="add-modal-title">Add World Event</div>
+    <div class="card card-l">
+        <div class="slabel">Add a World Event</div>
+        <div class="grid-3">
+          <div class="field"><label>Year</label><input type="number" id="ev-year" placeholder="e.g. 1939" min="0" max="2099"></div>
+          <div class="field"><label>Event Title</label><input type="text" id="ev-title" placeholder="Name of the event…"></div>
+          <div class="field"><label>Category</label>
+            <select id="ev-type"><option value="historical">Historical</option><option value="political">Political</option><option value="personal">Personal</option><option value="cultural">Cultural</option></select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label>Linked Book (optional)</label><div class="ac-wrap"><input type="text" id="ev-book" placeholder="Linked book title..." oninput="acOpen('ev-book','ac-ev')" onblur="setTimeout(function(){var l=document.getElementById('ac-ev');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off"><div class="ac-list" id="ac-ev"></div></div></div>
+          <div class="field"><label>Location / Country</label><input type="text" id="ev-location" placeholder="e.g. Germany, Global…"></div>
+        </div>
+        <div class="grid-1">
+          <div class="field"><label>Description</label><textarea id="ev-desc" rows="3" placeholder="Describe the event and its connection to your reading life…"></textarea></div>
+        </div>
+        <div class="form-actions"><button class="btn-primary" onclick="addEvent()">Add to the Annals</button></div>
+      </div>
+  </div>
+</div>
+      <div id="events-list"><div class="empty-state"><p>No world events yet — add one above.</p></div></div>
+    </div>
+  </div>
+
+  <!-- COMMENTARY -->
+  <div class="tab-panel" id="annals-commentary">
+    <div class="p-body">
+      <div style="text-align:right;padding:.5rem 0 .8rem"><button class="btn-primary" onclick="openCommentModal()">+ New Reflection</button></div>
+<div class="add-modal-bg" id="comment-modal" onclick="if(event.target===this)closeCommentModal()">
+  <div class="add-modal-box">
+    <button class="add-modal-close" onclick="closeCommentModal()">&#10005;</button>
+    <div class="add-modal-title">New Reflection</div>
+    <div class="card card-l">
+        <div class="slabel">New Entry</div>
+        <div class="grid-1">
+          <div class="field"><textarea id="cm-body" rows="5" placeholder="Write your insight, commentary, or reflection on a book, event, or story that moved you…"></textarea></div>
+        </div>
+        <div class="grid-3">
+          <div class="field"><label>Book / Subject</label><div class="ac-wrap"><input type="text" id="cm-book" placeholder="Book title..." oninput="acOpen('cm-book','ac-cm')" onblur="setTimeout(function(){var l=document.getElementById('ac-cm');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off"><div class="ac-list" id="ac-cm"></div></div></div>
+          <div class="field"><label>Entry Type</label>
+            <select id="cm-type"><option value="insight">Insight</option><option value="review">Review</option><option value="commentary">Commentary</option><option value="note">Note</option></select>
+          </div>
+          <div class="field"><label>Author (optional)</label><input type="text" id="cm-author" placeholder="Author name…"></div>
+        </div>
+        <div class="form-actions"><button class="btn-primary" onclick="addComment()">Post Entry</button></div>
+      </div>
+  </div>
+</div>
+      <div class="feed" id="comment-feed"><div class="feed-empty">No entries yet — write your first insight above.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 5: THE RED BOOK ══════════════════ -->
+<div class="page" id="page-red-book">
+  <div class="p-hero"><div class="p-hero-inner"><div><div class="p-hero-title">The Study</div><div class="p-hero-sub" id="rb-sub">Book Notes</div></div></div></div>
+  <div class="page-tabs" id="rb-tabs">
+    <button class="page-tab active" onclick="showRBTab('dive',this)">Book Notes</button>
+    <button class="page-tab" onclick="showRBTab('journal',this)">My Literary Journey</button>
+  </div>
+
+  <!-- DEEP DIVE -->
+  <div class="tab-panel active" id="rb-dive">
+    <div class="p-body">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+        <button class="btn-primary" onclick="toggleDiveForm()">+ New Deep Dive</button>
+      </div>
+      <!-- ADD FORM -->
+      <div class="toggle-form" id="dive-form">
+        <div class="card card-l" style="margin-bottom:1.5rem">
+          <div class="grid-2">
+            <div class="field"><label>Select Book</label>
+              <select id="rb-select" onchange="loadDiveBook()">
+                <option value="">— choose from your collection —</option>
+              </select>
+            </div>
+            <div id="rb-book-meta" style="display:flex;align-items:flex-end;padding-bottom:.5rem">
+              <span style="font-family:'Georgia',serif;font-style:italic;font-size:.95rem;color:var(--tmuted)" id="rb-book-hint">Select a book to fill details automatically</span>
+            </div>
+          </div>
+          <div class="grid-1"><div class="field"><label>Description / What this book is about</label><textarea id="rb-desc" rows="3" placeholder="Write a description…"></textarea></div></div>
+          <div class="grid-2">
+            <div class="field"><label>Favourite Quote</label><textarea id="rb-quote" rows="3" placeholder='"The greatest adventure…"' style="font-family:'Georgia',serif;font-style:italic;font-size:.95rem"></textarea></div>
+            <div class="field"><label>Favourite Character</label><input type="text" id="rb-char" placeholder="Name and why they stayed with you…"></div>
+          </div>
+          <div class="grid-1"><div class="field"><label>My Thoughts &amp; Personal Reflection</label><textarea id="rb-thoughts" rows="4" placeholder="How did this book affect you?…"></textarea></div></div>
+          <div class="slabel" style="margin-top:.5rem">Ban &amp; Censorship Record</div>
+          <div class="grid-3">
+            <div class="field"><label>Status</label>
+              <select id="rb-banned"><option value="no">Not banned</option><option value="yes">Banned</option><option value="challenged">Challenged</option></select>
+            </div>
+            <div class="field"><label>Where Banned</label><input type="text" id="rb-where" placeholder="Country / Region…"></div>
+            <div class="field"><label>When Banned</label><input type="text" id="rb-when" placeholder="Year or period…"></div>
+          </div>
+          <div class="grid-1"><div class="field"><label>Ban Details</label><textarea id="rb-bandetails" rows="2" placeholder="Why was it banned?…"></textarea></div></div>
+          <div class="form-actions">
+            <button class="btn-ghost" onclick="toggleDiveForm()">Cancel</button>
+            <button class="btn-primary" onclick="saveDive()">Save Deep Dive</button>
+          </div>
+        </div>
+      </div>
+      <!-- SAVED DIVES FEED -->
+      <div id="dives-feed"><div class="empty-state"><p>No deep dives yet — click New Deep Dive to document a book.</p></div></div>
+    </div>
+  </div>
+
+  <!-- LITERARY JOURNAL -->
+  <div class="tab-panel" id="rb-journal">
+    <div class="p-body">
+      <div style="text-align:right;padding:.5rem 0 .8rem"><button class="btn-primary" onclick="openJournalModal()">+ New Journal Entry</button></div>
+<div class="add-modal-bg" id="journal-modal" onclick="if(event.target===this)closeJournalModal()">
+  <div class="add-modal-box">
+    <button class="add-modal-close" onclick="closeJournalModal()">&#10005;</button>
+    <div class="add-modal-title">New Journal Entry</div>
+    <div class="card card-l">
+        <div class="slabel">New Journal Entry</div>
+        <div class="grid-1"><div class="field"><textarea id="j-body" rows="6" placeholder="Write your analysis, reflection, or literary insight…&#10;&#10;This is your private space — write freely."></textarea></div></div>
+        <div class="grid-3">
+          <div class="field"><label>Book / Subject</label><div class="ac-wrap"><input type="text" id="j-book" placeholder="Book title..." oninput="acOpen('j-book','ac-jb')" onblur="setTimeout(function(){var l=document.getElementById('ac-jb');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off"><div class="ac-list" id="ac-jb"></div></div></div>
+          <div class="field"><label>Entry Type</label>
+            <select id="j-type"><option value="analysis">Analysis</option><option value="reflection">Reflection</option><option value="review">Review</option><option value="insight">Insight</option><option value="note">Note</option></select>
+          </div>
+          <div class="field"><label>Author (optional)</label><input type="text" id="j-author" placeholder="Author name…"></div>
+        </div>
+        <div class="form-actions"><button class="btn-primary" onclick="addJournal()">Post to Journal</button></div>
+      </div>
+  </div>
+</div>
+      <div class="feed" id="journal-feed"><div class="feed-empty">No journal entries yet — write your first one above.</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+const SK = 'redbook_v1';
+let data = { books:[], loans:[], wishlist:[], notices:[], events:[], comments:[], journal:[], dives:{}, featured:{}, quote:{}, reading:[], readingGoals:{}, readingEntries:[], impressum:{}, entryComments:{} };
+
+function load() {
+  try { const r=localStorage.getItem(SK); if(r){ const d=JSON.parse(r); Object.keys(d).forEach(k=>data[k]=d[k]); } } catch(e){}
+}
+function save() {
+  try { localStorage.setItem(SK,JSON.stringify(data)); } catch(e){}
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links li>button').forEach(b=>b.classList.remove('active'));
+  const pg = document.getElementById('page-'+name);
+  if(pg) pg.classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='palantir') renderCharts();
+  if(name==='annals')   renderTimeline();
+  if(name==='red-book') { populateRBSelect(); renderDives(); renderJournal(); }
+}
+
+function showStacksTab(name, btn) {
+  document.querySelectorAll('#page-the-stacks .tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#stacks-tabs .page-tab').forEach(b=>b.classList.remove('active'));
+  const panel = document.getElementById('stacks-'+name);
+  if(panel) panel.classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='borrowed') renderLoans();
+  if(name==='wanted')   renderWanted();
+  if(name==='reading')  renderReadingGoals();
+  var labels = {volumes:'All Volumes', borrowed:'On Loan', wanted:'The Wish List', reading:'Currently Reading'};
+  var el = document.getElementById('stacks-sub');
+  if(el) el.textContent = labels[name] || name;
+}
+
+function showAnnalsTab(name, btn) {
+  document.querySelectorAll('#page-annals .tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#annals-tabs .page-tab').forEach(b=>b.classList.remove('active'));
+  const panel = document.getElementById('annals-'+name);
+  if(panel) panel.classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='timeline') renderTimeline();
+  if(name==='events')   renderEvents();
+  if(name==='commentary') renderComments();
+  var labels = {timeline:'Visual Timeline', events:'World Events', commentary:'World Reflections'};
+  var el = document.getElementById('annals-sub');
+  if(el) el.textContent = labels[name] || name;
+}
+
+function showRBTab(name, btn) {
+  document.querySelectorAll('#page-red-book .tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#rb-tabs .page-tab').forEach(b=>b.classList.remove('active'));
+  const panel = document.getElementById('rb-'+name);
+  if(panel) panel.classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='dive')    { populateRBSelect(); renderDives(); }
+  if(name==='journal') renderJournal();
+  var labels = {dive:'Book Notes', journal:'My Literary Journey'};
+  var el = document.getElementById('rb-sub');
+  if(el) el.textContent = labels[name] || name;
+}
+
+// ── QUOTE ─────────────────────────────────────────────────────────
+function toggleQuoteEdit(on) {
+  document.getElementById('q-display').style.display = on?'none':'block';
+  document.getElementById('q-edit').style.display    = on?'block':'none';
+  if(on) {
+    document.getElementById('q-ta').value      = data.quote.text || document.getElementById('q-text').textContent;
+    document.getElementById('q-attr-ta').value = data.quote.attr || document.getElementById('q-attr').textContent;
+  }
+}
+function saveQuote() {
+  const text=document.getElementById('q-ta').value.trim();
+  const attr=document.getElementById('q-attr-ta').value.trim();
+  if(!text) return;
+  data.quote={text,attr}; save();
+  document.getElementById('q-text').textContent=text;
+  document.getElementById('q-attr').textContent=attr;
+  toggleQuoteEdit(false);
+}
+function loadQuote() {
+  if(data.quote && data.quote.text) {
+    document.getElementById('q-text').textContent=data.quote.text;
+    document.getElementById('q-attr').textContent=data.quote.attr||'';
+  }
+}
+
+// ── FEATURED ──────────────────────────────────────────────────────
+function saveFeatured() {
+  data.featured={ title:document.getElementById('feat-title').value, author:document.getElementById('feat-author').value, genre:document.getElementById('feat-genre').value, lang:document.getElementById('feat-lang').value, desc:document.getElementById('feat-desc').value, notes:document.getElementById('feat-notes').value };
+  save(); renderFeatTags();
+  const btn=document.querySelector('#page-great-hall .btn-primary');
+  if(btn){ btn.textContent='✓ Saved'; setTimeout(()=>btn.textContent='Save Changes',2000); }
+}
+function loadFeatured() {
+  if(!data.featured||!data.featured.title) return;
+  const f=data.featured;
+  ['title','author','desc','notes'].forEach(k=>{ const el=document.getElementById('feat-'+k); if(el) el.value=f[k]||''; });
+  if(f.genre) document.getElementById('feat-genre').value=f.genre;
+  if(f.lang)  document.getElementById('feat-lang').value=f.lang;
+  renderFeatTags();
+}
+function renderFeatTags() {
+  const g=document.getElementById('feat-genre').value;
+  const l=document.getElementById('feat-lang').value;
+  const L={en:'English',sq:'Albanian',de:'German',other:'Other'};
+  document.getElementById('feat-tags').innerHTML=`<span class="tag tag-g">${esc(g)}</span><span class="tag tag-l">${L[l]||l}</span>`;
+}
+
+// ── NOTICES ───────────────────────────────────────────────────────
+function addNotice() {
+  const txt=document.getElementById('notice-input').value.trim(); if(!txt) return;
+  data.notices.unshift({id:Date.now(),text:txt,date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})});
+  save(); renderNotices(); document.getElementById('notice-input').value='';
+}
+function deleteNotice(id) { data.notices=data.notices.filter(n=>n.id!==id); save(); renderNotices(); }
+function renderNotices() {
+  const el=document.getElementById('notice-list');
+  el.innerHTML=data.notices.slice(0,8).map(n=>`
+    <div class="notice-item">
+      <button class="ni-del" onclick="deleteNotice(${n.id})">✕</button>
+      <div class="ni-date">${n.date}</div>
+      <div class="ni-text">${esc(n.text)}</div>
+    </div>`).join('');
+}
+
+// ── STATS ─────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('qs-total').textContent = data.books.length;
+  document.getElementById('qs-read').textContent  = data.books.filter(b=>b.status==='read').length;
+  document.getElementById('qs-loan').textContent  = data.loans.filter(l=>!l.returned).length;
+  document.getElementById('qs-wish').textContent  = data.wishlist.length;
+  const reading=(data.readingEntries||[]).filter(e=>!e.done);
+  const el=document.getElementById('reading-list');
+  const rcols=['#3a5e8a','#6a4a9e','#4a8a6e','#b07828','#a03030','#4a8e9e'];
+  el.innerHTML=reading.length
+    ? reading.map((e,i)=>{
+        const daysLeft = e.target ? Math.ceil((new Date(e.target)-new Date())/(1000*60*60*24)) : null;
+        const hint = daysLeft===null ? '' : daysLeft<0
+          ? '<div style="font-size:.68rem;color:#a03030;font-family:Crimson Pro,serif">Overdue by '+Math.abs(daysLeft)+' days</div>'
+          : '<div style="font-size:.68rem;color:#aa9060;font-family:Crimson Pro,serif">'+daysLeft+' day'+(daysLeft!==1?'s':'')+' left</div>';
+        return '<div class="reading-item"><div class="r-spine" style="background:'+rcols[i%rcols.length]+'"></div><div><div class="r-title">'+esc(e.title)+'</div><div class="r-who">'+esc(e.reader)+'</div>'+hint+'</div></div>';
+      }).join('')
+    : '<div class="reading-empty">The shelves await their readers…</div>';
+}
+
+// ── BOOKS ─────────────────────────────────────────────────────────
+function toggleAddForm() {
+  var w = document.getElementById('add-form-wrap');
+  w.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  var t = document.getElementById('in-title');
+  if(t) setTimeout(function(){ t.focus(); }, 100);
+}
+function closeAddForm() {
+  var w = document.getElementById('add-form-wrap');
+  w.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function addBook() {
+  const title=document.getElementById('in-title').value.trim();
+  const author=document.getElementById('in-author').value.trim();
+  const genre=document.getElementById('in-genre').value;
+  const lang=document.getElementById('in-lang').value;
+  if(!title||!author||!genre||!lang){ alert('Please fill in Title, Author, Genre and Language.'); return; }
+  var nextNum=data.books.length>0?Math.max.apply(null,data.books.map(function(b){return b.num||0;}))+1:1;
+  data.books.push({id:Date.now(),num:nextNum,title,author,genre,lang,status:document.getElementById('in-status').value,year:document.getElementById('in-year').value.trim(),banned:document.getElementById('in-banned').value});
+  save(); renderTable(); updateStats();
+  ['in-title','in-author','in-year'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('in-genre').value=''; document.getElementById('in-lang').value=''; document.getElementById('in-status').value='unread'; document.getElementById('in-banned').value='no';
+  closeAddForm();
+}
+function deleteBook(id) {
+  var bid=Number(id); data.books=data.books.filter(function(b){return Number(b.id)!==bid;}); save(); renderTable(); updateStats();
+}
+const LANG_L={en:'English',sq:'Albanian',de:'German',other:'Other'};
+const BAN_L={no:'—',yes:'Banned',challenged:'Challenged'};
+function getLastName(author) {
+  if (!author) return '';
+  var parts = author.trim().split(' ');
+  return parts[parts.length - 1].toLowerCase();
+}
+function renderTable() {
+  var q=(document.getElementById('f-search')||{value:''}).value.toLowerCase();
+  var fg=(document.getElementById('f-genre')||{value:''}).value;
+  var fl=(document.getElementById('f-lang')||{value:''}).value;
+  var fs=(document.getElementById('f-status')||{value:''}).value;
+  var fb=(document.getElementById('f-banned')||{value:''}).value;
+  var sb=(document.getElementById('sort-by')||{value:'num'}).value;
+  var filtered=data.books.filter(function(b){
+    return (!q||b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q))
+      &&(!fg||b.genre===fg)&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb);
+  });
+  filtered.sort(function(a,b){
+    switch(sb){
+      case 'author-az': return getLastName(a.author).localeCompare(getLastName(b.author));
+      case 'author-za': return getLastName(b.author).localeCompare(getLastName(a.author));
+      case 'title-az':  return (a.title||'').toLowerCase().localeCompare((b.title||'').toLowerCase());
+      case 'title-za':  return (b.title||'').toLowerCase().localeCompare((a.title||'').toLowerCase());
+      case 'year-asc':  return (parseInt(a.year)||0)-(parseInt(b.year)||0);
+      case 'year-desc': return (parseInt(b.year)||0)-(parseInt(a.year)||0);
+      default:          return (a.num||0)-(b.num||0);
+    }
+  });
+  var tbody=document.getElementById('book-tbody');
+  var empty=document.getElementById('tbl-empty');
+  if(!tbody) return;
+  if(!data.books.length){tbody.innerHTML='';empty.style.display='block';}
+  else{
+    empty.style.display='none';
+    var rows='';
+    filtered.forEach(function(b){
+      var bc=b.banned==='yes'?'#a03030':b.banned==='challenged'?'#8a6010':'rgba(42,30,14,.28)';
+      rows+='<tr>'
+        
+        +'<td class="t-title">'+esc(b.title)+'</td>'
+        +'<td class="t-author">'+esc(b.author||'')+'</td>'
+        +'<td><span class="pill">'+esc(b.genre||'')+'</span></td>'
+        +'<td><span class="lang-dot '+(b.lang||'ot')+'">'+(LANG_L[b.lang]||b.lang||'')+'</span></td>'
+        +'<td class="t-year">'+esc(b.year||'--')+'</td>'
+        +'<td><span class="badge badge-'+b.status+'">'+b.status+'</span></td>'
+        +'<td style="font-size:.8rem;color:'+bc+'">'+(BAN_L[b.banned]||'--')+'</td>'
+        +'<td style="display:flex;gap:.3rem;align-items:center">'
+        +'<button class="btn-icon-edit" title="Deep Dive" onclick="openBookDive('+b.id+')">&#128218;</button>'
+        +'<button class="btn-icon-edit" title="Edit" onclick="openEditBook('+b.id+')">&#9998;</button>'
+        +'<button class="btn-del" onclick="deleteBook('+b.id+')">&#10005;</button>'
+        +'</td></tr>';
+    });
+    tbody.innerHTML=rows;
+  }
+  var fc=document.getElementById('filter-count');
+  if(fc) fc.textContent=filtered.length!==data.books.length
+    ?filtered.length+' of '+data.books.length+' books'
+    :data.books.length+' book'+(data.books.length!==1?'s':'');
+  renderMobBooks();
+}
+
+function toggleBorrowForm(){
+  document.getElementById('borrow-form').classList.add('open');
+  var t=document.getElementById('b-title');if(t)setTimeout(function(){t.focus();},100);
+}
+function closeBorrowForm(){
+  closeBorrowForm();
+}
+function addLoan() {
+  const title=document.getElementById('b-title').value.trim();
+  const reader=document.getElementById('b-reader').value.trim();
+  if(!title||!reader){ alert('Please enter a book title and borrower name.'); return; }
+  data.loans.push({id:Date.now(),bookTitle:title,reader,contact:document.getElementById('b-contact').value.trim(),date:document.getElementById('b-date').value,returnDate:document.getElementById('b-return').value,notes:document.getElementById('b-notes').value.trim(),returned:false});
+  save(); renderLoans(); updateStats();
+  ['b-title','b-reader','b-contact','b-return','b-notes'].forEach(id=>document.getElementById(id).value='');
+  closeBorrowForm();
+}
+function markReturned(id) { const l=data.loans.find(l=>l.id===id); if(l){l.returned=true;save();renderLoans();updateStats();} }
+function deleteLoan(id) { var lid=Number(id); data.loans=data.loans.filter(function(l){return Number(l.id)!==lid;}); save(); renderLoans(); updateStats(); }
+function renderLoans() {
+  const el=document.getElementById('loans-list'); if(!el) return;
+  const all=[...data.loans.filter(l=>!l.returned),...data.loans.filter(l=>l.returned)];
+  if(!all.length){ el.innerHTML='<div class="empty-state"><p>No books currently on loan.</p></div>'; return; }
+  el.innerHTML='<div class="cards-grid">'+all.map(l=>`
+    <div class="item-card${l.returned?' returned':''}">
+      <button class="ic-del" onclick="deleteLoan(${l.id})">✕</button>
+      <div class="ic-title">${esc(l.bookTitle)}</div>
+      <div class="ic-meta">${esc(l.reader)}</div>
+      <div class="ic-detail">
+        ${l.contact?'<div>📞 <span>'+esc(l.contact)+'</span></div>':''}
+        ${l.date?'<div>📅 Loaned: <span>'+l.date+'</span></div>':''}
+        ${l.returnDate?'<div>🔄 Return by: <span>'+l.returnDate+'</span></div>':''}
+        ${l.notes?'<div>📝 '+esc(l.notes)+'</div>':''}
+      </div>
+      <div class="ic-actions">
+        ${l.returned?'<span style="font-family:\'Crimson Pro\',serif;font-size:.78rem;color:var(--gold2)">✓ Returned</span>':'<button class="btn-primary" onclick="markReturned('+l.id+')">Mark Returned</button>'}
+      </div>
+    </div>`).join('')+'</div>';
+}
+
+// ── WANTED ────────────────────────────────────────────────────────
+const PRI_L={high:'⭐ High priority',normal:'Normal',low:'Someday'};
+function toggleWantedForm(){
+  document.getElementById('wanted-form').classList.add('open');
+  var t=document.getElementById('w-title');if(t)setTimeout(function(){t.focus();},100);
+}
+function closeWantedForm(){
+  closeWantedForm();
+}
+function deleteWanted(id) { var wid=Number(id); data.wishlist=data.wishlist.filter(function(w){return Number(w.id)!==wid;}); save(); renderWanted(); updateStats(); }
+function renderWanted() {
+  const el=document.getElementById('wanted-list'); if(!el) return;
+  if(!data.wishlist.length){ el.innerHTML='<div class="empty-state"><p>Your wanted list is empty.</p></div>'; return; }
+  const sorted=[...data.wishlist].sort((a,b)=>({high:0,normal:1,low:2}[a.priority]||1)-({high:0,normal:1,low:2}[b.priority]||1));
+  el.innerHTML='<div class="cards-grid">'+sorted.map(w=>`
+    <div class="item-card">
+      <button class="ic-del" onclick="deleteWanted(${w.id})">✕</button>
+      <div class="ic-title">${esc(w.title)}</div>
+      <div class="ic-meta">${w.author?esc(w.author):''}</div>
+      <div class="ic-detail">
+        ${w.genre?'<div>📖 <span>'+esc(w.genre)+'</span></div>':''}
+        ${w.lang?'<div>🌐 <span>'+(LANG_L[w.lang]||w.lang)+'</span></div>':''}
+        ${w.source?'<div>🛒 <span>'+esc(w.source)+'</span></div>':''}
+        ${w.notes?'<div style="margin-top:.4rem;font-style:italic;color:var(--tmuted)">'+esc(w.notes)+'</div>':''}
+      </div>
+      <div class="ic-actions"><span style="font-family:'Georgia',serif;font-size:.76rem;color:var(--tmuted)">${PRI_L[w.priority]||w.priority}</span></div>
+    </div>`).join('')+'</div>';
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────
+Chart.defaults.color='#7a6040'; Chart.defaults.font.family="'DM Sans',sans-serif"; Chart.defaults.font.size=11;
+const CI={};
+function dc(id){ if(CI[id]){ CI[id].destroy(); delete CI[id]; } }
+const GC={'Art & Culture':'#8e3a9e','Biography':'#6a4a9e','Classic Literature':'#8e7a30','Comics / Graphic Novel':'#9e3a6e','Cooking':'#b05828','Drama / Plays':'#9e5a30','Economics':'#3a6e5a','Education':'#3a7ab8','Essays / Criticism':'#5a7a5a','Fantasy':'#b09828','Gardening':'#6a9e3a','History':'#4a8a6e','Horror':'#6e2a2a','Kids':'#c07830','Literature / Fiction':'#b07828','Memoir':'#8a5a3a','Music':'#b83a7a','Mystery / Thriller':'#4a6e5e','Novel':'#7a5a3a','Nature':'#4a8e3a','Philosophy':'#4a6e9e','Poetry':'#7a4a8e','Politics':'#3a8e9e','Psychology':'#6e4a9e','Religion / Spirituality':'#9e8a3a','Science':'#8a3a4e','Science Fiction':'#3a6a9e','Self-Help':'#9e7a38','Short Stories':'#6e8a3a','Travel / Adventure':'#3a8e6e','Other':'#5a7a2a'};
+const LC={en:'#4a8aaa',sq:'#aa4040',de:'#c8a020',other:'#8a7060'};
+function makeDoughnut(id,labels,vals,colors){ dc(id); const ctx=document.getElementById(id); if(!ctx) return; CI[id]=new Chart(ctx.getContext('2d'),{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:colors,borderColor:'#faf3e4',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{boxWidth:11,padding:11,color:'#3e2e18'}},tooltip:{callbacks:{label:c=>' '+c.label+': '+c.parsed}}}}}); }
+function makeBar(id,labels,vals,horiz=false){ dc(id); const ctx=document.getElementById(id); if(!ctx) return; const fb=Object.values(GC); const colors=labels.map((l,i)=>GC[l]||fb[i%fb.length]); CI[id]=new Chart(ctx.getContext('2d'),{type:'bar',data:{labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:3,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:horiz?'y':'x',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(120,90,20,.12)'},ticks:{color:'#7a6040',font:{size:10}}},y:{grid:{color:'rgba(120,90,20,.12)'},ticks:{color:'#7a6040',font:{size:10}},beginAtZero:true,precision:0}}}}); }
+function renderCharts() {
+  const has=data.books.length>0;
+  document.getElementById('pal-empty').style.display=has?'none':'block';
+  document.getElementById('pal-content').style.display=has?'block':'none';
+  if(!has) return;
+  const gm={};data.books.forEach(b=>gm[b.genre]=(gm[b.genre]||0)+1);
+  const gL=Object.keys(gm),gD=Object.values(gm);
+  makeDoughnut('ch-genre',gL,gD,gL.map(l=>GC[l]||'#7a6040'));
+  const rc=data.books.filter(b=>b.status==='read').length;
+  makeDoughnut('ch-status',['Read','Unread'],[rc,data.books.length-rc],['#5a8040','#b07828']);
+  const lm={};data.books.forEach(b=>lm[b.lang]=(lm[b.lang]||0)+1);
+  makeDoughnut('ch-lang',Object.keys(lm).map(k=>LANG_L[k]||k),Object.values(lm),Object.keys(lm).map(k=>LC[k]||'#7a6040'));
+  const am={};data.books.forEach(b=>am[b.author]=(am[b.author]||0)+1);
+  const as2=Object.entries(am).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  makeBar('ch-authors',as2.map(e=>e[0]),as2.map(e=>e[1]));
+  makeBar('ch-genre-bar',gL,gD,true);
+  const banned=data.books.filter(b=>b.banned==='yes'||b.banned==='challenged');
+  const bw=document.getElementById('banned-wrap');
+  bw.innerHTML=banned.length?'<div class="banned-list">'+banned.map(b=>`<div class="banned-item"><div><div class="bi-title">${esc(b.title)}</div><div class="bi-meta">${esc(b.author)}${b.year?' · '+b.year:''}</div></div><span class="badge badge-${b.banned}">${b.banned==='yes'?'Banned':'Challenged'}</span></div>`).join('')+'</div>':'<div class="no-data-msg">No banned or challenged books recorded yet.</div>';
+}
+
+// ── TIMELINE ──────────────────────────────────────────────────────
+const TL_TYPE_L={book:'Book',ban:'Banned',historical:'Historical',political:'Political',personal:'Personal',cultural:'Cultural'};
+function renderTimeline() {
+  var wrap=document.getElementById('tl-wrap'); if(!wrap) return;
+  var ft=(document.getElementById('tl-type')||{value:''}).value;
+  var fq=((document.getElementById('tl-q')||{value:''}).value||'').toLowerCase();
+  var items=[];
+
+  // Books — one entry per book, with ban tag added if banned/challenged
+  data.books.forEach(function(b) {
+    if(!b.year) return;
+    var banned = b.banned==='yes'||b.banned==='challenged';
+    // If filtering specifically for bans, only show banned books; if filtering for books, skip banned-only filter
+    var type = (banned && ft==='ban') ? 'ban' : 'book';
+    if(ft==='ban' && !banned) return;
+    if(ft==='book' && banned) type='book'; // still show, just as book type
+    items.push({
+      year: parseInt(b.year),
+      type: type,
+      title: b.title,
+      sub: b.author+(b.genre?' · '+b.genre:''),
+      banned: banned ? b.banned : null
+    });
+  });
+
+  // World events
+  data.events.forEach(function(e) {
+    items.push({
+      id: e.id,
+      year: parseInt(e.year)||0,
+      type: e.type,
+      title: e.title,
+      sub: (e.location?e.location+' · ':'')+e.desc.slice(0,90)+(e.desc.length>90?'…':''),
+      deletable: true
+    });
+  });
+
+  // Filter
+  items=items.filter(function(i){
+    return (!ft||i.type===ft)&&(!fq||i.title.toLowerCase().includes(fq)||(i.sub||'').toLowerCase().includes(fq));
+  }).sort(function(a,b){return a.year-b.year;});
+
+  if(!items.length){ wrap.innerHTML='<div class="tl-empty">No entries yet — add books with publication years or add world events.</div>'; return; }
+
+  // Group by decade
+  var decades={};
+  items.forEach(function(it){
+    var d=it.year>0?Math.floor(it.year/10)*10:0;
+    var k=d>0?d+'s':'Unknown year';
+    if(!decades[k]) decades[k]=[];
+    decades[k].push(it);
+  });
+
+  var html='';
+  Object.keys(decades).forEach(function(dec){
+    var ditems=decades[dec];
+    var rows='';
+    ditems.forEach(function(it){
+      // Extra ban badge shown inline if this book is banned
+      var banBadge='';
+      if(it.banned) {
+        var banLabel=it.banned==='yes'?'Banned':'Challenged';
+        banBadge='<span class="tl-badge tb-ban" style="margin-left:.4rem">'+banLabel+'</span>';
+      }
+      var delBtn=it.deletable?'<button class="tl-del" onclick="deleteEvent('+it.id+')">✕</button>':'';
+      rows+='<div class="tl-item t-'+it.type+'">'
+        +delBtn
+        +'<div class="tl-yr">'+(it.year>0?it.year:'—')
+        +'<span class="tl-badge tb-'+it.type+'">'+(TL_TYPE_L[it.type]||it.type)+'</span>'
+        +banBadge
+        +'</div>'
+        +'<div class="tl-ttl">'+esc(it.title)+'</div>'
+        +(it.sub?'<div class="tl-sub">'+esc(it.sub)+'</div>':'')
+        +'</div>';
+    });
+    html+='<div class="decade-band"><div class="decade-hd">'+dec+'</div><div class="decade-line">'+rows+'</div></div>';
+  });
+  wrap.innerHTML=html;
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────
+const EV_C={historical:'#4a6e9e',political:'#7a3a9e',personal:'#b07828',cultural:'#4a8e6e'};
+const EV_L={historical:'Historical',political:'Political',personal:'Personal',cultural:'Cultural'};
+function addEvent() {
+  const year=document.getElementById('ev-year').value.trim();
+  const title=document.getElementById('ev-title').value.trim();
+  if(!year||!title){ alert('Please enter a year and title.'); return; }
+  data.events.unshift({id:Date.now(),year,title,type:document.getElementById('ev-type').value,book:document.getElementById('ev-book').value.trim(),location:document.getElementById('ev-location').value.trim(),desc:document.getElementById('ev-desc').value.trim()});
+  save(); renderEvents(); renderTimeline(); closeEventModal();
+  ['ev-year','ev-title','ev-book','ev-location','ev-desc'].forEach(id=>document.getElementById(id).value='');
+}
+function deleteEvent(id) { var eid=Number(id); data.events=data.events.filter(function(e){return Number(e.id)!==eid;}); save(); renderEvents(); renderTimeline(); closeEventModal(); }
+function renderEvents() {
+  var el=document.getElementById('events-list'); if(!el) return;
+  if(!data.events.length){ el.innerHTML='<div class="empty-state"><p>No world events yet.</p></div>'; return; }
+  var sorted=data.events.slice().sort(function(a,b){return parseInt(a.year)-parseInt(b.year);});
+  var html='<div class="cards-grid">';
+  sorted.forEach(function(e){
+    var color=EV_C[e.type]||'var(--olive)';
+    html+='<div class="item-card" style="border-left-color:'+color+'">'
+      +'<div style="position:absolute;top:.7rem;right:.7rem;display:flex;gap:.3rem">'
+      +'<button class="btn-icon-edit" onclick="openEditEvent('+e.id+')">✎</button>'
+      +'<button class="btn-icon-del" onclick="deleteEvent('+e.id+')">✕</button>'
+      +'</div>'
+      +'<div style="display:flex;align-items:baseline;gap:.5rem;margin-bottom:.3rem;padding-right:3.5rem">'
+      +'<div class="ic-title">'+esc(e.title)+'</div>'
+      +'<span style="font-family:Crimson Pro,serif;font-size:.72rem;color:var(--tfaint)">'+esc(e.year)+'</span>'
+      +'</div>'
+      +(e.location?'<div class="ic-meta">📍 '+esc(e.location)+'</div>':'')
+      +(e.book?'<div class="ic-meta">📖 '+esc(e.book)+'</div>':'')
+      +(e.desc?'<div class="ic-detail" style="margin-top:.5rem">'+esc(e.desc)+'</div>':'')
+      +'<div class="ic-actions"><span style="font-family:Crimson Pro,serif;font-size:.76rem;color:'+color+'">'+( EV_L[e.type]||e.type)+'</span></div>'
+      +commentBlock(String(e.id))
+      +'</div>';
+  });
+  el.innerHTML=html+'</div>';
+}
+
+// ── COMMENTARY ────────────────────────────────────────────────────
+const CM_L={insight:'Insight',review:'Review',commentary:'Commentary',note:'Note'};
+function addComment() {
+  const body=document.getElementById('cm-body').value.trim(); if(!body){ alert('Please write something.'); return; }
+  const now=new Date();
+  data.comments.unshift({id:Date.now(),body,book:document.getElementById('cm-book').value.trim(),type:document.getElementById('cm-type').value,author:document.getElementById('cm-author').value.trim(),stamp:now.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+' · '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})});
+  save(); renderComments(); closeCommentModal();
+  ['cm-body','cm-book','cm-author'].forEach(id=>document.getElementById(id).value='');
+}
+function deleteComment(id) { var cid=Number(id); data.comments=data.comments.filter(function(c){return Number(c.id)!==cid;}); save(); renderComments(); closeCommentModal(); }
+function renderComments() {
+  var el=document.getElementById('comment-feed'); if(!el) return;
+  if(!data.comments.length){ el.innerHTML='<div class="feed-empty">No entries yet.</div>'; return; }
+  var html='';
+  data.comments.forEach(function(c){
+    html+='<div class="feed-card">'
+      +'<div style="position:absolute;top:.9rem;right:1rem;display:flex;gap:.3rem">'
+      +'<button class="btn-icon-edit" onclick="openEditComment('+c.id+')">✎</button>'
+      +'<button class="btn-icon-del" onclick="deleteComment('+c.id+')">✕</button>'
+      +'</div>'
+      +'<div class="fc-header">'
+      +'<span class="fc-book">'+(c.book?esc(c.book):'<span style="color:var(--tmuted);font-style:normal">General</span>')+'</span>'
+      +(c.author?'<span style="font-family:Crimson Pro,serif;font-size:.82rem;color:var(--tmuted)">— '+esc(c.author)+'</span>':'')
+      +'<span class="fc-type tc-'+c.type+'">'+(CM_L[c.type]||c.type)+'</span>'
+      +'<span class="fc-stamp">'+c.stamp+'</span>'
+      +'</div>'
+      +'<div class="fc-body">'+esc(c.body)+'</div>'
+      +commentBlock(String(c.id))
+      +'</div>';
+  });
+  el.innerHTML=html;
+}
+
+// ── RED BOOK DEEP DIVES ───────────────────────────────────────────
+function toggleDiveForm(){
+  document.getElementById('dive-form').classList.add('open');
+  populateRBSelect();
+}
+function closeDiveForm(){
+  closeDiveForm();
+}
+
+function populateRBSelect() {
+  var sel=document.getElementById('rb-select'); if(!sel) return;
+  sel.innerHTML='<option value="">— choose from your collection —</option>';
+  if(!data.books.length) return;
+  data.books.slice().sort(function(a,b){return a.title.localeCompare(b.title);}).forEach(function(b){
+    var o=document.createElement('option'); o.value=b.id;
+    o.textContent=b.title+(b.author?' — '+b.author:''); sel.appendChild(o);
+  });
+}
+
+function loadDiveBook() {
+  var id=parseInt(document.getElementById('rb-select').value);
+  var hint=document.getElementById('rb-book-hint');
+  if(!id){ if(hint) hint.textContent='Select a book to fill details automatically'; return; }
+  var book=data.books.find(function(b){return b.id===id;});
+  if(!book) return;
+  if(hint) hint.textContent=book.title+(book.author?' by '+book.author:'');
+  // Pre-fill ban status from book record
+  document.getElementById('rb-banned').value=book.banned||'no';
+}
+
+function saveDive() {
+  var id=parseInt(document.getElementById('rb-select').value);
+  if(!id){ alert('Please select a book first.'); return; }
+  var book=data.books.find(function(b){return b.id===id;});
+  if(!book) return;
+  if(!data.dives) data.dives={};
+  // Store as array entry so multiple views work
+  var entry={
+    id: Date.now(),
+    bookId: id,
+    bookTitle: book.title,
+    bookAuthor: book.author||'',
+    desc:       document.getElementById('rb-desc').value.trim(),
+    quote:      document.getElementById('rb-quote').value.trim(),
+    char:       document.getElementById('rb-char').value.trim(),
+    thoughts:   document.getElementById('rb-thoughts').value.trim(),
+    banned:     document.getElementById('rb-banned').value,
+    where:      document.getElementById('rb-where').value.trim(),
+    when:       document.getElementById('rb-when').value.trim(),
+    bandetails: document.getElementById('rb-bandetails').value.trim(),
+    stamp: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
+  };
+  if(!data.deepdives) data.deepdives=[];
+  // Replace if already exists for this book, else push
+  var existing=data.deepdives.findIndex(function(d){return d.bookId===id;});
+  if(existing>=0) { entry.id=data.deepdives[existing].id; data.deepdives[existing]=entry; }
+  else { data.deepdives.push(entry); }
+  save(); renderDives();
+  // Clear form and close
+  ['rb-desc','rb-quote','rb-char','rb-thoughts','rb-where','rb-when','rb-bandetails'].forEach(function(fid){
+    var el=document.getElementById(fid); if(el) el.value='';
+  });
+  document.getElementById('rb-select').value='';
+  closeDiveForm();
+}
+
+function deleteDive(id) {
+  var did=Number(id);
+  data.deepdives=(data.deepdives||[]).filter(function(d){return Number(d.id)!==did;});
+  save(); renderDives();
+}
+
+function renderDives() {
+  var el=document.getElementById('dives-feed'); if(!el) return;
+  var dives=data.deepdives||[];
+  if(!dives.length){
+    el.innerHTML='<div class="empty-state"><p>No deep dives yet — click New Deep Dive to document a book.</p></div>';
+    return;
+  }
+  var html='';
+  dives.forEach(function(d){
+    var banColor=d.banned==='yes'?'#a03030':d.banned==='challenged'?'#8a6010':'var(--tmuted)';
+    var banTxt=d.banned==='yes'?'Banned':d.banned==='challenged'?'Challenged':'Not banned';
+    html+='<div class="feed-card" style="margin-bottom:1.2rem">'
+      +'<div style="position:absolute;top:.9rem;right:1rem;display:flex;gap:.3rem">'
+      +'<button class="btn-icon-edit" onclick="openEditDive('+d.id+')">✎</button>'
+      +'<button class="btn-icon-del" onclick="deleteDive('+d.id+')">✕</button>'
+      +'</div>'
+      +'<div class="fc-header">'
+      +'<span class="fc-book">'+esc(d.bookTitle)+'</span>'
+      +(d.bookAuthor?'<span style="font-family:Crimson Pro,serif;font-size:.82rem;color:var(--tmuted)">— '+esc(d.bookAuthor)+'</span>':'')
+      +'<span class="fc-stamp">'+d.stamp+'</span>'
+      +'</div>'
+      +(d.desc?'<div style="font-family:Crimson Pro,serif;font-size:.95rem;line-height:1.75;color:var(--tsoft);margin-bottom:.8rem">'+esc(d.desc)+'</div>':'')
+      +(d.quote?'<div style="font-family:Crimson Pro,serif;font-size:.95rem;font-style:italic;border-left:3px solid var(--gold2);padding:.4rem .8rem;margin-bottom:.8rem;color:var(--tsoft)">'+esc(d.quote)+'</div>':'')
+      +(d.char?'<div style="font-family:Crimson Pro,serif;font-size:.82rem;color:var(--tmuted);margin-bottom:.5rem">⭐ Favourite character: <span style="color:var(--tsoft)">'+esc(d.char)+'</span></div>':'')
+      +(d.thoughts?'<div style="font-family:Crimson Pro,serif;font-size:.95rem;line-height:1.75;color:var(--tsoft);white-space:pre-wrap;margin-bottom:.8rem">'+esc(d.thoughts)+'</div>':'')
+      +(d.banned!=='no'?'<div style="font-family:Crimson Pro,serif;font-size:.8rem;color:'+banColor+';margin-top:.3rem">🚫 '+banTxt+(d.where?' in '+esc(d.where):'')+(d.when?' ('+esc(d.when)+')':'')+(d.bandetails?' — '+esc(d.bandetails):'')+'</div>':'')
+      +commentBlock(String(d.id))
+      +'</div>';
+  });
+  el.innerHTML=html;
+}
+
+
+// ── CURRENTLY READING ─────────────────────────────────────────────
+function toggleReading(id) {
+  const book = data.books.find(b=>b.id===id);
+  if(!book) return;
+  if(!data.readingEntries) data.readingEntries = [];
+
+  if(book.status === 'reading') {
+    // Unmark — remove the auto-created entry for this book (if not manually added)
+    book.status = 'unread';
+    data.readingEntries = data.readingEntries.filter(e => e.bookId !== id);
+  } else {
+    // Mark as reading — add an entry automatically
+    book.status = 'reading';
+    // Only add if not already tracked
+    const already = data.readingEntries.find(e => e.bookId === id && !e.done);
+    if(!already) {
+      // Ask for reader name
+      const reader = prompt('Who is reading "' + book.title + '"?', 'Me');
+      if(!reader) { book.status = 'unread'; return; }
+      data.readingEntries.push({
+        id:     Date.now(),
+        bookId: id,
+        title:  book.title,
+        reader: reader.trim(),
+        start:  new Date().toISOString().split('T')[0],
+        target: '',
+        done:   false
+      });
+    }
+  }
+  save(); renderTable(); renderReadingGoals(); updateStats();
+}
+
+// ── JOURNAL ───────────────────────────────────────────────────────
+const J_L={analysis:'Analysis',reflection:'Reflection',review:'Review',insight:'Insight',note:'Note'};
+const J_TC={analysis:'tc-analysis',reflection:'tc-reflection',review:'tc-review',insight:'tc-insight',note:'tc-note'};
+function addJournal() {
+  const body=document.getElementById('j-body').value.trim(); if(!body){ alert('Please write something.'); return; }
+  const now=new Date();
+  data.journal.unshift({id:Date.now(),body,book:document.getElementById('j-book').value.trim(),type:document.getElementById('j-type').value,author:document.getElementById('j-author').value.trim(),stamp:now.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+' · '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})});
+  save(); renderJournal(); closeJournalModal();
+  ['j-body','j-book','j-author'].forEach(id=>document.getElementById(id).value='');
+}
+function deleteJournal(id) { var jid=Number(id); data.journal=data.journal.filter(function(j){return Number(j.id)!==jid;}); save(); renderJournal(); closeJournalModal(); }
+function renderJournal() {
+  var el=document.getElementById('journal-feed'); if(!el) return;
+  if(!data.journal.length){ el.innerHTML='<div class="feed-empty">No journal entries yet — write your first one above.</div>'; return; }
+  var html='';
+  data.journal.forEach(function(j){
+    html+='<div class="feed-card">'
+      +'<div style="position:absolute;top:.9rem;right:1rem;display:flex;gap:.3rem">'
+      +'<button class="btn-icon-edit" onclick="openEditJournal('+j.id+')">✎</button>'
+      +'<button class="btn-icon-del" onclick="deleteJournal('+j.id+')">✕</button>'
+      +'</div>'
+      +'<div class="fc-header">'
+      +'<span class="fc-book">'+(j.book?esc(j.book):'<span style="color:var(--tmuted);font-style:normal">General</span>')+'</span>'
+      +(j.author?'<span style="font-family:Crimson Pro,serif;font-size:.82rem;color:var(--tmuted)">— '+esc(j.author)+'</span>':'')
+      +'<span class="fc-type '+(J_TC[j.type]||'tc-note')+'">'+(J_L[j.type]||j.type)+'</span>'
+      +'<span class="fc-stamp">'+j.stamp+'</span>'
+      +'</div>'
+      +'<div class="fc-body">'+esc(j.body)+'</div>'
+      +commentBlock(String(j.id))
+      +'</div>';
+  });
+  el.innerHTML=html;
+}
+
+
+// ── READING GOALS ─────────────────────────────────────────────────
+function toggleReadingForm(){
+  document.getElementById('reading-form').classList.add('open');
+  
+}
+function closeReadingForm(){
+  closeReadingForm();
+}
+
+function addReadingEntry() {
+  const title  = document.getElementById('rg-book').value.trim();
+  const reader = document.getElementById('rg-reader').value.trim();
+  if(!title || !reader) { alert('Please enter a book title and reader name.'); return; }
+  if(!data.readingEntries) data.readingEntries = [];
+  data.readingEntries.push({
+    id:     Date.now(),
+    title,
+    reader,
+    start:  document.getElementById('rg-start').value,
+    target: document.getElementById('rg-target').value,
+    done:   false
+  });
+  save(); renderReadingGoals(); updateStats();
+  ['rg-book','rg-reader','rg-start','rg-target'].forEach(id => document.getElementById(id).value='');
+  closeReadingForm();
+}
+
+function deleteReadingEntry(id) {
+  var eid = Number(id);
+  var entry = (data.readingEntries||[]).find(function(e){ return Number(e.id)===eid; });
+  if(entry && entry.bookId) {
+    var book = data.books.find(function(b){ return b.id===entry.bookId; });
+    if(book && book.status==='reading') book.status = 'unread';
+  }
+  data.readingEntries = (data.readingEntries||[]).filter(function(e){ return Number(e.id)!==eid; });
+  save(); renderReadingGoals(); renderTable(); updateStats();
+}
+
+function markEntryDone(id) {
+  var eid = Number(id);
+  var e = (data.readingEntries||[]).find(function(x){ return Number(x.id)===eid; });
+  if(e) { e.done = true; save(); renderReadingGoals(); updateStats(); }
+}
+
+function renderReadingGoals() {
+  var el = document.getElementById('reading-goals-list');
+  if(!el) return;
+  var entries = data.readingEntries || [];
+  if(!entries.length) {
+    el.innerHTML = '<div class="empty-state"><p>Nothing being tracked yet — add a book above.</p></div>';
+    return;
+  }
+  var active   = entries.filter(function(e){ return !e.done; });
+  var finished = entries.filter(function(e){ return e.done; });
+  var all = active.concat(finished);
+  var byReader = {};
+  all.forEach(function(e) {
+    if(!byReader[e.reader]) byReader[e.reader] = [];
+    byReader[e.reader].push(e);
+  });
+  var readerColors = ['#3a5e8a','#6a4a9e','#4a8a6e','#b07828','#a03030','#4a8e9e'];
+  var readers = Object.keys(byReader);
+  var html = '';
+  readers.forEach(function(reader, ri) {
+    var color = readerColors[ri % readerColors.length];
+    var cards = '';
+    byReader[reader].forEach(function(e) {
+      var eid = e.id;
+      var progressHtml = '';
+      if(e.start && e.target && !e.done) {
+        var s = new Date(e.start), t = new Date(e.target), now = new Date();
+        var pct = Math.min(100, Math.max(0, Math.round(((now-s)/(t-s))*100)));
+        var daysLeft = Math.ceil((t - now) / (1000*60*60*24));
+        var overdue = daysLeft < 0;
+        var daysTxt = overdue ? (Math.abs(daysLeft)+' days overdue') : (daysLeft+' day'+(daysLeft!==1?'s':'')+' left');
+        var badgeCls = overdue ? '' : 'ontrack';
+        var badgeTxt = overdue ? 'Overdue' : (pct+'% elapsed');
+        progressHtml = '<div class="rg-progress">'
+          + '<div class="rg-prog-label">'
+          + '<span class="rg-prog-txt">'+daysTxt+'</span>'
+          + '<span class="rg-done-badge '+badgeCls+'">'+badgeTxt+'</span>'
+          + '</div>'
+          + '<div class="rg-bar-bg"><div class="rg-bar-fill" style="width:'+pct+'%;background:linear-gradient(90deg,'+color+','+color+'88)"></div></div>'
+          + '</div>';
+      }
+      var dateLine = e.start ? ('<div class="rg-author">Started: '+e.start+(e.target?' · Goal: '+e.target:'')+'</div>') : '';
+      var actions = e.done
+        ? '<div class="ic-actions"><span class="rg-done-badge done">✓ Finished</span></div>'
+        : '<div class="ic-actions"><button class="btn-ghost" style="font-size:.74rem" onclick="markEntryDone('+eid+')">✓ Mark as Finished</button></div>';
+      var delBtn = '<button style="position:absolute;top:.7rem;right:.8rem;background:#a03030;color:#fff;border:none;border-radius:2px;padding:.15rem .5rem;font-size:.72rem;cursor:pointer;font-family:Crimson Pro,serif;letter-spacing:.05em" onclick="deleteReadingEntry('+eid+')">Remove</button>';
+      cards += '<div class="rg-card" style="border-left-color:'+color+(e.done?';opacity:.7':'')+'">'
+        + delBtn
+        + '<div class="rg-title" style="padding-right:4rem">'+esc(e.title)+'</div>'
+        + dateLine
+        + progressHtml
+        + actions
+        + '</div>';
+    });
+    html += '<div style="margin-bottom:2rem">'
+      + '<div class="slabel" style="color:'+color+';margin-bottom:.8rem"><span>📖 '+esc(reader)+'</span></div>'
+      + '<div class="cards-grid">'+cards+'</div>'
+      + '</div>';
+  });
+  el.innerHTML = html;
+}
+
+// ── EXPORT / IMPORT ───────────────────────────────────────────────
+function exportAll() {
+  const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='personal-library-archive.json'; a.click(); URL.revokeObjectURL(u);
+}
+function importAll(ev) {
+  const file=ev.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{ try{ const imp=JSON.parse(e.target.result); Object.keys(imp).forEach(k=>data[k]=imp[k]); save(); init(); alert('Archive imported successfully.'); } catch(err){ alert('Could not read archive file.'); } ev.target.value=''; };
+  reader.readAsText(file);
+}
+
+
+// ── EDIT BOOK ─────────────────────────────────────────────────────
+function openEditBook(id) {
+  const book = data.books.find(b=>b.id===id);
+  if(!book) return;
+  document.getElementById('edit-id').value     = id;
+  document.getElementById('edit-title').value  = book.title  || '';
+  document.getElementById('edit-author').value = book.author || '';
+  document.getElementById('edit-year').value   = book.year   || '';
+  document.getElementById('edit-genre').value  = book.genre  || '';
+  document.getElementById('edit-lang').value   = book.lang   || 'en';
+  document.getElementById('edit-status').value = book.status || 'unread';
+  document.getElementById('edit-banned').value = book.banned || 'no';
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+function closeEditBook() {
+  document.getElementById('edit-modal').style.display = 'none';
+}
+function saveEditBook() {
+  const id   = parseInt(document.getElementById('edit-id').value);
+  const book = data.books.find(b=>b.id===id);
+  if(!book) return;
+  book.title  = document.getElementById('edit-title').value.trim();
+  book.author = document.getElementById('edit-author').value.trim();
+  book.genre  = document.getElementById('edit-genre').value;
+  book.lang   = document.getElementById('edit-lang').value;
+  book.year   = document.getElementById('edit-year').value.trim();
+  book.banned = document.getElementById('edit-banned').value;
+  const newStatus = document.getElementById('edit-status').value;
+  // If changing away from reading, clean up reading entries
+  if(book.status === 'reading' && newStatus !== 'reading') {
+    data.readingEntries = (data.readingEntries||[]).filter(e=>e.bookId!==id);
+  }
+  book.status = newStatus;
+  save(); closeEditBook(); renderTable(); updateStats(); renderReadingGoals();
+}
+
+
+// ── GENERIC MODAL ─────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).style.display='none'; }
+
+// ── EDIT EVENT ────────────────────────────────────────────────────
+function openEditEvent(id) {
+  var eid=Number(id);
+  var e=data.events.find(function(x){return Number(x.id)===eid;});
+  if(!e) return;
+  document.getElementById('ee-id').value       = eid;
+  document.getElementById('ee-year').value     = e.year||'';
+  document.getElementById('ee-title').value    = e.title||'';
+  document.getElementById('ee-type').value     = e.type||'historical';
+  document.getElementById('ee-book').value     = e.book||'';
+  document.getElementById('ee-location').value = e.location||'';
+  document.getElementById('ee-desc').value     = e.desc||'';
+  document.getElementById('edit-event-modal').style.display='flex';
+}
+function saveEditEvent() {
+  var eid=Number(document.getElementById('ee-id').value);
+  var e=data.events.find(function(x){return Number(x.id)===eid;});
+  if(!e) return;
+  e.year=document.getElementById('ee-year').value;
+  e.title=document.getElementById('ee-title').value;
+  e.type=document.getElementById('ee-type').value;
+  e.book=document.getElementById('ee-book').value;
+  e.location=document.getElementById('ee-location').value;
+  e.desc=document.getElementById('ee-desc').value;
+  save(); closeModal('edit-event-modal'); renderEvents(); renderTimeline();
+}
+
+// ── EDIT COMMENT ──────────────────────────────────────────────────
+function openEditComment(id) {
+  var cid=Number(id);
+  var c=data.comments.find(function(x){return Number(x.id)===cid;});
+  if(!c) return;
+  document.getElementById('ec-id').value     = cid;
+  document.getElementById('ec-body').value   = c.body||'';
+  document.getElementById('ec-book').value   = c.book||'';
+  document.getElementById('ec-type').value   = c.type||'insight';
+  document.getElementById('ec-author').value = c.author||'';
+  document.getElementById('edit-comment-modal').style.display='flex';
+}
+function saveEditComment() {
+  var cid=Number(document.getElementById('ec-id').value);
+  var c=data.comments.find(function(x){return Number(x.id)===cid;});
+  if(!c) return;
+  c.body=document.getElementById('ec-body').value;
+  c.book=document.getElementById('ec-book').value;
+  c.type=document.getElementById('ec-type').value;
+  c.author=document.getElementById('ec-author').value;
+  save(); closeModal('edit-comment-modal'); renderComments();
+}
+
+// ── EDIT JOURNAL ──────────────────────────────────────────────────
+function openEditJournal(id) {
+  var jid=Number(id);
+  var j=data.journal.find(function(x){return Number(x.id)===jid;});
+  if(!j) return;
+  document.getElementById('ej-id').value     = jid;
+  document.getElementById('ej-body').value   = j.body||'';
+  document.getElementById('ej-book').value   = j.book||'';
+  document.getElementById('ej-type').value   = j.type||'analysis';
+  document.getElementById('ej-author').value = j.author||'';
+  document.getElementById('edit-journal-modal').style.display='flex';
+}
+function saveEditJournal() {
+  var jid=Number(document.getElementById('ej-id').value);
+  var j=data.journal.find(function(x){return Number(x.id)===jid;});
+  if(!j) return;
+  j.body=document.getElementById('ej-body').value;
+  j.book=document.getElementById('ej-book').value;
+  j.type=document.getElementById('ej-type').value;
+  j.author=document.getElementById('ej-author').value;
+  save(); closeModal('edit-journal-modal'); renderJournal();
+}
+
+
+// ── EDIT DEEP DIVE ────────────────────────────────────────────────
+function openEditDive(id) {
+  var did=Number(id);
+  var d=(data.deepdives||[]).find(function(x){return Number(x.id)===did;});
+  if(!d) return;
+  document.getElementById('ed-id').value         = did;
+  document.getElementById('ed-modal-title').textContent = 'Edit: '+d.bookTitle;
+  document.getElementById('ed-desc').value       = d.desc||'';
+  document.getElementById('ed-quote').value      = d.quote||'';
+  document.getElementById('ed-char').value       = d.char||'';
+  document.getElementById('ed-thoughts').value   = d.thoughts||'';
+  document.getElementById('ed-banned').value     = d.banned||'no';
+  document.getElementById('ed-where').value      = d.where||'';
+  document.getElementById('ed-when').value       = d.when||'';
+  document.getElementById('ed-bandetails').value = d.bandetails||'';
+  document.getElementById('edit-dive-modal').style.display='flex';
+}
+function saveEditDive() {
+  var did=Number(document.getElementById('ed-id').value);
+  var d=(data.deepdives||[]).find(function(x){return Number(x.id)===did;});
+  if(!d) return;
+  d.desc       = document.getElementById('ed-desc').value;
+  d.quote      = document.getElementById('ed-quote').value;
+  d.char       = document.getElementById('ed-char').value;
+  d.thoughts   = document.getElementById('ed-thoughts').value;
+  d.banned     = document.getElementById('ed-banned').value;
+  d.where      = document.getElementById('ed-where').value;
+  d.when       = document.getElementById('ed-when').value;
+  d.bandetails = document.getElementById('ed-bandetails').value;
+  save(); closeModal('edit-dive-modal'); renderDives();
+}
+
+
+// ── OPEN BOOK DEEP DIVE FROM STACKS ──────────────────────────────
+function openBookDive(id) {
+  // Navigate to The Study page, Deep Dives tab
+  showPage('red-book', null);
+  // Mark the Red Book nav button as active
+  document.querySelectorAll('.nav-links li>button').forEach(function(b){
+    if(b.textContent.trim().startsWith('The Study')) b.classList.add('active');
+  });
+  showRBTab('dive', null);
+  // Mark the tab as active
+  var tabs = document.querySelectorAll('#rb-tabs .page-tab');
+  if(tabs[0]) tabs[0].classList.add('active');
+  // Open the form and pre-select the book
+  var form = document.getElementById('dive-form');
+  if(form) {
+    form.classList.add('open');
+    populateRBSelect();
+    var sel = document.getElementById('rb-select');
+    if(sel) {
+      sel.value = id;
+      loadDiveBook();
+    }
+    // If a dive already exists for this book, load its content into the form
+    var existing = (data.deepdives||[]).find(function(d){ return Number(d.bookId)===Number(id); });
+    if(existing) {
+      document.getElementById('rb-desc').value       = existing.desc||'';
+      document.getElementById('rb-quote').value      = existing.quote||'';
+      document.getElementById('rb-char').value       = existing.char||'';
+      document.getElementById('rb-thoughts').value   = existing.thoughts||'';
+      document.getElementById('rb-banned').value     = existing.banned||'no';
+      document.getElementById('rb-where').value      = existing.where||'';
+      document.getElementById('rb-when').value       = existing.when||'';
+      document.getElementById('rb-bandetails').value = existing.bandetails||'';
+    }
+  }
+  renderDives();
+}
+
+
+
+// ══ MOBILE NAVIGATION ══════════════════════════════════════════════
+function hamToggle() {
+  document.getElementById('mob-nav').classList.toggle('show');
+}
+function hamClose() {
+  document.getElementById('mob-nav').classList.remove('show');
+}
+function hamExpand(btnId, subsId) {
+  var btn  = document.getElementById(btnId);
+  var subs = document.getElementById(subsId);
+  var isOpen = subs.classList.contains('show');
+  // Close all
+  document.querySelectorAll('.mn-subs').forEach(function(s){ s.classList.remove('show'); });
+  document.querySelectorAll('.mn-page').forEach(function(b){ b.classList.remove('open'); });
+  // Open this one if it was closed
+  if (!isOpen) {
+    subs.classList.add('show');
+    btn.classList.add('open');
+  }
+}
+function setBc(text) {
+  var el = document.getElementById('mob-bc');
+  if (el) el.innerHTML = text;
+}
+function mobGoPage(name) {
+  showPage(name, null);
+  hamClose();
+  var labels = {
+    'great-hall': 'The Reading Room',
+    'palantir':   'The Insights'
+  };
+  setBc('<strong>' + (labels[name] || name) + '</strong>');
+  document.querySelectorAll('.mn-subs').forEach(function(s){ s.classList.remove('show'); });
+  document.querySelectorAll('.mn-page').forEach(function(b){ b.classList.remove('open'); });
+}
+function mobGoSub(page, tab, pageLabel, tabLabel) {
+  showPage(page, null);
+  if (page === 'the-stacks') showStacksTab(tab, null);
+  if (page === 'annals')     showAnnalsTab(tab, null);
+  if (page === 'red-book')   showRBTab(tab, null);
+  hamClose();
+  document.querySelectorAll('.mn-subs').forEach(function(s){ s.classList.remove('show'); });
+  document.querySelectorAll('.mn-page').forEach(function(b){ b.classList.remove('open'); });
+  setBc(pageLabel + ' › <strong>' + tabLabel + '</strong>');
+  if (tab === 'volumes') renderMobBooks();
+}
+
+// ══ MOBILE BOOK CARDS ══════════════════════════════════════════════
+function isMob() { return window.innerWidth <= 768; }
+
+function renderMobBooks() {
+  var mob = document.getElementById('mob-book-cards');
+  if(!mob) return;
+  var q  = (document.getElementById('f-search')||{value:''}).value.toLowerCase();
+  var fg = (document.getElementById('f-genre')||{value:''}).value;
+  var fl = (document.getElementById('f-lang')||{value:''}).value;
+  var fs = (document.getElementById('f-status')||{value:''}).value;
+  var fb = (document.getElementById('f-banned')||{value:''}).value;
+  var sb = (document.getElementById('sort-by')||{value:'num'}).value;
+  var filtered = data.books.filter(function(b) {
+    return (!q||b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q))
+      &&(!fg||b.genre===fg)&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb);
+  });
+  filtered.sort(function(a,b){
+    switch(sb){
+      case 'author-az': return getLastName(a.author).localeCompare(getLastName(b.author));
+      case 'author-za': return getLastName(b.author).localeCompare(getLastName(a.author));
+      case 'title-az':  return (a.title||'').toLowerCase().localeCompare((b.title||'').toLowerCase());
+      case 'title-za':  return (b.title||'').toLowerCase().localeCompare((a.title||'').toLowerCase());
+      case 'year-asc':  return (parseInt(a.year)||0)-(parseInt(b.year)||0);
+      case 'year-desc': return (parseInt(b.year)||0)-(parseInt(a.year)||0);
+      default:          return (a.num||0)-(b.num||0);
+    }
+  });
+  if(!filtered.length){
+    mob.innerHTML=data.books.length?'<div class="empty-state"><p>No books match your filters.</p></div>':'<div class="empty-state"><p>No books yet.</p></div>';
+    return;
+  }
+  var html='';
+  filtered.forEach(function(b){
+    html+='<div style="background:var(--card);border:1px solid var(--bsoft);border-left:4px solid var(--olive);border-radius:var(--r);padding:.9rem 1rem;position:relative;margin-bottom:.6rem">'
+      +'<div style="padding-right:3.5rem">'
+      
+      +'<div style="font-family:Georgia,serif;font-size:.98rem;font-style:italic;color:var(--text);cursor:pointer" onclick="openBookDive('+b.id+')">'+esc(b.title)+'</div>'
+      +'<div style="font-family:Georgia,serif;font-size:.8rem;color:var(--tmuted);margin-top:.1rem">'+esc(b.author||'')+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;align-items:center">'
+      +'<span class="pill" style="font-size:.68rem">'+esc(b.genre||'')+'</span>'
+      +'<span class="badge badge-'+b.status+'" style="font-size:.65rem">'+b.status+'</span>'
+      +(b.year?'<span style="font-size:.75rem;color:var(--tmuted)">'+esc(b.year)+'</span>':'')
+      +(b.banned!=='no'?'<span style="font-size:.72rem;color:#a03030">&#128683; '+(b.banned==='yes'?'Banned':'Challenged')+'</span>':'')
+      +'</div>'
+      +'<div style="position:absolute;top:.7rem;right:.6rem;display:flex;gap:.25rem">'
+      +'<button class="btn-icon-edit" onclick="openEditBook('+b.id+')">&#9998;</button>'
+      +'<button class="btn-del" onclick="deleteBook('+b.id+')">&#10005;</button>'
+      +'</div></div>';
+  });
+  mob.innerHTML=html;
+}
+
+function openImpr() {
+  var d = data.impressum || {};
+  document.getElementById('impr-name').value = d.name || '';
+  document.getElementById('impr-desc').value = d.desc || '';
+  document.getElementById('impr-year').value = d.year || '';
+  document.getElementById('impr-form').style.display    = 'block';
+  document.getElementById('impr-display').style.display = 'none';
+  document.getElementById('impr-modal').style.display   = 'flex';
+}
+function closeImpr() {
+  document.getElementById('impr-modal').style.display = 'none';
+}
+function saveImpr() {
+  data.impressum = {
+    name: document.getElementById('impr-name').value.trim(),
+    desc: document.getElementById('impr-desc').value.trim(),
+    year: document.getElementById('impr-year').value.trim()
+  };
+  save(); closeImpr(); renderFooter();
+}
+function renderFooter() {
+  var d = data.impressum || {};
+  var el = document.getElementById('footer-text');
+  if (!el) return;
+  if (d.name) {
+    el.textContent = d.name + (d.year ? ' · Est. ' + d.year : '') + ' · Personal Library';
+  }
+}
+
+// ── ENTRY COMMENTS ──────────────────────────────────────────────
+function toggleComments(id) {
+  var panel = document.getElementById('cp-' + id);
+  if (panel) panel.classList.toggle('open');
+}
+
+function addEntryComment(entryId) {
+  var nameEl = document.getElementById('ecn-' + entryId);
+  var textEl = document.getElementById('ect-' + entryId);
+  if (!nameEl || !textEl) return;
+  var name = nameEl.value.trim();
+  var text = textEl.value.trim();
+  if (!text) return;
+  if (!data.entryComments) data.entryComments = {};
+  var key = String(entryId);
+  if (!data.entryComments[key]) data.entryComments[key] = [];
+  var now = new Date();
+  data.entryComments[key].push({
+    id:    Date.now(),
+    name:  name || 'Anonymous',
+    text:  text,
+    stamp: now.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
+          + ' ' + now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})
+  });
+  save();
+  nameEl.value = '';
+  textEl.value = '';
+  refreshComments(entryId);
+}
+
+function deleteEntryComment(entryId, commentId) {
+  var key = String(entryId);
+  var cid = Number(commentId);
+  if (!data.entryComments || !data.entryComments[key]) return;
+  data.entryComments[key] = data.entryComments[key].filter(function(c) {
+    return Number(c.id) !== cid;
+  });
+  save();
+  refreshComments(entryId);
+}
+
+function refreshComments(entryId) {
+  var key  = String(entryId);
+  var list = document.getElementById('ec-list-' + key);
+  var btn  = document.getElementById('ec-btn-'  + key);
+  if (!list) return;
+  var comments = (data.entryComments && data.entryComments[key]) || [];
+  list.innerHTML = buildCommentItems(key, comments);
+  if (btn) {
+    var count = comments.length;
+    btn.textContent = count ? ('💬 ' + count + ' comment' + (count !== 1 ? 's' : '')) : '💬 Add a comment';
+  }
+}
+
+function buildCommentItems(key, comments) {
+  return comments.map(function(c) {
+    var cid = c.id;
+    return '<div class="ec-item">'
+      + '<button class="ec-del" onclick="deleteEntryComment(\'' + key + '\',' + cid + ')">✕</button>'
+      + '<div class="ec-name">' + esc(c.name) + '</div>'
+      + '<div class="ec-text">' + esc(c.text) + '</div>'
+      + '<div class="ec-stamp">' + c.stamp + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function commentBlock(entryId) {
+  var key = String(entryId);
+  var comments = (data.entryComments && data.entryComments[key]) || [];
+  var count = comments.length;
+  var btnTxt = count ? ('💬 ' + count + ' comment' + (count !== 1 ? 's' : '')) : '💬 Add a comment';
+  return '<div class="entry-comments">'
+    + '<button class="btn-toggle-comments" id="ec-btn-' + key + '" onclick="toggleComments(\'' + key + '\')">' + btnTxt + '</button>'
+    + '<div class="comment-panel" id="cp-' + key + '">'
+    +   '<div class="comment-list" id="ec-list-' + key + '">' + buildCommentItems(key, comments) + '</div>'
+    +   '<div class="ec-form">'
+    +     '<input type="text" id="ecn-' + key + '" placeholder="Your name...">'
+    +     '<input type="text" id="ect-' + key + '" placeholder="Write a comment...">'
+    +     '<button onclick="addEntryComment(\'' + key + '\')">Post</button>'
+    +   '</div>'
+    + '</div>'
+    + '</div>';
+}
+
+
+
+function openPalDetail(type) {
+  var panel=document.getElementById('pal-detail');
+  var title=document.getElementById('pal-detail-title');
+  var body=document.getElementById('pal-detail-body');
+  if(!panel||!body) return;
+  var books=data.books; var total=books.length; var html='';
+  if(type==='genre'){
+    title.textContent='Collection by Genre';
+    var gm={},rg={};
+    books.forEach(function(b){gm[b.genre]=(gm[b.genre]||0)+1;});
+    books.filter(function(b){return b.status==='read';}).forEach(function(b){rg[b.genre]=(rg[b.genre]||0)+1;});
+    var gs=Object.entries(gm).sort(function(a,b){return b[1]-a[1];});
+    html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+total+'</div><div class="psl">Total</div></div><div class="pal-stat-box"><div class="psn">'+gs.length+'</div><div class="psl">Genres</div></div><div class="pal-stat-box"><div class="psn">'+(gs[0]?esc(gs[0][0]):'--')+'</div><div class="psl">Top Genre</div></div></div>';
+    html+='<table class="pal-table"><thead><tr><th>Genre</th><th>Books</th><th>Read</th><th>Unread</th><th>%</th></tr></thead><tbody>';
+    gs.forEach(function(e){var pct=total?Math.round((e[1]/total)*100):0;html+='<tr><td>'+esc(e[0])+'</td><td><strong>'+e[1]+'</strong></td><td style="color:var(--olive)">'+(rg[e[0]]||0)+'</td><td>'+(e[1]-(rg[e[0]]||0))+'</td><td><div class="pal-bar-bg"><div class="pal-bar-fill" style="width:'+pct+'%"></div></div> '+pct+'%</td></tr>';});
+    html+='</tbody></table>';
+  } else if(type==='status'){
+    title.textContent='Reading Progress';
+    var read=books.filter(function(b){return b.status==='read';}).length;
+    var rdng=books.filter(function(b){return b.status==='reading';}).length;
+    var unrd=books.filter(function(b){return b.status==='unread';}).length;
+    var pct=total?Math.round((read/total)*100):0;
+    html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+read+'</div><div class="psl">Read</div></div><div class="pal-stat-box"><div class="psn">'+rdng+'</div><div class="psl">Reading Now</div></div><div class="pal-stat-box"><div class="psn">'+unrd+'</div><div class="psl">Unread</div></div></div>';
+    html+='<div style="background:var(--card);border-radius:var(--r);padding:1.2rem 1.5rem;margin-bottom:1.5rem"><div style="display:flex;justify-content:space-between;margin-bottom:.5rem"><span style="font-family:Georgia,serif;font-size:.85rem;color:var(--tsoft)">'+read+' of '+total+' read</span><span style="font-family:Georgia,serif;font-size:.85rem;font-weight:700;color:var(--olive)">'+pct+'%</span></div><div class="pal-bar-bg" style="height:12px"><div class="pal-bar-fill" style="width:'+pct+'%"></div></div></div>';
+    var ug={};books.filter(function(b){return b.status==='unread';}).forEach(function(b){ug[b.genre]=(ug[b.genre]||0)+1;});
+    var ugs=Object.entries(ug).sort(function(a,b){return b[1]-a[1];});
+    html+='<div class="pal-section-title">Unread by Genre</div><table class="pal-table"><thead><tr><th>Genre</th><th>Unread</th></tr></thead><tbody>';
+    ugs.forEach(function(e){html+='<tr><td>'+esc(e[0])+'</td><td>'+e[1]+'</td></tr>';});
+    html+='</tbody></table>';
+  } else if(type==='language'){
+    title.textContent='By Language';
+    var lm={},lr={};var LN={en:'English',sq:'Albanian',de:'German',other:'Other'};
+    books.forEach(function(b){lm[b.lang]=(lm[b.lang]||0)+1;});
+    books.filter(function(b){return b.status==='read';}).forEach(function(b){lr[b.lang]=(lr[b.lang]||0)+1;});
+    var ls=Object.entries(lm).sort(function(a,b){return b[1]-a[1];});
+    html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+ls.length+'</div><div class="psl">Languages</div></div><div class="pal-stat-box"><div class="psn">'+(ls[0]?LN[ls[0][0]]||ls[0][0]:'--')+'</div><div class="psl">Most Books In</div></div><div class="pal-stat-box"><div class="psn">'+total+'</div><div class="psl">Total</div></div></div>';
+    html+='<table class="pal-table"><thead><tr><th>Language</th><th>Books</th><th>Read</th><th>%</th></tr></thead><tbody>';
+    ls.forEach(function(e){var pct=total?Math.round((e[1]/total)*100):0;html+='<tr><td>'+(LN[e[0]]||e[0])+'</td><td><strong>'+e[1]+'</strong></td><td style="color:var(--olive)">'+(lr[e[0]]||0)+'</td><td>'+pct+'%</td></tr>';});
+    html+='</tbody></table>';
+  } else if(type==='authors'){
+    title.textContent='All Authors';
+    var am={},ar={};
+    books.forEach(function(b){am[b.author]=(am[b.author]||0)+1;});
+    books.filter(function(b){return b.status==='read';}).forEach(function(b){ar[b.author]=(ar[b.author]||0)+1;});
+    var as2=Object.entries(am).sort(function(a,b){
+      var la=a[0].trim().split(' '); var lb=b[0].trim().split(' ');
+      return la[la.length-1].toLowerCase().localeCompare(lb[lb.length-1].toLowerCase());
+    });
+    var top=Object.entries(am).reduce(function(m,e){return e[1]>m[1]?e:m;},['',0]);
+    html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+as2.length+'</div><div class="psl">Authors</div></div><div class="pal-stat-box"><div class="psn">'+esc(top[0])+'</div><div class="psl">Most Books</div></div><div class="pal-stat-box"><div class="psn">'+(Math.round(total/(as2.length||1)*10)/10)+'</div><div class="psl">Avg / Author</div></div></div>';
+    html+='<table class="pal-table"><thead><tr><th>Author</th><th>Books</th><th>Read</th></tr></thead><tbody>';
+    as2.forEach(function(e){html+='<tr><td>'+esc(e[0])+'</td><td><strong>'+e[1]+'</strong></td><td style="color:var(--olive)">'+(ar[e[0]]||0)+'</td></tr>';});
+    html+='</tbody></table>';
+  } else if(type==='banned'){
+    title.textContent='Banned & Challenged';
+    var bn=books.filter(function(b){return b.banned==='yes';});
+    var ch=books.filter(function(b){return b.banned==='challenged';});
+    html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+bn.length+'</div><div class="psl">Banned</div></div><div class="pal-stat-box"><div class="psn">'+ch.length+'</div><div class="psl">Challenged</div></div><div class="pal-stat-box"><div class="psn">'+(bn.length+ch.length)+'</div><div class="psl">Total</div></div></div>';
+    if(bn.length){html+='<div class="pal-section-title">Banned</div><table class="pal-table"><thead><tr><th>#</th><th>Title</th><th>Author</th><th>Year</th></tr></thead><tbody>';bn.forEach(function(b){html+='<tr><td style="color:var(--tmuted)">'+(b.num||'--')+'</td><td style="font-style:italic">'+esc(b.title)+'</td><td>'+esc(b.author)+'</td><td>'+(b.year||'--')+'</td></tr>';});html+='</tbody></table>';}
+    if(ch.length){html+='<div class="pal-section-title">Challenged</div><table class="pal-table"><thead><tr><th>#</th><th>Title</th><th>Author</th><th>Year</th></tr></thead><tbody>';ch.forEach(function(b){html+='<tr><td style="color:var(--tmuted)">'+(b.num||'--')+'</td><td style="font-style:italic">'+esc(b.title)+'</td><td>'+esc(b.author)+'</td><td>'+(b.year||'--')+'</td></tr>';});html+='</tbody></table>';}
+    if(!bn.length&&!ch.length){html+='<div class="empty-state"><p>No banned or challenged books yet.</p></div>';}
+  }
+  body.innerHTML=html;
+  panel.classList.add('open');
+}
+function closePalDetail(){document.getElementById('pal-detail').classList.remove('open');}
+
+
+function acOpen(inputId, listId) {
+  var inp = document.getElementById(inputId);
+  var lst = document.getElementById(listId);
+  if (!inp || !lst) return;
+  var q = inp.value.trim().toLowerCase();
+  if (!q) { lst.classList.remove('open'); lst.innerHTML=''; return; }
+  var matches = data.books.filter(function(b){
+    return b.title.toLowerCase().includes(q) || (b.author||'').toLowerCase().includes(q);
+  }).slice(0,8);
+  if (!matches.length) { lst.classList.remove('open'); lst.innerHTML=''; return; }
+  var html = '';
+  matches.forEach(function(b){
+    var au = b.author ? ('<span class="ac-sub">'+esc(b.author)+'</span>') : '';
+    html += '<div class="ac-item" data-inp="'+inputId+'" data-lst="'+listId+'" data-val="'+esc(b.title)+'">'+esc(b.title)+au+'</div>';
+  });
+  lst.innerHTML = html;
+  lst.querySelectorAll('.ac-item').forEach(function(el){
+    el.addEventListener('mousedown', function(e){
+      e.preventDefault();
+      var i2 = document.getElementById(el.getAttribute('data-inp'));
+      var l2 = document.getElementById(el.getAttribute('data-lst'));
+      if (i2) i2.value = el.getAttribute('data-val');
+      if (l2) { l2.classList.remove('open'); l2.innerHTML=''; }
+    });
+  });
+  lst.classList.add('open');
+}
+document.addEventListener('click', function(e) {
+  var t = e.target; var inside = false;
+  while (t) {
+    if (t.className && typeof t.className === 'string' && t.className.indexOf('ac-wrap') !== -1){ inside=true; break; }
+    t = t.parentElement;
+  }
+  if (!inside) document.querySelectorAll('.ac-list').forEach(function(l){ l.classList.remove('open'); l.innerHTML=''; });
+});
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function init() {
+  updateStats(); renderNotices(); loadFeatured(); renderFeatTags(); loadQuote(); renderTable(); renderLoans(); renderWanted();
+}
+
+load();
+if (!data.impressum || !data.impressum.name) {
+  data.impressum = { name: 'Kreshnik Dain', desc: 'A personal literary archive — books read, borrowed, sought and reflected upon.', year: '2026' };
+}
+init(); renderFooter(); setTimeout(function(){ if(isMob()) renderMobBooks(); }, 50);
+
+function openEventModal(){ document.getElementById('event-modal').classList.add('open'); var t=document.getElementById('ev-year'); if(t)setTimeout(function(){t.focus();},100); }
+function closeEventModal(){ document.getElementById('event-modal').classList.remove('open'); }
+function openCommentModal(){ document.getElementById('comment-modal').classList.add('open'); var t=document.getElementById('cm-body'); if(t)setTimeout(function(){t.focus();},100); }
+function closeCommentModal(){ document.getElementById('comment-modal').classList.remove('open'); }
+function openJournalModal(){ document.getElementById('journal-modal').classList.add('open'); var t=document.getElementById('j-body'); if(t)setTimeout(function(){t.focus();},100); }
+function closeJournalModal(){ document.getElementById('journal-modal').classList.remove('open'); }
+</script>
+
+<!-- EDIT BOOK MODAL -->
+<div class="modal-bg" id="edit-modal" style="display:none" onclick="if(event.target===this)closeEditBook()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeEditBook()">✕</button>
+    <div class="modal-title">Edit Book</div>
+    <input type="hidden" id="edit-id">
+    <div class="grid-2">
+      <div class="field"><label>Title</label><input type="text" id="edit-title"></div>
+      <div class="field"><label>Author</label><input type="text" id="edit-author"></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Genre</label>
+        <select id="edit-genre"><option>Art & Culture</option><option>Biography</option><option>Classic Literature</option><option>Comics / Graphic Novel</option><option>Cooking</option><option>Drama / Plays</option><option>Economics</option><option>Education</option><option>Essays / Criticism</option><option>Fantasy</option><option>Gardening</option><option>History</option><option>Horror</option><option>Kids</option><option>Literature / Fiction</option><option>Memoir</option><option>Music</option><option>Mystery / Thriller</option><option>Novel</option><option>Nature</option><option>Philosophy</option><option>Poetry</option><option>Politics</option><option>Psychology</option><option>Religion / Spirituality</option><option>Science</option><option>Science Fiction</option><option>Self-Help</option><option>Short Stories</option><option>Travel / Adventure</option><option>Other</option></select>
+      </div>
+      <div class="field"><label>Language</label>
+        <select id="edit-lang">
+          <option value="en">English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Status</label>
+        <select id="edit-status">
+          <option value="unread">Unread</option>
+          <option value="reading">Currently Reading</option>
+          <option value="read">Read</option>
+        </select>
+      </div>
+      <div class="field"><label>Year Published</label><input type="number" id="edit-year" min="0" max="2099"></div>
+    </div>
+    <div class="grid-1">
+      <div class="field"><label>Banned?</label>
+        <select id="edit-banned">
+          <option value="no">No</option><option value="yes">Banned</option><option value="challenged">Challenged</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-ghost" onclick="closeEditBook()">Cancel</button>
+      <button class="btn-primary" onclick="saveEditBook()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT EVENT MODAL -->
+<div class="modal-bg" id="edit-event-modal" style="display:none" onclick="if(event.target===this)closeModal('edit-event-modal')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('edit-event-modal')">✕</button>
+    <div class="modal-title">Edit World Event</div>
+    <input type="hidden" id="ee-id">
+    <div class="grid-3">
+      <div class="field"><label>Year</label><input type="number" id="ee-year" min="0" max="2099"></div>
+      <div class="field"><label>Title</label><input type="text" id="ee-title"></div>
+      <div class="field"><label>Category</label>
+        <select id="ee-type"><option value="historical">Historical</option><option value="political">Political</option><option value="personal">Personal</option><option value="cultural">Cultural</option></select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Linked Book</label><input type="text" id="ee-book"></div>
+      <div class="field"><label>Location</label><input type="text" id="ee-location"></div>
+    </div>
+    <div class="grid-1"><div class="field"><label>Description</label><textarea id="ee-desc" rows="3"></textarea></div></div>
+    <div class="form-actions">
+      <button class="btn-ghost" onclick="closeModal('edit-event-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveEditEvent()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT COMMENT MODAL -->
+<div class="modal-bg" id="edit-comment-modal" style="display:none" onclick="if(event.target===this)closeModal('edit-comment-modal')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('edit-comment-modal')">✕</button>
+    <div class="modal-title">Edit Commentary Entry</div>
+    <input type="hidden" id="ec-id">
+    <div class="grid-1"><div class="field"><textarea id="ec-body" rows="6"></textarea></div></div>
+    <div class="grid-3">
+      <div class="field"><label>Book / Subject</label><input type="text" id="ec-book"></div>
+      <div class="field"><label>Type</label>
+        <select id="ec-type"><option value="insight">Insight</option><option value="review">Review</option><option value="commentary">Commentary</option><option value="note">Note</option></select>
+      </div>
+      <div class="field"><label>Author</label><input type="text" id="ec-author"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-ghost" onclick="closeModal('edit-comment-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveEditComment()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT JOURNAL MODAL -->
+<div class="modal-bg" id="edit-journal-modal" style="display:none" onclick="if(event.target===this)closeModal('edit-journal-modal')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('edit-journal-modal')">✕</button>
+    <div class="modal-title">Edit Journal Entry</div>
+    <input type="hidden" id="ej-id">
+    <div class="grid-1"><div class="field"><textarea id="ej-body" rows="6"></textarea></div></div>
+    <div class="grid-3">
+      <div class="field"><label>Book / Subject</label><input type="text" id="ej-book"></div>
+      <div class="field"><label>Type</label>
+        <select id="ej-type"><option value="analysis">Analysis</option><option value="reflection">Reflection</option><option value="review">Review</option><option value="insight">Insight</option><option value="note">Note</option></select>
+      </div>
+      <div class="field"><label>Author</label><input type="text" id="ej-author"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-ghost" onclick="closeModal('edit-journal-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveEditJournal()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT DIVE MODAL -->
+<div class="modal-bg" id="edit-dive-modal" style="display:none" onclick="if(event.target===this)closeModal('edit-dive-modal')">
+  <div class="modal-box" style="max-width:640px">
+    <button class="modal-close" onclick="closeModal('edit-dive-modal')">✕</button>
+    <div class="modal-title" id="ed-modal-title">Edit Deep Dive</div>
+    <input type="hidden" id="ed-id">
+    <div class="grid-1"><div class="field"><label>Description</label><textarea id="ed-desc" rows="3"></textarea></div></div>
+    <div class="grid-2">
+      <div class="field"><label>Favourite Quote</label><textarea id="ed-quote" rows="3" style="font-family:'Georgia',serif;font-style:italic"></textarea></div>
+      <div class="field"><label>Favourite Character</label><input type="text" id="ed-char"></div>
+    </div>
+    <div class="grid-1"><div class="field"><label>My Thoughts &amp; Reflection</label><textarea id="ed-thoughts" rows="4"></textarea></div></div>
+    <div class="grid-3">
+      <div class="field"><label>Ban Status</label>
+        <select id="ed-banned"><option value="no">Not banned</option><option value="yes">Banned</option><option value="challenged">Challenged</option></select>
+      </div>
+      <div class="field"><label>Where Banned</label><input type="text" id="ed-where"></div>
+      <div class="field"><label>When Banned</label><input type="text" id="ed-when"></div>
+    </div>
+    <div class="grid-1"><div class="field"><label>Ban Details</label><textarea id="ed-bandetails" rows="2"></textarea></div></div>
+    <div class="form-actions">
+      <button class="btn-ghost" onclick="closeModal('edit-dive-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveEditDive()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="app-footer">
+  <div class="footer-text" id="footer-text">Personal Library</div>
+  <button class="footer-link" onclick="openImpr()">Impressum</button>
+</footer>
+
+<!-- IMPRESSUM MODAL -->
+<div class="impr-modal" id="impr-modal" style="display:none" onclick="if(event.target===this)closeImpr()">
+  <div class="impr-box">
+    <button class="modal-close" onclick="closeImpr()">✕</button>
+    <div class="impr-title">Impressum</div>
+    <div id="impr-display" style="display:none" class="impr-display"></div>
+          <div id="impr-form">
+      <div class="impr-field"><label>Name / Alias</label><input type="text" id="impr-name" placeholder="Your name or alias…"></div>
+      <div class="impr-field"><label>Description</label><textarea id="impr-desc" rows="2" placeholder="A short description of this library…"></textarea></div>
+      <div class="impr-field"><label>Year Created</label><input type="text" id="impr-year" placeholder="e.g. 2026"></div>
+      <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:.8rem">
+        <button class="btn-ghost" onclick="closeImpr()">Cancel</button>
+        <button class="btn-primary" onclick="saveImpr()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pal-detail" id="pal-detail"><div class="pal-detail-header"><button class="pal-back" onclick="closePalDetail()">&#8592; Back</button><div class="pal-detail-title" id="pal-detail-title"></div></div><div class="pal-detail-body" id="pal-detail-body"></div></div>
+</body>
+</html>
