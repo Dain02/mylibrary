@@ -35,9 +35,18 @@ var Chart = (function() {
     if(!total) return;
     var canvas = this.canvas;
     var ctx = this.ctx;
-    var cx = canvas.width * 0.38, cy = canvas.height / 2;
-    var r = Math.min(cx, cy) * 0.82;
-    var inner = r * 0.6;
+    var narrow = canvas.width < 300;
+    var cx, cy, r, inner;
+    if(narrow) {
+      cx = canvas.width / 2;
+      cy = canvas.height * 0.38;
+      r = Math.min(cx, cy) * 0.82;
+    } else {
+      cx = canvas.width * 0.25;
+      cy = canvas.height / 2;
+      r = Math.min(cx, cy) * 0.82;
+    }
+    inner = r * 0.6;
     var angle = -Math.PI/2;
     ctx.clearRect(0,0,canvas.width,canvas.height);
     for(var i=0;i<data.length;i++){
@@ -55,13 +64,27 @@ var Chart = (function() {
       angle += slice;
     }
     // Legend
-    var lx = canvas.width*0.72, ly = cy - (labels.length*16)/2;
-    for(var j=0;j<labels.length;j++){
-      ctx.fillStyle = colors[j%colors.length];
-      ctx.fillRect(lx, ly+j*18, 11, 11);
-      ctx.fillStyle = '#3e2e18';
-      ctx.font = '11px Georgia';
-      ctx.fillText(labels[j]+' ('+data[j]+')', lx+15, ly+j*18+10);
+    var fontSize = narrow ? 9 : 10;
+    ctx.font = fontSize+'px Georgia';
+    if(narrow) {
+      var lx = 8, ly = cy + r + 14;
+      for(var j=0;j<labels.length;j++){
+        var row = Math.floor(j/2), col = j%2;
+        var lxc = lx + col*(canvas.width/2);
+        var lyc = ly + row*16;
+        ctx.fillStyle = colors[j%colors.length];
+        ctx.fillRect(lxc, lyc, 9, 9);
+        ctx.fillStyle = '#3e2e18';
+        ctx.fillText(labels[j].slice(0,12)+' ('+data[j]+')', lxc+12, lyc+8);
+      }
+    } else {
+      var lx2 = canvas.width*0.52, ly2 = cy - (labels.length*16)/2;
+      for(var j=0;j<labels.length;j++){
+        ctx.fillStyle = colors[j%colors.length];
+        ctx.fillRect(lx2, ly2+j*18, 10, 10);
+        ctx.fillStyle = '#3e2e18';
+        ctx.fillText(labels[j]+' ('+data[j]+')', lx2+14, ly2+j*18+9);
+      }
     }
   };
   Chart.prototype._drawBar = function() {
@@ -94,15 +117,19 @@ var Chart = (function() {
         ctx.restore();
       }
     } else {
-      var rh = (canvas.height - pad*2) / (data.length || 1);
+      var narrow2 = canvas.width < 300;
+      var labelW = narrow2 ? 70 : 100;
+      var padH = 10;
+      var rh = (canvas.height - padH*2) / (data.length || 1);
       for(var i=0;i<data.length;i++){
-        var rw = ((data[i]/max) * (canvas.width - pad*2 - 120));
-        var rx = pad+120, ry = pad + i*rh + rh*0.1;
+        var rw = ((data[i]/max) * (canvas.width - padH*2 - labelW - 30));
+        var rx = padH+labelW, ry = padH + i*rh + rh*0.1;
         ctx.fillStyle = colors[i%colors.length];
         ctx.fillRect(rx, ry, rw, rh*0.75);
         ctx.fillStyle = '#3e2e18';
         ctx.textAlign='right';
-        ctx.fillText(labels[i].slice(0,18), rx-4, ry+rh*0.5);
+        ctx.font = (narrow2 ? '9' : '10')+'px Georgia';
+        ctx.fillText(labels[i].slice(0, narrow2 ? 12 : 16), rx-4, ry+rh*0.5);
         ctx.fillStyle = '#7a6040';
         ctx.textAlign='left';
         ctx.fillText(data[i], rx+rw+4, ry+rh*0.5);
@@ -565,7 +592,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   /* Hide desktop table, show cards */
   .table-wrap table { display: none; }
   .table-wrap { padding: 0 1rem 2rem; overflow-x: hidden; }
-  #mob-book-cards { display: block; }
+  #mob-book-cards { display: block !important; }
   .filter-bar { flex-direction: column; padding: .8rem 1rem 0; }
   .filter-bar input, .filter-bar select { width: 100%; }
   .stacks-topbar { padding: .8rem 1rem .3rem; }
@@ -789,12 +816,16 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 ═══════════════════════════════════════ */
 @media (max-width: 768px) {
 
-  /* ── Background: warm sandy amber, not pink ── */
+  /* ── Background: warm sandy amber with subtle cloud blobs ── */
   body {
     background:
-      radial-gradient(ellipse at 15% 10%, rgba(220,160,80,.5) 0%, transparent 45%),
-      radial-gradient(ellipse at 85% 85%, rgba(200,140,60,.4) 0%, transparent 45%),
-      radial-gradient(ellipse at 50% 50%, rgba(240,210,150,.4) 0%, transparent 65%),
+      radial-gradient(ellipse 80% 40% at 15% 12%, rgba(255,235,180,.55) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 35% at 85% 8%,  rgba(220,185,120,.4)  0%, transparent 55%),
+      radial-gradient(ellipse 70% 45% at 50% 28%, rgba(245,220,155,.35) 0%, transparent 60%),
+      radial-gradient(ellipse 90% 40% at 10% 55%, rgba(210,175,100,.3)  0%, transparent 55%),
+      radial-gradient(ellipse 65% 35% at 80% 65%, rgba(240,210,140,.4)  0%, transparent 55%),
+      radial-gradient(ellipse 75% 40% at 40% 82%, rgba(255,230,165,.35) 0%, transparent 60%),
+      radial-gradient(ellipse 55% 30% at 90% 90%, rgba(220,180,110,.3)  0%, transparent 50%),
       linear-gradient(160deg, #f2e0c0 0%, #ecd4a8 40%, #e8ce9e 70%, #f0daae 100%) !important;
     background-attachment: fixed !important;
   }
@@ -904,12 +935,16 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
     border-radius: 10px !important;
     margin: .5rem 1rem !important;
     padding: .5rem .8rem !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
   }
   .sort-bar label { color: rgba(100,68,18,.65) !important; }
   .sort-bar select {
     background: rgba(255,250,228,.85) !important;
     border-color: rgba(200,165,90,.4) !important;
     border-radius: 8px !important;
+    flex: 1 !important;
+    min-width: 0 !important;
   }
 
   /* ── Slide-up sheet ── */
@@ -949,7 +984,32 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
     -webkit-backdrop-filter: blur(4px) !important;
   }
 
-  /* ── Misc ── */
+  /* ── Insights expand panel ── */
+  .pal-detail {
+    background: linear-gradient(160deg, #f2e0c0 0%, #ecd4a8 40%, #e8ce9e 70%, #f0daae 100%) !important;
+  }
+  .pal-detail-header {
+    background: rgba(242,228,195,.96) !important;
+    backdrop-filter: blur(18px) !important;
+    border-bottom: 1px solid rgba(200,165,90,.3) !important;
+  }
+  .pal-back { color: rgba(80,50,10,.8) !important; border-color: rgba(160,110,40,.35) !important; }
+  .pal-detail-title { color: rgba(60,38,8,.92) !important; }
+  .pal-stat-box {
+    background: rgba(255,250,230,.75) !important;
+    border-color: rgba(210,180,100,.35) !important;
+    border-radius: 14px !important;
+  }
+  .pal-table { background: rgba(255,250,230,.75) !important; border-radius: 14px !important; }
+  .pal-table th { color: rgba(130,85,15,.8) !important; }
+  .pal-table td { color: rgba(60,38,8,.85) !important; }
+
+  /* ── Charts smaller on mobile ── */
+  .ch-wrap.ch-donut { height: 200px !important; }
+  .ch-wrap.ch-bar   { height: 160px !important; }
+  .ch-wrap.ch-hbar  { height: 180px !important; }
+  .chart-card { padding: .8rem !important; }
+  .chart-card h3 { font-size: .82rem !important; }
   .page { background: transparent !important; }
   .gh-body { background: transparent !important; }
   .mob-bc {
@@ -968,6 +1028,19 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
     background: rgba(255,250,228,.75) !important;
     border-radius: 16px !important;
     border: 1px solid rgba(210,180,100,.3) !important;
+  }
+  /* ── World event modal compact on mobile ── */
+  #event-modal .card { padding: .7rem .8rem !important; }
+  #event-modal .grid-3 { grid-template-columns: 1fr !important; gap: .5rem !important; margin-bottom: .5rem !important; }
+  #event-modal .grid-2 { grid-template-columns: 1fr !important; gap: .5rem !important; margin-bottom: .5rem !important; }
+  #event-modal .grid-1 { margin-bottom: .5rem !important; }
+  #event-modal .field textarea { min-height: 50px !important; }
+
+  /* ── Pin to Board button ── */
+  .btn-gold {
+    background: rgba(148,92,18,.88) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 10px rgba(140,85,10,.25) !important;
   }
 }
 
@@ -1015,13 +1088,13 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   display: none;
   position: fixed;
   bottom: 70px;
-  z-index: 2000;
-  background: rgba(252,246,230,.98);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(200,165,90,.35);
+  z-index: 2102;
+  background: rgba(252,246,230,.28);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(200,165,90,.3);
   border-radius: 14px;
-  box-shadow: 0 -2px 24px rgba(140,90,20,.18), 0 4px 16px rgba(140,90,20,.1);
+  box-shadow: 0 -2px 24px rgba(140,90,20,.15), 0 4px 16px rgba(140,90,20,.08);
   overflow: hidden;
   min-width: 190px;
   max-width: 230px;
@@ -1034,15 +1107,17 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   width: 100%;
   background: none;
   border: none;
-  border-bottom: 1px solid rgba(200,165,90,.15);
+  border-bottom: 1px solid rgba(200,165,90,.2);
   padding: .72rem 1rem;
   font-family: 'Georgia', serif;
   font-size: .88rem;
-  color: rgba(60,38,8,.88);
+  font-weight: 600;
+  color: rgba(50,28,4,.95);
   cursor: pointer;
   text-align: left;
   transition: background .12s;
   white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(255,240,200,.6);
 }
 .pop-item:last-child { border-bottom: none; }
 .pop-item:active { background: rgba(210,175,90,.22); }
@@ -1059,7 +1134,10 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 .pop-overlay {
   display: none;
   position: fixed;
-  inset: 0;
+  top: var(--nav-h);
+  left: 0;
+  right: 0;
+  bottom: 62px;
   z-index: 1999;
   background: transparent;
 }
@@ -1077,7 +1155,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
     left: 0 !important;
     right: 0 !important;
     top: auto !important;
-    z-index: 1001;
+    z-index: 2100;
     height: 62px;
     background: rgba(242,228,195,.96);
     backdrop-filter: blur(22px);
@@ -1121,7 +1199,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
     position: fixed !important;
     bottom: 74px !important;
     right: 16px !important;
-    z-index: 1002;
+    z-index: 2101;
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -1139,9 +1217,18 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   /* Push content above nav */
   body { padding-bottom: 80px !important; }
 
-  /* Modal clears bottom nav */
-  .add-modal-bg { padding-bottom: 72px !important; }
-  .modal-bg { padding-bottom: 72px !important; }
+  /* Modal: properly centered above bottom nav */
+  .add-modal-bg,
+  .modal-bg {
+    bottom: 62px !important;
+    align-items: center !important;
+    padding: 1rem !important;
+  }
+  .add-modal-box,
+  .modal-box {
+    max-height: calc(100vh - 62px - 2rem) !important;
+    overflow-y: auto !important;
+  }
 
   /* Hide top hamburger */
   .ham-btn { display: none !important; }
@@ -1238,7 +1325,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 </nav>
 
 <!-- ══ FLOATING + BUTTON ══ -->
-<button class="fab" onclick="fabAddBook()">＋</button>
+<button class="fab" id="fab-add" onclick="fabAddBook()">＋</button>
 
 
 <!-- ══════════════════ PAGE 1: GREAT HALL ══════════════════ -->
@@ -1353,9 +1440,8 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
             <select id="in-banned"><option value="no">No</option><option value="yes">Banned</option><option value="challenged">Challenged</option></select>
           </div>
         </div>
-        <div class="form-actions">
-          <button class="btn-ghost" onclick="closeAddForm()">Cancel</button>
-          <button class="btn-primary" onclick="addBook()">Add to Vault</button>
+        <div class="form-actions" style="justify-content:center;padding-right:3.5rem">
+          <button class="btn-primary" style="width:100%" onclick="addBook()">Add to Vault</button>
         </div>
       </div>
     </div>
@@ -1405,7 +1491,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
             <div class="field"><label>Notes</label><input type="text" id="b-notes" placeholder="Any notes…"></div>
           </div>
           <div class="form-actions">
-            <button class="btn-ghost" onclick="toggleBorrowForm()">Cancel</button>
+            <button class="btn-ghost" onclick="closeBorrowForm()">Cancel</button>
             <button class="btn-primary" onclick="addLoan()">Record Loan</button>
           </div>
         </div>
@@ -1440,7 +1526,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
             <div class="field"><label>Notes</label><textarea id="w-notes" rows="2" placeholder="What drew you to this book…"></textarea></div>
           </div>
           <div class="form-actions">
-            <button class="btn-ghost" onclick="toggleWantedForm()">Cancel</button>
+            <button class="btn-ghost" onclick="closeWantedForm()">Cancel</button>
             <button class="btn-primary" onclick="addWanted()">To the List</button>
           </div>
         </div>
@@ -1471,7 +1557,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
             <div class="field"><label>Finish By (Goal)</label><input type="date" id="rg-target"></div>
           </div>
           <div class="form-actions">
-            <button class="btn-ghost" onclick="toggleReadingForm()">Cancel</button>
+            <button class="btn-ghost" onclick="closeReadingForm()">Cancel</button>
             <button class="btn-primary" onclick="addReadingEntry()">Start Tracking</button>
           </div>
         </div>
@@ -1551,9 +1637,9 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
           <div class="field"><label>Location / Country</label><input type="text" id="ev-location" placeholder="e.g. Germany, Global…"></div>
         </div>
         <div class="grid-1">
-          <div class="field"><label>Description</label><textarea id="ev-desc" rows="3" placeholder="Describe the event and its connection to your reading life…"></textarea></div>
+          <div class="field"><label>Description</label><textarea id="ev-desc" rows="2" placeholder="Describe the event and its connection to your reading life…"></textarea></div>
         </div>
-        <div class="form-actions"><button class="btn-primary" onclick="addEvent()">Add to the Annals</button></div>
+        <div class="form-actions"><button class="btn-primary" onclick="addEvent()">Add to the Record</button></div>
       </div>
   </div>
 </div>
@@ -1608,13 +1694,18 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
       <div class="toggle-form" id="dive-form">
         <div class="card card-l" style="margin-bottom:1.5rem">
           <div class="grid-2">
-            <div class="field"><label>Select Book</label>
-              <select id="rb-select" onchange="loadDiveBook()">
-                <option value="">— choose from your collection —</option>
-              </select>
+            <div class="field"><label>Search Book</label>
+              <div class="ac-wrap">
+                <input type="text" id="rb-book-input" placeholder="Type a title or author…"
+                  oninput="acOpenDive('rb-book-input','ac-rb')"
+                  onblur="setTimeout(function(){var l=document.getElementById('ac-rb');if(l){l.classList.remove('open');l.innerHTML='';}},200)"
+                  autocomplete="off">
+                <div class="ac-list" id="ac-rb"></div>
+              </div>
+              <input type="hidden" id="rb-select">
             </div>
             <div id="rb-book-meta" style="display:flex;align-items:flex-end;padding-bottom:.5rem">
-              <span style="font-family:'Georgia',serif;font-style:italic;font-size:.95rem;color:var(--tmuted)" id="rb-book-hint">Select a book to fill details automatically</span>
+              <span style="font-family:'Georgia',serif;font-style:italic;font-size:.95rem;color:var(--tmuted)" id="rb-book-hint">Type to search your collection</span>
             </div>
           </div>
           <div class="grid-1"><div class="field"><label>Description / What this book is about</label><textarea id="rb-desc" rows="3" placeholder="Write a description…"></textarea></div></div>
@@ -1633,7 +1724,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
           </div>
           <div class="grid-1"><div class="field"><label>Ban Details</label><textarea id="rb-bandetails" rows="2" placeholder="Why was it banned?…"></textarea></div></div>
           <div class="form-actions">
-            <button class="btn-ghost" onclick="toggleDiveForm()">Cancel</button>
+            <button class="btn-ghost" onclick="closeDiveForm()">Cancel</button>
             <button class="btn-primary" onclick="saveDive()">Save Deep Dive</button>
           </div>
         </div>
@@ -1692,6 +1783,7 @@ function showPage(name, btn) {
   if(name==='palantir') renderCharts();
   if(name==='annals')   renderTimeline();
   if(name==='red-book') { populateRBSelect(); renderDives(); renderJournal(); }
+  updateFab();
 }
 
 function showStacksTab(name, btn) {
@@ -1832,7 +1924,13 @@ function fabAddBook() {
   showStacksTab('volumes', null);
   document.querySelectorAll('.bn-item').forEach(function(b){ b.classList.remove('active'); });
   var s = document.getElementById('bn-stacks'); if(s) s.classList.add('active');
-  setTimeout(function(){ toggleAddForm(); }, 50);
+  setTimeout(function(){ toggleAddForm(); }, 100);
+}
+function updateFab() {
+  var fab = document.getElementById('fab-add');
+  if (!fab) return;
+  var onStacks = document.getElementById('page-the-stacks').classList.contains('active');
+  fab.style.display = onStacks ? 'flex' : 'none';
 }
 function toggleAddForm() {
   var w = document.getElementById('add-form-wrap');
@@ -1921,6 +2019,7 @@ function renderTable() {
   if(fc) fc.textContent=filtered.length!==data.books.length
     ?filtered.length+' of '+data.books.length+' books'
     :data.books.length+' book'+(data.books.length!==1?'s':'');
+  renderMobBooks();
 }
 
 function toggleBorrowForm(){
@@ -1928,7 +2027,10 @@ function toggleBorrowForm(){
   var t=document.getElementById('b-title');if(t)setTimeout(function(){t.focus();},100);
 }
 function closeBorrowForm(){
-  closeBorrowForm();
+  document.getElementById('borrow-form').classList.remove('open');
+  ['b-title','b-reader','b-contact','b-notes'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var d1=document.getElementById('b-date'); if(d1) d1.value='';
+  var d2=document.getElementById('b-return'); if(d2) d2.value='';
 }
 function addLoan() {
   const title=document.getElementById('b-title').value.trim();
@@ -1969,7 +2071,27 @@ function toggleWantedForm(){
   var t=document.getElementById('w-title');if(t)setTimeout(function(){t.focus();},100);
 }
 function closeWantedForm(){
-  closeWantedForm();
+  document.getElementById('wanted-form').classList.remove('open');
+  ['w-title','w-author','w-source'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var g=document.getElementById('w-genre'); if(g) g.value='';
+  var l=document.getElementById('w-lang'); if(l) l.value='';
+  var p=document.getElementById('w-priority'); if(p) p.value='normal';
+  var n=document.getElementById('w-notes'); if(n) n.value='';
+}
+function addWanted() {
+  var title=document.getElementById('w-title').value.trim();
+  if(!title){ alert('Please enter a title.'); return; }
+  data.wishlist.push({
+    id: Date.now(),
+    title: title,
+    author: document.getElementById('w-author').value.trim(),
+    genre:  document.getElementById('w-genre').value,
+    lang:   document.getElementById('w-lang').value,
+    source: document.getElementById('w-source').value.trim(),
+    notes:  document.getElementById('w-notes').value.trim(),
+    priority: document.getElementById('w-priority').value || 'normal'
+  });
+  save(); renderWanted(); updateStats(); closeWantedForm();
 }
 function deleteWanted(id) { var wid=Number(id); data.wishlist=data.wishlist.filter(function(w){return Number(w.id)!==wid;}); save(); renderWanted(); updateStats(); }
 function renderWanted() {
@@ -2177,33 +2299,67 @@ function toggleDiveForm(){
   populateRBSelect();
 }
 function closeDiveForm(){
-  closeDiveForm();
+  document.getElementById('dive-form').classList.remove('open');
+  ['rb-desc','rb-quote','rb-char','rb-thoughts','rb-where','rb-when','rb-bandetails'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var inp=document.getElementById('rb-book-input'); if(inp) inp.value='';
+  var hid=document.getElementById('rb-select'); if(hid) hid.value='';
+  var hint=document.getElementById('rb-book-hint'); if(hint) hint.textContent='Type to search your collection';
 }
 
 function populateRBSelect() {
-  var sel=document.getElementById('rb-select'); if(!sel) return;
-  sel.innerHTML='<option value="">— choose from your collection —</option>';
-  if(!data.books.length) return;
-  data.books.slice().sort(function(a,b){return a.title.localeCompare(b.title);}).forEach(function(b){
-    var o=document.createElement('option'); o.value=b.id;
-    o.textContent=b.title+(b.author?' — '+b.author:''); sel.appendChild(o);
+  // No longer needed for dropdown — input is live search
+  // Just clear the hidden field and input on open
+  var inp = document.getElementById('rb-book-input');
+  var hid = document.getElementById('rb-select');
+  if (inp) inp.value = '';
+  if (hid) hid.value = '';
+  var hint = document.getElementById('rb-book-hint');
+  if (hint) hint.textContent = 'Type to search your collection';
+}
+
+function acOpenDive(inputId, listId) {
+  var inp = document.getElementById(inputId);
+  var lst = document.getElementById(listId);
+  if (!inp || !lst) return;
+  var q = inp.value.trim().toLowerCase();
+  if (!q) { lst.classList.remove('open'); lst.innerHTML=''; return; }
+  var matches = data.books.filter(function(b){
+    return b.title.toLowerCase().includes(q) || (b.author||'').toLowerCase().includes(q);
+  }).slice(0, 10);
+  if (!matches.length) { lst.classList.remove('open'); lst.innerHTML=''; return; }
+  var html = '';
+  matches.forEach(function(b){
+    var au = b.author ? ('<span class="ac-sub">'+esc(b.author)+'</span>') : '';
+    html += '<div class="ac-item" data-id="'+b.id+'" data-title="'+esc(b.title)+'">'+esc(b.title)+au+'</div>';
   });
+  lst.innerHTML = html;
+  lst.querySelectorAll('.ac-item').forEach(function(el){
+    el.addEventListener('mousedown', function(e){
+      e.preventDefault();
+      var bid = parseInt(el.getAttribute('data-id'));
+      var title = el.getAttribute('data-title');
+      document.getElementById('rb-book-input').value = title;
+      document.getElementById('rb-select').value = bid;
+      lst.classList.remove('open'); lst.innerHTML = '';
+      loadDiveBook();
+    });
+  });
+  lst.classList.add('open');
 }
 
 function loadDiveBook() {
   var id=parseInt(document.getElementById('rb-select').value);
   var hint=document.getElementById('rb-book-hint');
-  if(!id){ if(hint) hint.textContent='Select a book to fill details automatically'; return; }
+  if(!id){ if(hint) hint.textContent='Type to search your collection'; return; }
   var book=data.books.find(function(b){return b.id===id;});
   if(!book) return;
   if(hint) hint.textContent=book.title+(book.author?' by '+book.author:'');
-  // Pre-fill ban status from book record
   document.getElementById('rb-banned').value=book.banned||'no';
 }
 
 function saveDive() {
   var id=parseInt(document.getElementById('rb-select').value);
-  if(!id){ alert('Please select a book first.'); return; }
+  if(!id){ alert('Please search and select a book first.'); return; }
   var book=data.books.find(function(b){return b.id===id;});
   if(!book) return;
   if(!data.dives) data.dives={};
@@ -2234,6 +2390,8 @@ function saveDive() {
     var el=document.getElementById(fid); if(el) el.value='';
   });
   document.getElementById('rb-select').value='';
+  var inp = document.getElementById('rb-book-input'); if(inp) inp.value='';
+  var hint = document.getElementById('rb-book-hint'); if(hint) hint.textContent='Type to search your collection';
   closeDiveForm();
 }
 
@@ -2350,7 +2508,11 @@ function toggleReadingForm(){
   
 }
 function closeReadingForm(){
-  closeReadingForm();
+  document.getElementById('reading-form').classList.remove('open');
+  var b=document.getElementById('rg-book'); if(b) b.value='';
+  var r=document.getElementById('rg-reader'); if(r) r.value='';
+  var s=document.getElementById('rg-start'); if(s) s.value='';
+  var t=document.getElementById('rg-target'); if(t) t.value='';
 }
 
 function addReadingEntry() {
@@ -2630,6 +2792,10 @@ function openBookDive(id) {
     var sel = document.getElementById('rb-select');
     if(sel) {
       sel.value = id;
+      // Also fill the text input so user sees the book name
+      var book = data.books.find(function(b){ return Number(b.id)===Number(id); });
+      var inp = document.getElementById('rb-book-input');
+      if(inp && book) inp.value = book.title + (book.author ? ' — ' + book.author : '');
       loadDiveBook();
     }
     // If a dive already exists for this book, load its content into the form
@@ -2992,7 +3158,7 @@ load();
 if (!data.impressum || !data.impressum.name) {
   data.impressum = { name: 'Kreshnik Dain', desc: 'A personal literary archive — books read, borrowed, sought and reflected upon.', year: '2026' };
 }
-init(); renderFooter(); setTimeout(function(){ if(isMob()) renderMobBooks(); }, 50);
+init(); renderFooter(); setTimeout(function(){ if(isMob()) renderMobBooks(); updateFab(); }, 50);
 
 function openEventModal(){ document.getElementById('event-modal').classList.add('open'); var t=document.getElementById('ev-year'); if(t)setTimeout(function(){t.focus();},100); }
 function closeEventModal(){ document.getElementById('event-modal').classList.remove('open'); }
