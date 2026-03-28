@@ -162,7 +162,8 @@ var Chart = (function() {
   --r:         3px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:300;min-height:100vh;background-image:radial-gradient(ellipse at 5% 0%,rgba(255,220,120,.15) 0%,transparent 40%),radial-gradient(ellipse at 95% 100%,rgba(140,80,10,.12) 0%,transparent 45%)}
+html{overflow-x:hidden}
+body{overflow-x:hidden;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:300;min-height:100vh;background-image:radial-gradient(ellipse at 5% 0%,rgba(255,220,120,.15) 0%,transparent 40%),radial-gradient(ellipse at 95% 100%,rgba(140,80,10,.12) 0%,transparent 45%)}
 
 /* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);background:var(--surface2);border-bottom:2px solid var(--gold);display:flex;align-items:center;padding:0 2rem;gap:0;box-shadow:0 2px 18px rgba(50,8,0,.28)}
@@ -339,8 +340,8 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 .btn-del:hover{color:#a03030}
 .tbl-empty{text-align:center;padding:4rem 2rem}
 .tbl-empty p{font-family:'Georgia',serif;font-size:.95rem;font-style:italic;color:rgba(42,30,14,.38)}
-.add-form-wrap{max-width:1140px;margin:0 auto;padding:0 3rem;overflow:hidden;max-height:0;transition:max-height .35s ease}
-.add-form-wrap.open{max-height:500px}
+.add-form-wrap{display:none}
+.add-form-wrap.open{display:flex}
 
 /* ── TIMELINE ── */
 .tl-controls{max-width:1140px;margin:0 auto;padding:1.5rem 3rem 0;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
@@ -458,7 +459,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   .gh-body{grid-template-columns:1fr;padding:1.5rem 1.5rem 3rem}
   .sidebar{grid-column:1;grid-row:auto}
   .stat-strip{grid-template-columns:repeat(2,1fr)}
-  .p-body,.tl-wrap,.tl-controls,.table-wrap,.filter-bar,.stacks-topbar,.add-form-wrap{padding-left:1.5rem;padding-right:1.5rem}
+  .p-body,.tl-wrap,.tl-controls,.table-wrap,.filter-bar,.stacks-topbar{padding-left:1.5rem;padding-right:1.5rem}
   .charts-grid{grid-template-columns:1fr}
   .chart-wide{grid-column:1}
   .grid-5,.grid-3{grid-template-columns:1fr 1fr}
@@ -596,8 +597,8 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   .filter-bar { flex-direction: column; padding: .8rem 1rem 0; }
   .filter-bar input, .filter-bar select { width: 100%; }
   .stacks-topbar { padding: .8rem 1rem .3rem; }
-  .add-form-wrap { padding: 0 1rem; }
-  .add-form-wrap.open { padding: .8rem 1rem 0; }
+  .add-form-wrap { padding: 0; }
+  .add-form-wrap.open { padding: 0; }
 
   /* Charts single column */
   .charts-grid { grid-template-columns: 1fr !important; }
@@ -793,7 +794,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 .sort-bar label{font-family:Georgia,serif;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tmuted)}
 .sort-bar select{background:var(--card);border:1px solid var(--bsoft);border-radius:2px;color:var(--text);font-family:Georgia,serif;font-size:.82rem;padding:.42rem .7rem;outline:none;-webkit-appearance:none}
 @media(max-width:768px){.sort-bar{padding:0 1rem}}
-.pal-detail{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto;padding-top:var(--nav-h)}.pal-detail.open{display:block}.pal-detail-header{background:var(--surface2);border-bottom:2px solid var(--gold);padding:1.2rem 2rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10}.pal-back{background:none;border:1px solid rgba(245,234,212,.3);color:rgba(245,234,212,.75);font-family:Georgia,serif;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .9rem;border-radius:2px;cursor:pointer}.pal-back:hover{color:var(--light)}.pal-detail-title{font-family:Georgia,serif;font-size:1.3rem;font-weight:700;font-style:italic;color:var(--light)}.pal-detail-body{max-width:900px;margin:0 auto;padding:2rem 2rem 4rem}.pal-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.8rem}.pal-stat-box{background:var(--card);border:1px solid var(--bsoft);border-top:3px solid var(--olive);border-radius:var(--r);padding:1.1rem 1rem;text-align:center}.pal-stat-box .psn{font-family:Georgia,serif;font-size:1.8rem;font-weight:700;color:var(--gold2);line-height:1}.pal-stat-box .psl{font-family:Georgia,serif;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tmuted);margin-top:.3rem}.pal-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--r);overflow:hidden}.pal-table th{font-family:Georgia,serif;font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);font-weight:400;padding:.7rem 1rem;text-align:left;border-bottom:1px solid var(--olive)}.pal-table td{font-family:Georgia,serif;font-size:.88rem;color:var(--tsoft);padding:.65rem 1rem;border-bottom:1px solid var(--bsoft)}.pal-table tr:last-child td{border-bottom:none}.pal-table tr:hover td{background:rgba(255,255,255,.5)}.pal-bar-bg{height:7px;background:rgba(106,128,40,.15);border-radius:3px;overflow:hidden;min-width:60px}.pal-bar-fill{height:100%;border-radius:3px;background:var(--olive)}.pal-section-title{font-family:Georgia,serif;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--tfaint);margin:1.5rem 0 .8rem;display:flex;align-items:center;gap:.6rem}.pal-section-title::after{content:'';flex:1;height:1px;background:var(--bsoft)}.btn-expand-chart{font-family:Georgia,serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tmuted);background:none;border:1px solid var(--bsoft);border-radius:2px;padding:.25rem .65rem;cursor:pointer;float:right;margin-top:-.2rem}.btn-expand-chart:hover{color:var(--olive);border-color:var(--olive)}@media(max-width:768px){.pal-stat-row{grid-template-columns:repeat(2,1fr)}.pal-detail-body{padding:1.2rem 1rem 3rem}.pal-detail-header{padding:1rem}}
+.pal-detail{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto;padding-top:var(--nav-h)}.pal-detail.open{display:block}.pal-detail-header{background:var(--surface2);border-bottom:2px solid var(--gold);padding:1.2rem 2rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10}.pal-back{background:none;border:1px solid rgba(245,234,212,.3);color:rgba(245,234,212,.75);font-family:Georgia,serif;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .9rem;border-radius:2px;cursor:pointer}.pal-back:hover{color:var(--light)}.pal-detail-title{font-family:Georgia,serif;font-size:1.3rem;font-weight:700;font-style:italic;color:var(--light)}.pal-detail-body{max-width:900px;margin:0 auto;padding:2rem 2rem 4rem}.pal-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.8rem}.pal-stat-box{background:var(--card);border:1px solid var(--bsoft);border-top:3px solid var(--olive);border-radius:var(--r);padding:1.1rem 1rem;text-align:center}.pal-stat-box .psn{font-family:Georgia,serif;font-size:1.8rem;font-weight:700;color:var(--gold2);line-height:1}.pal-stat-box .psl{font-family:Georgia,serif;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tmuted);margin-top:.3rem}.pal-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--r);overflow:hidden}.pal-table th{font-family:Georgia,serif;font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);font-weight:400;padding:.7rem 1rem;text-align:left;border-bottom:1px solid var(--olive)}.pal-table td{font-family:Georgia,serif;font-size:.88rem;color:var(--tsoft);padding:.65rem 1rem;border-bottom:1px solid var(--bsoft)}.pal-table tr:last-child td{border-bottom:none}.pal-table tr:hover td{background:rgba(255,255,255,.5)}.pal-bar-bg{height:7px;background:rgba(106,128,40,.15);border-radius:3px;overflow:hidden;min-width:60px}.pal-bar-fill{height:100%;border-radius:3px;background:var(--olive)}.pal-section-title{font-family:Georgia,serif;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--tfaint);margin:1.5rem 0 .8rem;display:flex;align-items:center;gap:.6rem}.pal-section-title::after{content:'';flex:1;height:1px;background:var(--bsoft)}.btn-expand-chart{font-family:Georgia,serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tmuted);background:none;border:1px solid var(--bsoft);border-radius:2px;padding:.25rem .65rem;cursor:pointer;float:right;margin-top:-.2rem}.btn-expand-chart:hover{color:var(--olive);border-color:var(--olive)}@media(max-width:768px){.pal-stat-row{grid-template-columns:repeat(2,1fr)}.pal-detail-body{padding:1.2rem 1rem 3rem}.pal-detail-header{padding:1rem}.pal-table{font-size:.78rem}.pal-table th,.pal-table td{padding:.5rem .6rem}.pal-table-wrap{overflow-x:auto;width:100%}}
 
 .add-modal-bg{display:none;position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(42,20,8,.6);z-index:1100;align-items:center;justify-content:center;padding:1rem}
 .add-modal-bg.open{display:flex}
@@ -802,7 +803,9 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 .add-modal-close{position:absolute;top:.8rem;right:.8rem;background:none;border:none;font-size:1.1rem;color:var(--tmuted);cursor:pointer;line-height:1;padding:.2rem .4rem}
 .add-modal-close:hover{color:var(--text)}
 
-@media(max-width:600px){.form-actions{justify-content:stretch}.form-actions .btn-ghost,.form-actions .btn-primary{flex:1;font-size:.7rem;padding:.45rem .5rem;text-align:center}}
+@media(max-width:600px){.form-actions{justify-content:stretch}.form-actions .btn-ghost,.form-actions .btn-primary{flex:1;font-size:.7rem;padding:.45rem .5rem;text-align:center}.add-modal-bg .form-actions{justify-content:center !important;padding:0 !important;margin-top:1rem !important;margin-bottom:.5rem !important}.add-modal-bg .form-actions .btn-ghost,.add-modal-bg .form-actions .btn-primary{flex:0 0 auto !important;width:auto !important;min-width:140px !important;max-width:70% !important;padding:.6rem 1.4rem !important;font-size:.78rem !important;text-align:center !important}}
+.vault-book-panel { display: none !important; }
+.vault-book-panel.open { display: block !important; }
 .ac-wrap{position:relative}
 .ac-list{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--olive);border-top:none;border-radius:0 0 4px 4px;max-height:180px;overflow-y:auto;z-index:200;display:none;box-shadow:0 4px 12px rgba(0,0,0,.15)}
 .ac-list.open{display:block}
@@ -1226,7 +1229,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   }
   .add-modal-box,
   .modal-box {
-    max-height: calc(100vh - 62px - 2rem) !important;
+    max-height: calc(100vh - 140px) !important;
     overflow-y: auto !important;
   }
 
@@ -1252,7 +1255,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
         <a href="#" onclick="showPage('the-stacks',null);showStacksTab('volumes',null);return false;">All Volumes</a>
         <a href="#" onclick="showPage('the-stacks',null);showStacksTab('borrowed',null);return false;">On Loan</a>
         <a href="#" onclick="showPage('the-stacks',null);showStacksTab('wanted',null);return false;">The Wish List</a>
-        <a href="#" onclick="showPage('the-stacks',null);showStacksTab('reading',null);return false;">Currently Reading</a>
+        <a href="#" onclick="showPage('the-stacks',null);showStacksTab('nownext',null);return false;">Now &amp; Next</a>
       </div>
     </li>
     <li><button onclick="showPage('palantir',this)">The Insights</button></li>
@@ -1260,8 +1263,8 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
       <button onclick="showPage('annals',this)">The Record ▾</button>
       <div class="sub-menu">
         <a href="#" onclick="showPage('annals',null);showAnnalsTab('timeline',null);return false;">Visual Timeline</a>
-        <a href="#" onclick="showPage('annals',null);showAnnalsTab('events',null);return false;">World Events</a>
-        <a href="#" onclick="showPage('annals',null);showAnnalsTab('commentary',null);return false;">World Reflections</a>
+        <a href="#" onclick="showPage('annals',null);showAnnalsTab('events',null);return false;">Adaptations</a>
+        <a href="#" onclick="showPage('annals',null);showAnnalsTab('commentary',null);return false;">Reading Habits</a>
       </div>
     </li>
     <li class="nav-sub">
@@ -1269,6 +1272,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
       <div class="sub-menu">
         <a href="#" onclick="showPage('red-book',null);showRBTab('dive',null);return false;">Book Notes</a>
         <a href="#" onclick="showPage('red-book',null);showRBTab('journal',null);return false;">My Literary Journey</a>
+        <a href="#" onclick="showPage('red-book',null);showRBTab('vault',null);return false;">The Vault</a>
       </div>
     </li>
   </ul>
@@ -1289,20 +1293,21 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   <button class="pop-item" onclick="sheetGoSub('the-stacks','volumes','The Stacks','All Volumes')">📖 All Volumes</button>
   <button class="pop-item" onclick="sheetGoSub('the-stacks','borrowed','The Stacks','On Loan')">🤝 On Loan</button>
   <button class="pop-item" onclick="sheetGoSub('the-stacks','wanted','The Stacks','The Wish List')">⭐ Wish List</button>
-  <button class="pop-item" onclick="sheetGoSub('the-stacks','reading','The Stacks','Currently Reading')">📌 Currently Reading</button>
+  <button class="pop-item" onclick="sheetGoSub('the-stacks','reading','The Stacks','Now & Next')">📚 Now &amp; Next</button>
 </div>
 
 <!-- ══ POPUP: RECORD (above 🗓 icon, position 4 of 5) ══ -->
 <div class="bn-popup" id="pop-record" style="right:calc(20% * 1.5 - 100px)">
   <button class="pop-item" onclick="sheetGoSub('annals','timeline','The Record','Visual Timeline')">🗓 Visual Timeline</button>
-  <button class="pop-item" onclick="sheetGoSub('annals','events','The Record','World Events')">🌍 World Events</button>
-  <button class="pop-item" onclick="sheetGoSub('annals','commentary','The Record','World Reflections')">💬 World Reflections</button>
+  <button class="pop-item" onclick="sheetGoSub('annals','events','The Record','Adaptations')">🎬 Adaptations</button>
+  <button class="pop-item" onclick="sheetGoSub('annals','commentary','The Record','Reading Habits')">📖 Reading Habits</button>
 </div>
 
 <!-- ══ POPUP: STUDY (above ✍️ icon, position 5 of 5) ══ -->
 <div class="bn-popup" id="pop-study" style="right:8px">
   <button class="pop-item" onclick="sheetGoSub('red-book','dive','The Study','Book Notes')">🔍 Book Notes</button>
   <button class="pop-item" onclick="sheetGoSub('red-book','journal','The Study','My Literary Journey')">✍️ My Literary Journey</button>
+  <button class="pop-item" onclick="sheetGoSub('red-book','vault','The Study','The Vault')">💬 The Vault</button>
 </div>
 
 <!-- ══ BOTTOM NAV BAR — 5 icons, fixed bottom ══ -->
@@ -1411,40 +1416,12 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
     <button class="page-tab active" onclick="showStacksTab('volumes',this)">All Volumes</button>
     <button class="page-tab" onclick="showStacksTab('borrowed',this)">On Loan</button>
     <button class="page-tab" onclick="showStacksTab('wanted',this)">The Wish List</button>
-    <button class="page-tab" onclick="showStacksTab('reading',this)">Currently Reading</button>
+    <button class="page-tab" onclick="showStacksTab('nownext',this)">Now &amp; Next</button>
   </div>
 
   <!-- ALL VOLUMES -->
   <div class="tab-panel active" id="stacks-volumes">
     <div class="stacks-topbar stacks-topbar-desktop"><button class="btn-primary" onclick="toggleAddForm()">+ Add a Book</button></div>
-    <div class="add-modal-bg" id="add-form-wrap" onclick="if(event.target===this)closeAddForm()">
-    <div class="add-modal-box">
-      <button class="add-modal-close" onclick="closeAddForm()">&#10005;</button>
-      <div class="add-modal-title">Add a Book</div>
-      <div class="grid-5">
-          <div class="field"><label>Title</label><input type="text" id="in-title" placeholder="Book title…"></div>
-          <div class="field"><label>Author</label><input type="text" id="in-author" placeholder="Author name…"></div>
-          <div class="field"><label>Genre</label>
-            <select id="in-genre"><option value="">Select…</option><option>Art & Culture</option><option>Biography</option><option>Classic Literature</option><option>Comics / Graphic Novel</option><option>Cooking</option><option>Drama / Plays</option><option>Economics</option><option>Education</option><option>Essays / Criticism</option><option>Fantasy</option><option>Gardening</option><option>History</option><option>Horror</option><option>Kids</option><option>Literature / Fiction</option><option>Memoir</option><option>Music</option><option>Mystery / Thriller</option><option>Novel</option><option>Nature</option><option>Philosophy</option><option>Poetry</option><option>Politics</option><option>Psychology</option><option>Religion / Spirituality</option><option>Science</option><option>Science Fiction</option><option>Self-Help</option><option>Short Stories</option><option>Travel / Adventure</option><option>Other</option></select>
-          </div>
-          <div class="field"><label>Language</label>
-            <select id="in-lang"><option value="">Select…</option><option value="en">English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option></select>
-          </div>
-          <div class="field"><label>Status</label>
-            <select id="in-status"><option value="unread">Unread</option><option value="reading">Currently Reading</option><option value="read">Read</option></select>
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="field"><label>Year Published</label><input type="number" id="in-year" placeholder="e.g. 1954" min="0" max="2099"></div>
-          <div class="field"><label>Banned?</label>
-            <select id="in-banned"><option value="no">No</option><option value="yes">Banned</option><option value="challenged">Challenged</option></select>
-          </div>
-        </div>
-        <div class="form-actions" style="justify-content:center;padding-right:3.5rem">
-          <button class="btn-primary" style="width:100%" onclick="addBook()">Add to Vault</button>
-        </div>
-      </div>
-    </div>
   <div class="sort-bar">
       <label>Sort by</label>
       <select id="sort-by" onchange="renderTable()">
@@ -1535,18 +1512,20 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
     </div>
   </div>
 
-  <!-- NOW READING -->
+  <!-- NOW & NEXT (merged: currently reading + TBR queue) -->
   <div class="tab-panel" id="stacks-reading">
     <div class="p-body">
+
+      <!-- NOW: Currently Reading with full add form -->
+      <div class="slabel" style="margin-bottom:1rem">Now Reading</div>
       <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
-        <button class="btn-primary" onclick="toggleReadingForm()">+ Currently Reading</button>
+        <button class="btn-primary" onclick="toggleReadingForm()">+ Add Currently Reading</button>
       </div>
       <div class="toggle-form" id="reading-form">
         <div class="card card-lg" style="margin-bottom:1.5rem">
           <div class="grid-2">
             <div class="field"><label>Book Title</label>
               <div class="ac-wrap"><input type="text" id="rg-book" placeholder="Start typing a title..." oninput="acOpen('rg-book','ac-rg')" onblur="setTimeout(function(){var l=document.getElementById('ac-rg');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off"><div class="ac-list" id="ac-rg"></div></div>
-              
             </div>
             <div class="field"><label>Reader</label>
               <input type="text" id="rg-reader" placeholder="Who walks these pages...">
@@ -1563,6 +1542,14 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
         </div>
       </div>
       <div id="reading-goals-list"><div class="empty-state"><p>Nothing being tracked yet — add a book above.</p></div></div>
+
+      <!-- NEXT: TBR Queue -->
+      <div class="slabel" style="margin-top:2.5rem;margin-bottom:1rem">Up Next</div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+        <button class="btn-primary" onclick="openTbrModal()">+ Add to Queue</button>
+      </div>
+      <div id="nn-next"><div class="empty-state"><p>Your reading queue is empty — add books you plan to read next.</p></div></div>
+
     </div>
   </div>
 
@@ -1579,7 +1566,6 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
         <div class="chart-card"><h3>Read vs Unread <button class="btn-expand-chart" onclick="openPalDetail('status')">Expand</button></h3><div class="ch-wrap ch-donut"><canvas id="ch-status"></canvas></div></div>
         <div class="chart-card"><h3>By Language <button class="btn-expand-chart" onclick="openPalDetail('language')">Expand</button></h3><div class="ch-wrap ch-donut"><canvas id="ch-lang"></canvas></div></div>
         <div class="chart-card"><h3>Top Authors <button class="btn-expand-chart" onclick="openPalDetail('authors')">Expand</button></h3><div class="ch-wrap ch-bar"><canvas id="ch-authors"></canvas></div></div>
-        <div class="chart-card chart-wide"><h3>Collection by Genre — Full Breakdown</h3><div class="ch-wrap ch-hbar"><canvas id="ch-genre-bar"></canvas></div></div>
       </div>
       <div class="chart-card" style="margin-top:1.5rem">
         <h3>Banned &amp; Challenged <button class="btn-expand-chart" onclick="openPalDetail('banned')">Expand</button></h3>
@@ -1594,22 +1580,21 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   <div class="p-hero"><div class="p-hero-inner"><div><div class="p-hero-title">The Record</div><div class="p-hero-sub" id="annals-sub">Visual Timeline</div></div></div></div>
   <div class="page-tabs" id="annals-tabs">
     <button class="page-tab active" onclick="showAnnalsTab('timeline',this)">Visual Timeline</button>
-    <button class="page-tab" onclick="showAnnalsTab('events',this)">World Events</button>
-    <button class="page-tab" onclick="showAnnalsTab('commentary',this)">World Reflections</button>
+    <button class="page-tab" onclick="showAnnalsTab('events',this)">Adaptations</button>
+    <button class="page-tab" onclick="showAnnalsTab('commentary',this)">Reading Habits</button>
   </div>
 
   <!-- TIMELINE -->
   <div class="tab-panel active" id="annals-timeline">
     <div class="tl-controls">
-      <select id="tl-type" onchange="renderTimeline()"><option value="">All types</option><option value="book">Books</option><option value="ban">Banned</option><option value="historical">Historical</option><option value="political">Political</option><option value="personal">Personal</option><option value="cultural">Cultural</option></select>
+      <select id="tl-type" onchange="renderTimeline()"><option value="">All types</option><option value="book">Books</option><option value="ban">Banned</option><option value="film">Film</option><option value="tv">TV Series</option><option value="mini">Miniseries</option><option value="documentary">Documentary</option></select>
       <input type="text" id="tl-q" placeholder="Search timeline…" oninput="renderTimeline()">
       <div class="tl-legend">
         <span class="dot-row"><span class="dot dot-book"></span>Book</span>
         <span class="dot-row"><span class="dot dot-ban"></span>Banned</span>
-        <span class="dot-row"><span class="dot dot-hist"></span>Historical</span>
-        <span class="dot-row"><span class="dot dot-pol"></span>Political</span>
-        <span class="dot-row"><span class="dot dot-per"></span>Personal</span>
-        <span class="dot-row"><span class="dot dot-cul"></span>Cultural</span>
+        <span class="dot-row"><span class="dot dot-hist"></span>Film</span>
+        <span class="dot-row"><span class="dot dot-pol"></span>TV Series</span>
+        <span class="dot-row"><span class="dot dot-cul"></span>Other</span>
       </div>
     </div>
     <div class="tl-wrap" id="tl-wrap"></div>
@@ -1618,60 +1603,44 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   <!-- WORLD EVENTS -->
   <div class="tab-panel" id="annals-events">
     <div class="p-body">
-      <div style="text-align:right;padding:.5rem 0 .8rem"><button class="btn-primary" onclick="openEventModal()">+ Add World Event</button></div>
+      <div style="text-align:right;padding:.5rem 0 .8rem"><button class="btn-primary" onclick="openEventModal()">+ Add Adaptation</button></div>
 <div class="add-modal-bg" id="event-modal" onclick="if(event.target===this)closeEventModal()">
   <div class="add-modal-box">
     <button class="add-modal-close" onclick="closeEventModal()">&#10005;</button>
-    <div class="add-modal-title">Add World Event</div>
+    <div class="add-modal-title">Add Adaptation</div>
     <div class="card card-l">
-        <div class="slabel">Add a World Event</div>
+        <div class="slabel">Book &amp; Screen</div>
+        <div class="grid-2">
+          <div class="field"><label>Book Title</label><div class="ac-wrap"><input type="text" id="ev-book" placeholder="The source book…" oninput="acOpen('ev-book','ac-ev')" onblur="setTimeout(function(){var l=document.getElementById('ac-ev');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off"><div class="ac-list" id="ac-ev"></div></div></div>
+          <div class="field"><label>Film / Show Title</label><input type="text" id="ev-title" placeholder="Name of the adaptation…"></div>
+        </div>
         <div class="grid-3">
-          <div class="field"><label>Year</label><input type="number" id="ev-year" placeholder="e.g. 1939" min="0" max="2099"></div>
-          <div class="field"><label>Event Title</label><input type="text" id="ev-title" placeholder="Name of the event…"></div>
-          <div class="field"><label>Category</label>
-            <select id="ev-type"><option value="historical">Historical</option><option value="political">Political</option><option value="personal">Personal</option><option value="cultural">Cultural</option></select>
+          <div class="field"><label>Year Released</label><input type="number" id="ev-year" placeholder="e.g. 2023" min="1888" max="2099"></div>
+          <div class="field"><label>Type</label>
+            <select id="ev-type"><option value="film">Film</option><option value="tv">TV Series</option><option value="mini">Miniseries</option><option value="documentary">Documentary</option><option value="other">Other</option></select>
           </div>
+          <div class="field"><label>Director</label><input type="text" id="ev-location" placeholder="Director name…"></div>
         </div>
         <div class="grid-2">
-          <div class="field"><label>Linked Book (optional)</label><div class="ac-wrap"><input type="text" id="ev-book" placeholder="Linked book title..." oninput="acOpen('ev-book','ac-ev')" onblur="setTimeout(function(){var l=document.getElementById('ac-ev');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off"><div class="ac-list" id="ac-ev"></div></div></div>
-          <div class="field"><label>Location / Country</label><input type="text" id="ev-location" placeholder="e.g. Germany, Global…"></div>
+          <div class="field"><label>Where to Watch</label><input type="text" id="ev-watch" placeholder="e.g. Netflix, Cinema…"></div>
+          <div class="field"><label>Trailer Link (optional)</label><input type="url" id="ev-trailer" placeholder="https://…"></div>
         </div>
         <div class="grid-1">
-          <div class="field"><label>Description</label><textarea id="ev-desc" rows="2" placeholder="Describe the event and its connection to your reading life…"></textarea></div>
+          <div class="field"><label>Notes</label><textarea id="ev-desc" rows="2" placeholder="How does it compare to the book?…"></textarea></div>
         </div>
-        <div class="form-actions"><button class="btn-primary" onclick="addEvent()">Add to the Record</button></div>
+        <div class="form-actions" style="justify-content:flex-end"><button class="btn-primary" onclick="addEvent()">Save Adaptation</button></div>
       </div>
   </div>
 </div>
-      <div id="events-list"><div class="empty-state"><p>No world events yet — add one above.</p></div></div>
+      <div id="events-list"><div class="empty-state"><p>No adaptations yet — add one above.</p></div></div>
     </div>
   </div>
 
   <!-- COMMENTARY -->
   <div class="tab-panel" id="annals-commentary">
     <div class="p-body">
-      <div style="text-align:right;padding:.5rem 0 .8rem"><button class="btn-primary" onclick="openCommentModal()">+ New Reflection</button></div>
-<div class="add-modal-bg" id="comment-modal" onclick="if(event.target===this)closeCommentModal()">
-  <div class="add-modal-box">
-    <button class="add-modal-close" onclick="closeCommentModal()">&#10005;</button>
-    <div class="add-modal-title">New Reflection</div>
-    <div class="card card-l">
-        <div class="slabel">New Entry</div>
-        <div class="grid-1">
-          <div class="field"><textarea id="cm-body" rows="5" placeholder="Write your insight, commentary, or reflection on a book, event, or story that moved you…"></textarea></div>
-        </div>
-        <div class="grid-3">
-          <div class="field"><label>Book / Subject</label><div class="ac-wrap"><input type="text" id="cm-book" placeholder="Book title..." oninput="acOpen('cm-book','ac-cm')" onblur="setTimeout(function(){var l=document.getElementById('ac-cm');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off"><div class="ac-list" id="ac-cm"></div></div></div>
-          <div class="field"><label>Entry Type</label>
-            <select id="cm-type"><option value="insight">Insight</option><option value="review">Review</option><option value="commentary">Commentary</option><option value="note">Note</option></select>
-          </div>
-          <div class="field"><label>Author (optional)</label><input type="text" id="cm-author" placeholder="Author name…"></div>
-        </div>
-        <div class="form-actions"><button class="btn-primary" onclick="addComment()">Post Entry</button></div>
-      </div>
-  </div>
-</div>
-      <div class="feed" id="comment-feed"><div class="feed-empty">No entries yet — write your first insight above.</div></div>
+      <div style="text-align:right;padding:.5rem 0 .8rem"><button class="btn-primary" onclick="openHabitsModal()">+ Log Reading Habits</button></div>
+      <div id="habits-feed"><div class="empty-state"><p>No habits logged yet — select a book above to start.</p></div></div>
     </div>
   </div>
 </div>
@@ -1682,6 +1651,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
   <div class="page-tabs" id="rb-tabs">
     <button class="page-tab active" onclick="showRBTab('dive',this)">Book Notes</button>
     <button class="page-tab" onclick="showRBTab('journal',this)">My Literary Journey</button>
+    <button class="page-tab" onclick="showRBTab('vault',this)">The Vault</button>
   </div>
 
   <!-- DEEP DIVE -->
@@ -1759,12 +1729,20 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
       <div class="feed" id="journal-feed"><div class="feed-empty">No journal entries yet — write your first one above.</div></div>
     </div>
   </div>
+
+  <!-- THE VAULT — Quote Vault -->
+  <div class="tab-panel" id="rb-vault">
+    <div class="p-body">
+      <div style="text-align:right;padding:.5rem 0 .8rem"><button class="btn-primary" onclick="openQuoteModal()">+ Add Book to Vault</button></div>
+      <div id="vault-feed"><div class="empty-state"><p>No quotes saved yet — add your first one above.</p></div></div>
+    </div>
+  </div>
 </div>
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────
 const SK = 'redbook_v1';
-let data = { books:[], loans:[], wishlist:[], notices:[], events:[], comments:[], journal:[], dives:{}, featured:{}, quote:{}, reading:[], readingGoals:{}, readingEntries:[], impressum:{}, entryComments:{} };
+let data = { books:[], loans:[], wishlist:[], notices:[], events:[], comments:[], journal:[], dives:{}, featured:{}, quote:{}, reading:[], readingGoals:{}, readingEntries:[], impressum:{}, entryComments:{}, quotes:[], tbr:[], habits:[] };
 
 function load() {
   try { const r=localStorage.getItem(SK); if(r){ const d=JSON.parse(r); Object.keys(d).forEach(k=>data[k]=d[k]); } } catch(e){}
@@ -1775,6 +1753,11 @@ function save() {
 
 // ── NAVIGATION ────────────────────────────────────────────────────
 function showPage(name, btn) {
+  // Close any open modals first
+  ['quote-modal','quote-entry-modal','tbr-modal','event-modal','comment-modal','journal-modal','habits-modal'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.classList.remove('open');
+  });
+  closeAddForm();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-links li>button').forEach(b=>b.classList.remove('active'));
   const pg = document.getElementById('page-'+name);
@@ -1782,7 +1765,7 @@ function showPage(name, btn) {
   if(btn) btn.classList.add('active');
   if(name==='palantir') renderCharts();
   if(name==='annals')   renderTimeline();
-  if(name==='red-book') { populateRBSelect(); renderDives(); renderJournal(); }
+  if(name==='red-book') { populateRBSelect(); renderDives(); renderJournal(); renderQuotes(); }
   updateFab();
 }
 
@@ -1794,8 +1777,8 @@ function showStacksTab(name, btn) {
   if(btn) btn.classList.add('active');
   if(name==='borrowed') renderLoans();
   if(name==='wanted')   renderWanted();
-  if(name==='reading')  renderReadingGoals();
-  var labels = {volumes:'All Volumes', borrowed:'On Loan', wanted:'The Wish List', reading:'Currently Reading'};
+  if(name==='reading' || name==='nownext') { renderReadingGoals(); renderNowNext(); }
+  var labels = {volumes:'All Volumes', borrowed:'On Loan', wanted:'The Wish List', reading:'Now & Next'};
   var el = document.getElementById('stacks-sub');
   if(el) el.textContent = labels[name] || name;
 }
@@ -1808,8 +1791,8 @@ function showAnnalsTab(name, btn) {
   if(btn) btn.classList.add('active');
   if(name==='timeline') renderTimeline();
   if(name==='events')   renderEvents();
-  if(name==='commentary') renderComments();
-  var labels = {timeline:'Visual Timeline', events:'World Events', commentary:'World Reflections'};
+  if(name==='commentary') renderHabits();
+  var labels = {timeline:'Visual Timeline', events:'Adaptations', commentary:'Reading Habits'};
   var el = document.getElementById('annals-sub');
   if(el) el.textContent = labels[name] || name;
 }
@@ -1822,7 +1805,8 @@ function showRBTab(name, btn) {
   if(btn) btn.classList.add('active');
   if(name==='dive')    { populateRBSelect(); renderDives(); }
   if(name==='journal') renderJournal();
-  var labels = {dive:'Book Notes', journal:'My Literary Journey'};
+  if(name==='vault')   renderQuotes();
+  var labels = {dive:'Book Notes', journal:'My Literary Journey', vault:'The Vault'};
   var el = document.getElementById('rb-sub');
   if(el) el.textContent = labels[name] || name;
 }
@@ -1920,17 +1904,10 @@ function toggleFilterBar() {
   if (btn) btn.classList.toggle('active', !isVisible);
 }
 function fabAddBook() {
-  showPage('the-stacks', null);
-  showStacksTab('volumes', null);
-  document.querySelectorAll('.bn-item').forEach(function(b){ b.classList.remove('active'); });
-  var s = document.getElementById('bn-stacks'); if(s) s.classList.add('active');
-  setTimeout(function(){ toggleAddForm(); }, 100);
+  toggleAddForm();
 }
 function updateFab() {
-  var fab = document.getElementById('fab-add');
-  if (!fab) return;
-  var onStacks = document.getElementById('page-the-stacks').classList.contains('active');
-  fab.style.display = onStacks ? 'flex' : 'none';
+  // FAB visibility is handled purely by CSS media query — no JS override needed
 }
 function toggleAddForm() {
   var w = document.getElementById('add-form-wrap');
@@ -1939,6 +1916,219 @@ function toggleAddForm() {
   var t = document.getElementById('in-title');
   if(t) setTimeout(function(){ t.focus(); }, 100);
 }
+// Genre mapping from Open Library subjects to app genres
+function isbnMapGenre(subjects) {
+  if (!subjects || !subjects.length) return '';
+  var s = subjects.map(function(x){ return (x.name||x||'').toLowerCase(); }).join(' ');
+  if (/fiction|novel|literature/.test(s))      return 'Literature / Fiction';
+  if (/science fiction|sci-fi|scifi/.test(s))  return 'Science Fiction';
+  if (/fantasy/.test(s))                        return 'Fantasy';
+  if (/mystery|thriller|crime/.test(s))         return 'Mystery / Thriller';
+  if (/horror/.test(s))                         return 'Horror';
+  if (/biography|memoir/.test(s))               return /memoir/.test(s) ? 'Memoir' : 'Biography';
+  if (/history|historical/.test(s))             return 'History';
+  if (/philosophy/.test(s))                     return 'Philosophy';
+  if (/psychology/.test(s))                     return 'Psychology';
+  if (/science/.test(s))                        return 'Science';
+  if (/poetry/.test(s))                         return 'Poetry';
+  if (/art/.test(s))                            return 'Art & Culture';
+  if (/cook/.test(s))                           return 'Cooking';
+  if (/travel/.test(s))                         return 'Travel / Adventure';
+  if (/politic/.test(s))                        return 'Politics';
+  if (/economics/.test(s))                      return 'Economics';
+  if (/religion|spiritual/.test(s))             return 'Religion / Spirituality';
+  if (/self.help/.test(s))                      return 'Self-Help';
+  if (/education/.test(s))                      return 'Education';
+  if (/comics|graphic/.test(s))                 return 'Comics / Graphic Novel';
+  if (/short stor/.test(s))                     return 'Short Stories';
+  if (/essay/.test(s))                          return 'Essays / Criticism';
+  if (/drama|play/.test(s))                     return 'Drama / Plays';
+  if (/music/.test(s))                          return 'Music';
+  if (/nature/.test(s))                         return 'Nature';
+  if (/garden/.test(s))                         return 'Gardening';
+  if (/classic/.test(s))                        return 'Classic Literature';
+  return 'Other';
+}
+
+async function isbnLookup() {
+  var isbn = (document.getElementById('in-isbn').value||'').replace(/[\s-]/g,'');
+  var msg = document.getElementById('isbn-msg');
+  var btn = document.getElementById('isbn-btn');
+  if (!isbn) { msg.style.color='#a03030'; msg.textContent='Please enter an ISBN.'; return; }
+  msg.style.color='var(--tmuted)'; msg.textContent='Looking up…';
+  btn.disabled = true;
+  var found = false;
+
+  // Try Open Library first
+  try {
+    var url = 'https://openlibrary.org/api/books?bibkeys=ISBN:'+isbn+'&format=json&jscmd=data';
+    var res = await fetch(url);
+    var json = await res.json();
+    var key = 'ISBN:'+isbn;
+    if (json[key]) {
+      var book = json[key];
+      if (book.title) document.getElementById('in-title').value = book.title;
+      if (book.authors && book.authors.length)
+        document.getElementById('in-author').value = book.authors.map(function(a){return a.name;}).join(', ');
+      if (book.publish_date) { var yr=book.publish_date.match(/\d{4}/); if(yr) document.getElementById('in-year').value=yr[0]; }
+      var genre = isbnMapGenre(book.subjects);
+      if (genre) { var sel=document.getElementById('in-genre'); for(var i=0;i<sel.options.length;i++){ if(sel.options[i].text===genre){sel.value=sel.options[i].value;break;} } }
+      var el = document.getElementById('in-isbn');
+      el.__coverUrl = book.cover ? (book.cover.large||book.cover.medium||'') : '';
+      el.__pages = book.number_of_pages ? String(book.number_of_pages) : '';
+      var parts = ['✓ Found via Open Library'];
+      if (book.number_of_pages) parts.push(book.number_of_pages+' pages');
+      if (book.publishers && book.publishers.length) parts.push(book.publishers[0].name);
+      msg.style.color='var(--olive)'; msg.textContent=parts.join(' · ');
+      found = true;
+    }
+  } catch(e) {}
+
+  // Fallback: Google Books
+  if (!found) {
+    msg.textContent = 'Trying Google Books…';
+    try {
+      var gurl = 'https://www.googleapis.com/books/v1/volumes?q=isbn:'+isbn;
+      var gres = await fetch(gurl);
+      var gjson = await gres.json();
+      if (gjson.items && gjson.items.length) {
+        var info = gjson.items[0].volumeInfo;
+        if (info.title) document.getElementById('in-title').value = info.title;
+        if (info.authors && info.authors.length)
+          document.getElementById('in-author').value = info.authors.join(', ');
+        if (info.publishedDate) { var yr2=info.publishedDate.match(/\d{4}/); if(yr2) document.getElementById('in-year').value=yr2[0]; }
+        var subjects2 = (info.categories||[]).map(function(c){ return {name:c}; });
+        var genre2 = isbnMapGenre(subjects2);
+        if (genre2) { var sel2=document.getElementById('in-genre'); for(var j=0;j<sel2.options.length;j++){ if(sel2.options[j].text===genre2){sel2.value=sel2.options[j].value;break;} } }
+        var el2 = document.getElementById('in-isbn');
+        el2.__coverUrl = (info.imageLinks && info.imageLinks.thumbnail) ? info.imageLinks.thumbnail : '';
+        el2.__pages = info.pageCount ? String(info.pageCount) : '';
+        var parts2 = ['✓ Found via Google Books'];
+        if (info.pageCount) parts2.push(info.pageCount+' pages');
+        if (info.publisher) parts2.push(info.publisher);
+        msg.style.color='var(--olive)'; msg.textContent=parts2.join(' · ');
+        found = true;
+      }
+    } catch(e) {}
+  }
+
+  if (!found) {
+    msg.style.color='#a03030';
+    msg.textContent='Not found in either database — please fill in manually.';
+  }
+  btn.disabled = false;
+}
+
+// Allow pressing Enter in ISBN field to trigger lookup
+document.addEventListener('DOMContentLoaded', function() {
+  var isbnEl = document.getElementById('in-isbn');
+  if (isbnEl) isbnEl.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); isbnLookup(); } });
+});
+
+// ── NOW & NEXT ────────────────────────────────────────────────────
+var TBR_PRI = {high:'⭐ High priority', normal:'Normal', low:'Someday'};
+
+function openTbrModal() {
+  document.getElementById('tbr-id').value = '';
+  document.getElementById('tbr-title').value = '';
+  document.getElementById('tbr-priority').value = 'normal';
+  document.getElementById('tbr-mood').value = '';
+  document.getElementById('tbr-why').value = '';
+  document.getElementById('tbr-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('tbr-title').focus(); }, 100);
+}
+function closeTbrModal() {
+  document.getElementById('tbr-modal').classList.remove('open');
+}
+function saveTbr() {
+  var title = document.getElementById('tbr-title').value.trim();
+  if (!title) { alert('Please enter a book title.'); return; }
+  if (!data.tbr) data.tbr = [];
+  var editId = Number(document.getElementById('tbr-id').value) || 0;
+  var entry = {
+    id:       editId || Date.now(),
+    title:    title,
+    priority: document.getElementById('tbr-priority').value || 'normal',
+    mood:     document.getElementById('tbr-mood').value.trim(),
+    why:      document.getElementById('tbr-why').value.trim()
+  };
+  if (editId) {
+    var idx = data.tbr.findIndex(function(t){ return Number(t.id)===editId; });
+    if (idx > -1) data.tbr[idx] = entry;
+  } else {
+    data.tbr.push(entry);
+  }
+  save(); closeTbrModal(); renderNowNext();
+}
+function deleteTbr(id) {
+  var tid = Number(id);
+  data.tbr = (data.tbr||[]).filter(function(t){ return Number(t.id)!==tid; });
+  save(); renderNowNext();
+}
+function openEditTbr(id) {
+  var tid = Number(id);
+  var t = (data.tbr||[]).find(function(x){ return Number(x.id)===tid; });
+  if (!t) return;
+  document.getElementById('tbr-id').value       = tid;
+  document.getElementById('tbr-title').value    = t.title || '';
+  document.getElementById('tbr-priority').value = t.priority || 'normal';
+  document.getElementById('tbr-mood').value     = t.mood || '';
+  document.getElementById('tbr-why').value      = t.why || '';
+  document.getElementById('tbr-modal').classList.add('open');
+}
+function renderNowNext() {
+  // NOW — mirror of active readingEntries
+  var nowEl = document.getElementById('nn-now');
+  if (nowEl) {
+    var active = (data.readingEntries||[]).filter(function(e){ return !e.done; });
+    if (!active.length) {
+      nowEl.innerHTML = '<div class="empty-state"><p>Nothing being read right now — add a book in Currently Reading.</p></div>';
+    } else {
+      var rcols = ['#3a5e8a','#6a4a9e','#4a8a6e','#b07828','#a03030','#4a8e9e'];
+      nowEl.innerHTML = '<div class="cards-grid">' + active.map(function(e, i) {
+        var color = rcols[i % rcols.length];
+        var daysLeft = e.target ? Math.ceil((new Date(e.target)-new Date())/(1000*60*60*24)) : null;
+        var hint = daysLeft === null ? '' : daysLeft < 0
+          ? '<div style="font-size:.75rem;color:#a03030;font-family:Georgia,serif;margin-top:.3rem">'+Math.abs(daysLeft)+' days overdue</div>'
+          : '<div style="font-size:.75rem;color:var(--tmuted);font-family:Georgia,serif;margin-top:.3rem">'+daysLeft+' day'+(daysLeft!==1?'s':'')+' left</div>';
+        return '<div class="item-card" style="border-left-color:'+color+'">'
+          + '<div class="ic-title">'+esc(e.title)+'</div>'
+          + '<div class="ic-meta">'+esc(e.reader||'')+'</div>'
+          + (e.start ? '<div class="ic-detail" style="margin-top:.3rem">Started: '+e.start+'</div>' : '')
+          + hint
+          + '</div>';
+      }).join('') + '</div>';
+    }
+  }
+
+  // NEXT — TBR queue
+  var nextEl = document.getElementById('nn-next');
+  if (nextEl) {
+    var tbr = data.tbr || [];
+    if (!tbr.length) {
+      nextEl.innerHTML = '<div class="empty-state"><p>Your reading queue is empty — add books you plan to read next.</p></div>';
+    } else {
+      var sorted = tbr.slice().sort(function(a,b){
+        return ({high:0,normal:1,low:2}[a.priority]||1) - ({high:0,normal:1,low:2}[b.priority]||1);
+      });
+      nextEl.innerHTML = '<div class="cards-grid">' + sorted.map(function(t) {
+        return '<div class="item-card" style="border-left-color:var(--gold2)">'
+          + '<button class="ic-del" onclick="deleteTbr('+t.id+')">✕</button>'
+          + '<div class="ic-title">'+esc(t.title)+'</div>'
+          + '<div class="ic-actions" style="margin-top:.4rem;flex-wrap:wrap;gap:.4rem">'
+          + '<span style="font-family:\'Georgia\',serif;font-size:.74rem;color:var(--tmuted)">'+TBR_PRI[t.priority]+'</span>'
+          + (t.mood ? '<span class="pill" style="font-size:.7rem">'+esc(t.mood)+'</span>' : '')
+          + '</div>'
+          + (t.why ? '<div class="ic-detail" style="margin-top:.5rem;font-style:italic">'+esc(t.why)+'</div>' : '')
+          + '<div class="ic-actions" style="margin-top:.7rem">'
+          + '<button class="btn-ghost" style="font-size:.7rem;padding:.28rem .65rem" onclick="openEditTbr('+t.id+')">Edit</button>'
+          + '</div>'
+          + '</div>';
+      }).join('') + '</div>';
+    }
+  }
+}
+
 function closeAddForm() {
   var w = document.getElementById('add-form-wrap');
   w.classList.remove('open');
@@ -1951,10 +2141,14 @@ function addBook() {
   const lang=document.getElementById('in-lang').value;
   if(!title||!author||!genre||!lang){ alert('Please fill in Title, Author, Genre and Language.'); return; }
   var nextNum=data.books.length>0?Math.max.apply(null,data.books.map(function(b){return b.num||0;}))+1:1;
-  data.books.push({id:Date.now(),num:nextNum,title,author,genre,lang,status:document.getElementById('in-status').value,year:document.getElementById('in-year').value.trim(),banned:document.getElementById('in-banned').value});
+  var coverUrl = document.getElementById('in-isbn').__coverUrl || '';
+  var pages    = document.getElementById('in-isbn').__pages    || '';
+  data.books.push({id:Date.now(),num:nextNum,title,author,genre,lang,status:document.getElementById('in-status').value,year:document.getElementById('in-year').value.trim(),banned:document.getElementById('in-banned').value,coverUrl,pages});
   save(); renderTable(); updateStats();
   ['in-title','in-author','in-year'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('in-genre').value=''; document.getElementById('in-lang').value=''; document.getElementById('in-status').value='unread'; document.getElementById('in-banned').value='no';
+  var isbnEl = document.getElementById('in-isbn'); isbnEl.value=''; isbnEl.__coverUrl=''; isbnEl.__pages='';
+  document.getElementById('isbn-msg').textContent='';
   closeAddForm();
 }
 function deleteBook(id) {
@@ -2136,14 +2330,13 @@ function renderCharts() {
   const am={};data.books.forEach(b=>am[b.author]=(am[b.author]||0)+1);
   const as2=Object.entries(am).sort((a,b)=>b[1]-a[1]).slice(0,10);
   makeBar('ch-authors',as2.map(e=>e[0]),as2.map(e=>e[1]));
-  makeBar('ch-genre-bar',gL,gD,true);
   const banned=data.books.filter(b=>b.banned==='yes'||b.banned==='challenged');
   const bw=document.getElementById('banned-wrap');
   bw.innerHTML=banned.length?'<div class="banned-list">'+banned.map(b=>`<div class="banned-item"><div><div class="bi-title">${esc(b.title)}</div><div class="bi-meta">${esc(b.author)}${b.year?' · '+b.year:''}</div></div><span class="badge badge-${b.banned}">${b.banned==='yes'?'Banned':'Challenged'}</span></div>`).join('')+'</div>':'<div class="no-data-msg">No banned or challenged books recorded yet.</div>';
 }
 
 // ── TIMELINE ──────────────────────────────────────────────────────
-const TL_TYPE_L={book:'Book',ban:'Banned',historical:'Historical',political:'Political',personal:'Personal',cultural:'Cultural'};
+const TL_TYPE_L={book:'Book',ban:'Banned',film:'Film',tv:'TV Series',mini:'Miniseries',documentary:'Documentary',other:'Other',historical:'Film',political:'TV Series',personal:'Other',cultural:'Other'};
 function renderTimeline() {
   var wrap=document.getElementById('tl-wrap'); if(!wrap) return;
   var ft=(document.getElementById('tl-type')||{value:''}).value;
@@ -2226,34 +2419,46 @@ function renderTimeline() {
 const EV_C={historical:'#4a6e9e',political:'#7a3a9e',personal:'#b07828',cultural:'#4a8e6e'};
 const EV_L={historical:'Historical',political:'Political',personal:'Personal',cultural:'Cultural'};
 function addEvent() {
-  const year=document.getElementById('ev-year').value.trim();
   const title=document.getElementById('ev-title').value.trim();
-  if(!year||!title){ alert('Please enter a year and title.'); return; }
-  data.events.unshift({id:Date.now(),year,title,type:document.getElementById('ev-type').value,book:document.getElementById('ev-book').value.trim(),location:document.getElementById('ev-location').value.trim(),desc:document.getElementById('ev-desc').value.trim()});
+  const book=document.getElementById('ev-book').value.trim();
+  if(!title&&!book){ alert('Please enter at least a book title or film title.'); return; }
+  var watchEl=document.getElementById('ev-watch'); var trailerEl=document.getElementById('ev-trailer');
+  data.events.unshift({id:Date.now(),
+    year: document.getElementById('ev-year').value.trim(),
+    title, type: document.getElementById('ev-type').value,
+    book, location: document.getElementById('ev-location').value.trim(),
+    watch: watchEl ? watchEl.value.trim() : '',
+    trailer: trailerEl ? trailerEl.value.trim() : '',
+    desc: document.getElementById('ev-desc').value.trim()
+  });
   save(); renderEvents(); renderTimeline(); closeEventModal();
-  ['ev-year','ev-title','ev-book','ev-location','ev-desc'].forEach(id=>document.getElementById(id).value='');
+  ['ev-year','ev-title','ev-book','ev-location','ev-desc'].forEach(id=>{ var el=document.getElementById(id); if(el) el.value=''; });
+  if(watchEl) watchEl.value=''; if(trailerEl) trailerEl.value='';
 }
 function deleteEvent(id) { var eid=Number(id); data.events=data.events.filter(function(e){return Number(e.id)!==eid;}); save(); renderEvents(); renderTimeline(); closeEventModal(); }
 function renderEvents() {
   var el=document.getElementById('events-list'); if(!el) return;
-  if(!data.events.length){ el.innerHTML='<div class="empty-state"><p>No world events yet.</p></div>'; return; }
-  var sorted=data.events.slice().sort(function(a,b){return parseInt(a.year)-parseInt(b.year);});
+  if(!data.events.length){ el.innerHTML='<div class="empty-state"><p>No adaptations yet — add one above.</p></div>'; return; }
+  var sorted=data.events.slice().sort(function(a,b){return parseInt(b.year)-parseInt(a.year);});
+  var TYPE_L={film:'Film',tv:'TV Series',mini:'Miniseries',documentary:'Documentary',other:'Other',historical:'Historical',political:'Political',personal:'Personal',cultural:'Cultural'};
+  var TYPE_C={film:'#4a6e9e',tv:'#6a4a9e',mini:'#4a8e6e',documentary:'#b07828',other:'var(--olive)',historical:'#4a6e9e',political:'#7a3a9e',personal:'#b07828',cultural:'#4a8e6e'};
   var html='<div class="cards-grid">';
   sorted.forEach(function(e){
-    var color=EV_C[e.type]||'var(--olive)';
+    var color=TYPE_C[e.type]||'var(--olive)';
     html+='<div class="item-card" style="border-left-color:'+color+'">'
       +'<div style="position:absolute;top:.7rem;right:.7rem;display:flex;gap:.3rem">'
       +'<button class="btn-icon-edit" onclick="openEditEvent('+e.id+')">✎</button>'
       +'<button class="btn-icon-del" onclick="deleteEvent('+e.id+')">✕</button>'
       +'</div>'
-      +'<div style="display:flex;align-items:baseline;gap:.5rem;margin-bottom:.3rem;padding-right:3.5rem">'
-      +'<div class="ic-title">'+esc(e.title)+'</div>'
-      +'<span style="font-family:Crimson Pro,serif;font-size:.72rem;color:var(--tfaint)">'+esc(e.year)+'</span>'
+      +'<div style="padding-right:3.5rem">'
+      +(e.title?'<div class="ic-title">'+esc(e.title)+'</div>':'')
+      +(e.book?'<div class="ic-meta">📖 '+esc(e.book)+(e.year?' · '+esc(e.year):'')+'</div>':'')
       +'</div>'
-      +(e.location?'<div class="ic-meta">📍 '+esc(e.location)+'</div>':'')
-      +(e.book?'<div class="ic-meta">📖 '+esc(e.book)+'</div>':'')
-      +(e.desc?'<div class="ic-detail" style="margin-top:.5rem">'+esc(e.desc)+'</div>':'')
-      +'<div class="ic-actions"><span style="font-family:Crimson Pro,serif;font-size:.76rem;color:'+color+'">'+( EV_L[e.type]||e.type)+'</span></div>'
+      +(e.location?'<div class="ic-detail" style="margin-top:.3rem">🎬 '+esc(e.location)+'</div>':'')
+      +(e.watch?'<div class="ic-detail">📺 '+esc(e.watch)+'</div>':'')
+      +(e.trailer?'<div class="ic-detail"><a href="'+esc(e.trailer)+'" target="_blank" style="color:var(--olive);font-family:Georgia,serif;font-size:.8rem">▶ Watch trailer</a></div>':'')
+      +(e.desc?'<div class="ic-detail" style="margin-top:.4rem;font-style:italic">'+esc(e.desc)+'</div>':'')
+      +'<div class="ic-actions" style="margin-top:.6rem"><span style="font-family:Georgia,serif;font-size:.72rem;color:'+color+'">'+( TYPE_L[e.type]||e.type)+'</span></div>'
       +commentBlock(String(e.id))
       +'</div>';
   });
@@ -2620,7 +2825,16 @@ function exportAll() {
 function importAll(ev) {
   const file=ev.target.files[0]; if(!file) return;
   const reader=new FileReader();
-  reader.onload=e=>{ try{ const imp=JSON.parse(e.target.result); Object.keys(imp).forEach(k=>data[k]=imp[k]); save(); init(); alert('Archive imported successfully.'); } catch(err){ alert('Could not read archive file.'); } ev.target.value=''; };
+  reader.onload=e=>{
+    try{
+      const imp=JSON.parse(e.target.result);
+      Object.keys(imp).forEach(k=>data[k]=imp[k]);
+      save(); init();
+      renderCharts();
+      alert('Archive imported successfully. All your data has been restored.');
+    } catch(err){ alert('Could not read archive file. Please check it is a valid My Library export.'); }
+    ev.target.value='';
+  };
   reader.readAsText(file);
 }
 
@@ -3057,9 +3271,9 @@ function openPalDetail(type) {
     books.filter(function(b){return b.status==='read';}).forEach(function(b){rg[b.genre]=(rg[b.genre]||0)+1;});
     var gs=Object.entries(gm).sort(function(a,b){return b[1]-a[1];});
     html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+total+'</div><div class="psl">Total</div></div><div class="pal-stat-box"><div class="psn">'+gs.length+'</div><div class="psl">Genres</div></div><div class="pal-stat-box"><div class="psn">'+(gs[0]?esc(gs[0][0]):'--')+'</div><div class="psl">Top Genre</div></div></div>';
-    html+='<table class="pal-table"><thead><tr><th>Genre</th><th>Books</th><th>Read</th><th>Unread</th><th>%</th></tr></thead><tbody>';
+    html+='<div class="pal-table-wrap"><table class="pal-table"><thead><tr><th>Genre</th><th>Books</th><th>Read</th><th>Unread</th><th>%</th></tr></thead><tbody>';
     gs.forEach(function(e){var pct=total?Math.round((e[1]/total)*100):0;html+='<tr><td>'+esc(e[0])+'</td><td><strong>'+e[1]+'</strong></td><td style="color:var(--olive)">'+(rg[e[0]]||0)+'</td><td>'+(e[1]-(rg[e[0]]||0))+'</td><td><div class="pal-bar-bg"><div class="pal-bar-fill" style="width:'+pct+'%"></div></div> '+pct+'%</td></tr>';});
-    html+='</tbody></table>';
+    html+='</tbody></table></div>';
   } else if(type==='status'){
     title.textContent='Reading Progress';
     var read=books.filter(function(b){return b.status==='read';}).length;
@@ -3072,7 +3286,7 @@ function openPalDetail(type) {
     var ugs=Object.entries(ug).sort(function(a,b){return b[1]-a[1];});
     html+='<div class="pal-section-title">Unread by Genre</div><table class="pal-table"><thead><tr><th>Genre</th><th>Unread</th></tr></thead><tbody>';
     ugs.forEach(function(e){html+='<tr><td>'+esc(e[0])+'</td><td>'+e[1]+'</td></tr>';});
-    html+='</tbody></table>';
+    html+='</tbody></table></div>';
   } else if(type==='language'){
     title.textContent='By Language';
     var lm={},lr={};var LN={en:'English',sq:'Albanian',de:'German',other:'Other'};
@@ -3080,9 +3294,9 @@ function openPalDetail(type) {
     books.filter(function(b){return b.status==='read';}).forEach(function(b){lr[b.lang]=(lr[b.lang]||0)+1;});
     var ls=Object.entries(lm).sort(function(a,b){return b[1]-a[1];});
     html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+ls.length+'</div><div class="psl">Languages</div></div><div class="pal-stat-box"><div class="psn">'+(ls[0]?LN[ls[0][0]]||ls[0][0]:'--')+'</div><div class="psl">Most Books In</div></div><div class="pal-stat-box"><div class="psn">'+total+'</div><div class="psl">Total</div></div></div>';
-    html+='<table class="pal-table"><thead><tr><th>Language</th><th>Books</th><th>Read</th><th>%</th></tr></thead><tbody>';
+    html+='<div class="pal-table-wrap"><table class="pal-table"><thead><tr><th>Language</th><th>Books</th><th>Read</th><th>%</th></tr></thead><tbody>';
     ls.forEach(function(e){var pct=total?Math.round((e[1]/total)*100):0;html+='<tr><td>'+(LN[e[0]]||e[0])+'</td><td><strong>'+e[1]+'</strong></td><td style="color:var(--olive)">'+(lr[e[0]]||0)+'</td><td>'+pct+'%</td></tr>';});
-    html+='</tbody></table>';
+    html+='</tbody></table></div>';
   } else if(type==='authors'){
     title.textContent='All Authors';
     var am={},ar={};
@@ -3094,16 +3308,16 @@ function openPalDetail(type) {
     });
     var top=Object.entries(am).reduce(function(m,e){return e[1]>m[1]?e:m;},['',0]);
     html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+as2.length+'</div><div class="psl">Authors</div></div><div class="pal-stat-box"><div class="psn">'+esc(top[0])+'</div><div class="psl">Most Books</div></div><div class="pal-stat-box"><div class="psn">'+(Math.round(total/(as2.length||1)*10)/10)+'</div><div class="psl">Avg / Author</div></div></div>';
-    html+='<table class="pal-table"><thead><tr><th>Author</th><th>Books</th><th>Read</th></tr></thead><tbody>';
+    html+='<div class="pal-table-wrap"><table class="pal-table"><thead><tr><th>Author</th><th>Books</th><th>Read</th></tr></thead><tbody>';
     as2.forEach(function(e){html+='<tr><td>'+esc(e[0])+'</td><td><strong>'+e[1]+'</strong></td><td style="color:var(--olive)">'+(ar[e[0]]||0)+'</td></tr>';});
-    html+='</tbody></table>';
+    html+='</tbody></table></div>';
   } else if(type==='banned'){
     title.textContent='Banned & Challenged';
     var bn=books.filter(function(b){return b.banned==='yes';});
     var ch=books.filter(function(b){return b.banned==='challenged';});
     html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+bn.length+'</div><div class="psl">Banned</div></div><div class="pal-stat-box"><div class="psn">'+ch.length+'</div><div class="psl">Challenged</div></div><div class="pal-stat-box"><div class="psn">'+(bn.length+ch.length)+'</div><div class="psl">Total</div></div></div>';
-    if(bn.length){html+='<div class="pal-section-title">Banned</div><table class="pal-table"><thead><tr><th>#</th><th>Title</th><th>Author</th><th>Year</th></tr></thead><tbody>';bn.forEach(function(b){html+='<tr><td style="color:var(--tmuted)">'+(b.num||'--')+'</td><td style="font-style:italic">'+esc(b.title)+'</td><td>'+esc(b.author)+'</td><td>'+(b.year||'--')+'</td></tr>';});html+='</tbody></table>';}
-    if(ch.length){html+='<div class="pal-section-title">Challenged</div><table class="pal-table"><thead><tr><th>#</th><th>Title</th><th>Author</th><th>Year</th></tr></thead><tbody>';ch.forEach(function(b){html+='<tr><td style="color:var(--tmuted)">'+(b.num||'--')+'</td><td style="font-style:italic">'+esc(b.title)+'</td><td>'+esc(b.author)+'</td><td>'+(b.year||'--')+'</td></tr>';});html+='</tbody></table>';}
+    if(bn.length){html+='<div class="pal-section-title">Banned</div><table class="pal-table"><thead><tr><th>#</th><th>Title</th><th>Author</th><th>Year</th></tr></thead><tbody>';bn.forEach(function(b){html+='<tr><td style="color:var(--tmuted)">'+(b.num||'--')+'</td><td style="font-style:italic">'+esc(b.title)+'</td><td>'+esc(b.author)+'</td><td>'+(b.year||'--')+'</td></tr>';});html+='</tbody></table></div>';}
+    if(ch.length){html+='<div class="pal-section-title">Challenged</div><table class="pal-table"><thead><tr><th>#</th><th>Title</th><th>Author</th><th>Year</th></tr></thead><tbody>';ch.forEach(function(b){html+='<tr><td style="color:var(--tmuted)">'+(b.num||'--')+'</td><td style="font-style:italic">'+esc(b.title)+'</td><td>'+esc(b.author)+'</td><td>'+(b.year||'--')+'</td></tr>';});html+='</tbody></table></div>';}
     if(!bn.length&&!ch.length){html+='<div class="empty-state"><p>No banned or challenged books yet.</p></div>';}
   }
   body.innerHTML=html;
@@ -3135,6 +3349,10 @@ function acOpen(inputId, listId) {
       var l2 = document.getElementById(el.getAttribute('data-lst'));
       if (i2) i2.value = el.getAttribute('data-val');
       if (l2) { l2.classList.remove('open'); l2.innerHTML=''; }
+      // Also update any paired hidden field
+      var hiddenId = el.getAttribute('data-inp') + '-hidden';
+      var hidden = document.getElementById(hiddenId);
+      if (hidden) hidden.value = el.getAttribute('data-val');
     });
   });
   lst.classList.add('open');
@@ -3151,7 +3369,12 @@ document.addEventListener('click', function(e) {
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function init() {
-  updateStats(); renderNotices(); loadFeatured(); renderFeatTags(); loadQuote(); renderTable(); renderLoans(); renderWanted();
+  updateStats(); renderNotices(); loadFeatured(); renderFeatTags(); loadQuote();
+  renderTable(); renderLoans(); renderWanted();
+  renderReadingGoals(); renderNowNext();
+  renderEvents(); renderTimeline();
+  renderDives(); renderJournal(); renderQuotes(); renderHabits();
+  renderFooter();
 }
 
 load();
@@ -3166,7 +3389,391 @@ function openCommentModal(){ document.getElementById('comment-modal').classList.
 function closeCommentModal(){ document.getElementById('comment-modal').classList.remove('open'); }
 function openJournalModal(){ document.getElementById('journal-modal').classList.add('open'); var t=document.getElementById('j-body'); if(t)setTimeout(function(){t.focus();},100); }
 function closeJournalModal(){ document.getElementById('journal-modal').classList.remove('open'); }
+
+// ── READING HABITS ────────────────────────────────────────────────
+function openHabitsModal(bookTitle) {
+  document.getElementById('hab-id').value = '';
+  document.getElementById('hab-book').value = bookTitle || '';
+  ['hab-morning','hab-afternoon','hab-evening','hab-night'].forEach(function(id){
+    document.getElementById(id).checked = false;
+  });
+  document.querySelectorAll('input[name="hab-pace"]').forEach(function(r){ r.checked = false; });
+  document.querySelectorAll('input[name="hab-freq"]').forEach(function(r){ r.checked = false; });
+  document.getElementById('hab-note').value = '';
+  // If editing existing entry for this book, pre-fill
+  if (bookTitle) {
+    var existing = (data.habits||[]).find(function(h){ return h.book === bookTitle; });
+    if (existing) {
+      document.getElementById('hab-id').value = existing.id;
+      (existing.time||[]).forEach(function(t){ var el=document.getElementById('hab-'+t); if(el) el.checked=true; });
+      if (existing.pace) { var r=document.querySelector('input[name="hab-pace"][value="'+existing.pace+'"]'); if(r) r.checked=true; }
+      if (existing.freq) { var r=document.querySelector('input[name="hab-freq"][value="'+existing.freq+'"]'); if(r) r.checked=true; }
+      document.getElementById('hab-note').value = existing.note || '';
+    }
+  }
+  document.getElementById('habits-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('hab-book').focus(); }, 100);
+}
+function closeHabitsModal() {
+  document.getElementById('habits-modal').classList.remove('open');
+}
+function saveHabits() {
+  var book = document.getElementById('hab-book').value.trim();
+  if (!book) { alert('Please enter a book title.'); return; }
+  var time = ['morning','afternoon','evening','night'].filter(function(t){
+    return document.getElementById('hab-'+t).checked;
+  });
+  var paceEl = document.querySelector('input[name="hab-pace"]:checked');
+  var freqEl = document.querySelector('input[name="hab-freq"]:checked');
+  var entry = {
+    id:   Number(document.getElementById('hab-id').value) || Date.now(),
+    book: book,
+    time: time,
+    pace: paceEl ? paceEl.value : '',
+    freq: freqEl ? freqEl.value : '',
+    note: document.getElementById('hab-note').value.trim(),
+    date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
+  };
+  if (!data.habits) data.habits = [];
+  var idx = data.habits.findIndex(function(h){ return h.book === book; });
+  if (idx > -1) data.habits[idx] = entry;
+  else data.habits.push(entry);
+  save(); closeHabitsModal(); renderHabits();
+}
+function deleteHabit(id) {
+  data.habits = (data.habits||[]).filter(function(h){ return Number(h.id) !== Number(id); });
+  save(); renderHabits();
+}
+
+var PACE_L = { slow:'Slow burn', steady:'Steady', fast:'Flew through it' };
+var FREQ_L = { daily:'Daily', few:'A few times a week', whenever:'Whenever I could', struggled:'Struggled to pick it up' };
+var TIME_ICONS = { morning:'🌅', afternoon:'☀️', evening:'🌆', night:'🌙' };
+
+function renderHabits() {
+  var el = document.getElementById('habits-feed');
+  if (!el) return;
+  if (!data.habits || !data.habits.length) {
+    el.innerHTML = '<div class="empty-state"><p>No habits logged yet — click "+ Log Reading Habits" to start.</p></div>';
+    return;
+  }
+  el.innerHTML = '<div class="cards-grid">' + data.habits.map(function(h) {
+    var timeStr = (h.time||[]).map(function(t){ return TIME_ICONS[t]+' '+t.charAt(0).toUpperCase()+t.slice(1); }).join(' · ');
+    return '<div class="item-card" style="border-left-color:var(--gold2)">'
+      + '<button class="ic-del" onclick="deleteHabit('+h.id+')">✕</button>'
+      + '<div class="ic-title" style="padding-right:2rem">'+esc(h.book)+'</div>'
+      + (timeStr ? '<div class="ic-detail" style="margin-top:.5rem">'+timeStr+'</div>' : '')
+      + (h.pace ? '<div class="ic-detail">📖 '+esc(PACE_L[h.pace]||h.pace)+'</div>' : '')
+      + (h.freq ? '<div class="ic-detail">🔁 '+esc(FREQ_L[h.freq]||h.freq)+'</div>' : '')
+      + (h.note ? '<div class="ic-detail" style="font-style:italic;margin-top:.4rem">'+esc(h.note)+'</div>' : '')
+      + '<div class="ic-actions" style="margin-top:.7rem">'
+      + '<button class="btn-ghost" style="font-size:.7rem;padding:.28rem .65rem" onclick="openHabitsModal(\''+esc(h.book)+'\')">Edit</button>'
+      + '<span style="font-family:Georgia,serif;font-size:.68rem;color:var(--tfaint);margin-left:auto">'+esc(h.date||'')+'</span>'
+      + '</div>'
+      + '</div>';
+  }).join('') + '</div>';
+}
+
+// ── QUOTE VAULT ───────────────────────────────────────────────────
+// data.quotes = [ { id, book, quotes: [ {id, text, page, note} ] } ]
+
+// Modal 1: Add a book to the vault
+function openQuoteModal() {
+  document.getElementById('qv-book').value = '';
+  document.getElementById('qv-book-hidden').value = '';
+  document.getElementById('quote-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('qv-book').focus(); }, 100);
+}
+function closeQuoteModal() {
+  document.getElementById('quote-modal').classList.remove('open');
+}
+function saveBookToVault() {
+  var title = (document.getElementById('qv-book').value || document.getElementById('qv-book-hidden').value).trim();
+  if (!title) { alert('Please enter a book title.'); return; }
+  if (!data.quotes) data.quotes = [];
+  var exists = data.quotes.find(function(b){ return b.book === title; });
+  if (!exists) {
+    data.quotes.push({ id: Date.now(), book: title, quotes: [] });
+    save();
+  }
+  closeQuoteModal();
+  renderQuotes();
+}
+
+// Modal 2: Add/edit a quote within a book
+function openQuoteEntryModal(bookTitle, quoteId) {
+  document.getElementById('qe-book').value = bookTitle;
+  document.getElementById('qe-id').value = quoteId || '';
+  document.getElementById('qe-modal-title').textContent = 'Add Quote — ' + bookTitle;
+  document.getElementById('qe-text').value = '';
+  document.getElementById('qe-page').value = '';
+  document.getElementById('qe-note').value = '';
+  if (quoteId) {
+    var entry = (data.quotes||[]).find(function(b){ return b.book===bookTitle; });
+    var q = entry ? entry.quotes.find(function(q){ return Number(q.id)===Number(quoteId); }) : null;
+    if (q) {
+      document.getElementById('qe-text').value = q.text || '';
+      document.getElementById('qe-page').value = q.page || '';
+      document.getElementById('qe-note').value = q.note || '';
+      document.getElementById('qe-modal-title').textContent = 'Edit Quote — ' + bookTitle;
+    }
+  }
+  document.getElementById('quote-entry-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('qe-text').focus(); }, 100);
+}
+function closeQuoteEntryModal() {
+  document.getElementById('quote-entry-modal').classList.remove('open');
+}
+function saveQuoteEntry() {
+  var text = document.getElementById('qe-text').value.trim();
+  if (!text) { alert('Please enter a quote.'); return; }
+  var bookTitle = document.getElementById('qe-book').value;
+  var editId = Number(document.getElementById('qe-id').value) || 0;
+  var page = document.getElementById('qe-page').value.trim();
+  var note = document.getElementById('qe-note').value.trim();
+  if (!data.quotes) data.quotes = [];
+  var entry = data.quotes.find(function(b){ return b.book === bookTitle; });
+  if (!entry) { entry = { id: Date.now(), book: bookTitle, quotes: [] }; data.quotes.push(entry); }
+  if (editId) {
+    var q = entry.quotes.find(function(q){ return Number(q.id)===editId; });
+    if (q) { q.text=text; q.page=page; q.note=note; }
+  } else {
+    entry.quotes.push({ id: Date.now(), text, page, note });
+  }
+  save(); closeQuoteEntryModal(); renderQuotes();
+}
+function deleteQuote(bookTitle, quoteId) {
+  var entry = (data.quotes||[]).find(function(b){ return b.book===bookTitle; });
+  if (!entry) return;
+  entry.quotes = entry.quotes.filter(function(q){ return Number(q.id)!==Number(quoteId); });
+  if (!entry.quotes.length) data.quotes = data.quotes.filter(function(b){ return b.book!==bookTitle; });
+  save(); renderQuotes();
+}
+function deleteBookFromVault(bookTitle) {
+  if (!confirm('Remove all quotes for "' + bookTitle + '"?')) return;
+  data.quotes = (data.quotes||[]).filter(function(b){ return b.book!==bookTitle; });
+  save(); renderQuotes();
+}
+function toggleVaultBook(bookTitle) {
+  var safe = bookTitle.replace(/[^a-zA-Z0-9]/g,'_');
+  var panel = document.getElementById('vb-'+safe);
+  if (panel) panel.classList.toggle('open');
+}
+function renderQuotes() {
+  var el = document.getElementById('vault-feed');
+  if (!el) return;
+  if (!data.quotes || !data.quotes.length) {
+    el.innerHTML = '<div class="empty-state"><p>No books in the vault yet — click "+ Add Book to Vault" to start.</p></div>';
+    return;
+  }
+  el.innerHTML = data.quotes.map(function(entry) {
+    var bk = entry.book;
+    var safe = bk.replace(/[^a-zA-Z0-9]/g,'_');
+    var count = entry.quotes ? entry.quotes.length : 0;
+    var quoteCards = count ? '<div class="cards-grid" style="padding:.5rem 0 .75rem">' + entry.quotes.map(function(q) {
+      return '<div class="item-card" style="border-left-color:var(--gold2)">'
+        + '<div style="font-family:\'Georgia\',serif;font-style:italic;font-size:.93rem;color:var(--text);line-height:1.75;margin-bottom:.5rem">"'+esc(q.text)+'"</div>'
+        + (q.page ? '<div style="font-family:\'Georgia\',serif;font-size:.72rem;color:var(--tfaint);margin-bottom:.3rem">p. '+esc(q.page)+'</div>' : '')
+        + (q.note ? '<div style="font-family:\'Georgia\',serif;font-size:.8rem;color:var(--tmuted);margin-bottom:.4rem">'+esc(q.note)+'</div>' : '')
+        + '<div style="display:flex;gap:.4rem;margin-top:.5rem">'
+        + '<button class="btn-ghost" style="font-size:.68rem;padding:.22rem .55rem" onclick="openQuoteEntryModal(\''+esc(bk)+'\','+q.id+')">Edit</button>'
+        + '<button class="btn-ghost" style="font-size:.68rem;padding:.22rem .55rem;color:#a03030;border-color:rgba(160,48,48,.3)" onclick="deleteQuote(\''+esc(bk)+'\','+q.id+')">✕</button>'
+        + '</div></div>';
+    }).join('') + '</div>'
+    : '<div style="padding:.6rem 0 .8rem;font-family:Georgia,serif;font-size:.82rem;color:var(--tfaint);font-style:italic">No quotes yet — add the first one.</div>';
+
+    return '<div style="background:var(--card);border:1px solid var(--bsoft);border-left:4px solid var(--gold2);border-radius:var(--r);margin-bottom:1rem;overflow:hidden">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;cursor:pointer;gap:.5rem" onclick="toggleVaultBook(\''+esc(bk)+'\')">'
+      +   '<div style="flex:1;min-width:0"><div style="font-family:\'Georgia\',serif;font-size:1rem;font-style:italic;color:var(--text);word-break:break-word">'+esc(bk)+'</div>'
+      +   '<div style="font-family:\'Georgia\',serif;font-size:.72rem;color:var(--tfaint);margin-top:.1rem">'+count+' quote'+(count!==1?'s':'')+'</div></div>'
+      +   '<div style="display:flex;gap:.5rem;align-items:center">'
+      +     '<button title="Add quote" style="background:var(--olive);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:1rem;line-height:1;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center" onclick="event.stopPropagation();openQuoteEntryModal(\''+esc(bk)+'\')">+</button>'
+      +     '<button class="btn-ghost" style="font-size:.7rem;padding:.28rem .5rem;color:#a03030;border-color:rgba(160,48,48,.3)" onclick="event.stopPropagation();deleteBookFromVault(\''+esc(bk)+'\')">✕</button>'
+      +     '<span style="font-family:Georgia,serif;font-size:.8rem;color:var(--tmuted)">▾</span>'
+      +   '</div>'
+      + '</div>'
+      + '<div id="vb-'+safe+'" class="vault-book-panel" style="padding:0 1.2rem">'
+      +   quoteCards
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
 </script>
+
+<!-- ADD BOOK MODAL (body level so FAB works from any page) -->
+<div class="add-modal-bg" id="add-form-wrap" onclick="if(event.target===this)closeAddForm()">
+  <div class="add-modal-box">
+    <button class="add-modal-close" onclick="closeAddForm()">&#10005;</button>
+    <div class="add-modal-title">Add a Book</div>
+    <div style="display:flex;gap:.6rem;align-items:flex-end;margin-bottom:.9rem">
+      <div class="field" style="flex:1;margin:0">
+        <label>ISBN (optional — auto-fill)</label>
+        <input type="text" id="in-isbn" placeholder="e.g. 9780141187761" inputmode="numeric" style="letter-spacing:.04em">
+      </div>
+      <button class="btn-ghost" id="isbn-btn" onclick="isbnLookup()" style="white-space:nowrap;flex-shrink:0">Look Up</button>
+    </div>
+    <div id="isbn-msg" style="font-family:Georgia,serif;font-size:.75rem;margin-bottom:.6rem;min-height:1em"></div>
+    <div class="grid-2">
+      <div class="field"><label>Title</label><input type="text" id="in-title" placeholder="Book title…"></div>
+      <div class="field"><label>Author</label><input type="text" id="in-author" placeholder="Author name…"></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Genre</label>
+        <select id="in-genre"><option value="">Select…</option><option>Art & Culture</option><option>Biography</option><option>Classic Literature</option><option>Comics / Graphic Novel</option><option>Cooking</option><option>Drama / Plays</option><option>Economics</option><option>Education</option><option>Essays / Criticism</option><option>Fantasy</option><option>Gardening</option><option>History</option><option>Horror</option><option>Kids</option><option>Literature / Fiction</option><option>Memoir</option><option>Music</option><option>Mystery / Thriller</option><option>Novel</option><option>Nature</option><option>Philosophy</option><option>Poetry</option><option>Politics</option><option>Psychology</option><option>Religion / Spirituality</option><option>Science</option><option>Science Fiction</option><option>Self-Help</option><option>Short Stories</option><option>Travel / Adventure</option><option>Other</option></select>
+      </div>
+      <div class="field"><label>Language</label>
+        <select id="in-lang"><option value="">Select…</option><option value="en">English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option></select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Status</label>
+        <select id="in-status"><option value="unread">Unread</option><option value="reading">Currently Reading</option><option value="read">Read</option></select>
+      </div>
+      <div class="field"><label>Year Published</label><input type="number" id="in-year" placeholder="e.g. 1954" min="0" max="2099"></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Banned?</label>
+        <select id="in-banned"><option value="no">No</option><option value="yes">Banned</option><option value="challenged">Challenged</option></select>
+      </div>
+      <div class="field"></div>
+    </div>
+    <div class="form-actions" style="justify-content:flex-end">
+      <button class="btn-primary" onclick="addBook()">Add to Vault</button>
+    </div>
+  </div>
+</div>
+
+<!-- READING HABITS MODAL -->
+<div class="add-modal-bg" id="habits-modal" onclick="if(event.target===this)closeHabitsModal()">
+  <div class="add-modal-box">
+    <button class="add-modal-close" onclick="closeHabitsModal()">&#10005;</button>
+    <div class="add-modal-title">Reading Habits</div>
+    <input type="hidden" id="hab-id">
+    <div class="field" style="margin-bottom:.9rem">
+      <label>Book</label>
+      <div class="ac-wrap">
+        <input type="text" id="hab-book" placeholder="Book title…" oninput="acOpen('hab-book','ac-hab')" onblur="setTimeout(function(){var l=document.getElementById('ac-hab');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off">
+        <div class="ac-list" id="ac-hab"></div>
+      </div>
+    </div>
+
+    <div class="slabel" style="margin-bottom:.7rem">When did you usually read?</div>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.1rem">
+      <label style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:.85rem;cursor:pointer"><input type="checkbox" id="hab-morning"> Morning</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:.85rem;cursor:pointer"><input type="checkbox" id="hab-afternoon"> Afternoon</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:.85rem;cursor:pointer"><input type="checkbox" id="hab-evening"> Evening</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:.85rem;cursor:pointer"><input type="checkbox" id="hab-night"> Night</label>
+    </div>
+
+    <div class="slabel" style="margin-bottom:.7rem">Reading pace</div>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.1rem" id="hab-pace-group">
+      <label style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:.85rem;cursor:pointer"><input type="radio" name="hab-pace" value="slow"> Slow burn</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:.85rem;cursor:pointer"><input type="radio" name="hab-pace" value="steady"> Steady</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:.85rem;cursor:pointer"><input type="radio" name="hab-pace" value="fast"> Flew through it</label>
+    </div>
+
+    <div class="slabel" style="margin-bottom:.7rem">How often did you pick it up?</div>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.1rem" id="hab-freq-group">
+      <label style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:.85rem;cursor:pointer"><input type="radio" name="hab-freq" value="daily"> Daily</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:.85rem;cursor:pointer"><input type="radio" name="hab-freq" value="few"> A few times a week</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:.85rem;cursor:pointer"><input type="radio" name="hab-freq" value="whenever"> Whenever I could</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-family:Georgia,serif;font-size:.85rem;cursor:pointer"><input type="radio" name="hab-freq" value="struggled"> Struggled to pick it up</label>
+    </div>
+
+    <div class="field" style="margin-bottom:.9rem">
+      <label>One line (optional)</label>
+      <input type="text" id="hab-note" placeholder="Anything worth noting about how you read this one…">
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-primary" onclick="saveHabits()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- TBR MODAL -->
+<div class="add-modal-bg" id="tbr-modal" onclick="if(event.target===this)closeTbrModal()">
+  <div class="add-modal-box">
+    <button class="add-modal-close" onclick="closeTbrModal()">&#10005;</button>
+    <div class="add-modal-title">Add to Reading Queue</div>
+    <input type="hidden" id="tbr-id">
+    <div class="grid-1">
+      <div class="field">
+        <label>Book Title</label>
+        <div class="ac-wrap">
+          <input type="text" id="tbr-title" placeholder="Start typing a title…" oninput="acOpen('tbr-title','ac-tbr')" onblur="setTimeout(function(){var l=document.getElementById('ac-tbr');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off">
+          <div class="ac-list" id="ac-tbr"></div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Priority</label>
+        <select id="tbr-priority">
+          <option value="high">⭐ High — read this soon</option>
+          <option value="normal" selected>Normal</option>
+          <option value="low">Someday</option>
+        </select>
+      </div>
+      <div class="field"><label>Mood / When to read</label>
+        <input type="text" id="tbr-mood" placeholder="e.g. For a slow Sunday…">
+      </div>
+    </div>
+    <div class="grid-1">
+      <div class="field"><label>Why I want to read this</label>
+        <textarea id="tbr-why" rows="2" placeholder="Friend recommended, saw it in a bookshop…"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-ghost" onclick="closeTbrModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveTbr()">Add to Queue</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ADD BOOK TO VAULT MODAL -->
+<div class="add-modal-bg" id="quote-modal" onclick="if(event.target===this)closeQuoteModal()">
+  <div class="add-modal-box">
+    <button class="add-modal-close" onclick="closeQuoteModal()">&#10005;</button>
+    <div class="add-modal-title">Add Book to Vault</div>
+    <p style="font-family:Georgia,serif;font-size:.85rem;color:var(--tmuted);margin-bottom:1rem">Choose a book to start collecting its quotes.</p>
+    <div class="grid-1">
+      <div class="field">
+        <label>Book Title</label>
+        <div class="ac-wrap">
+          <input type="text" id="qv-book" placeholder="Book title…" oninput="acOpen('qv-book','ac-qvb');document.getElementById('qv-book-hidden').value=this.value" onblur="setTimeout(function(){var l=document.getElementById('ac-qvb');if(l){l.classList.remove('open');l.innerHTML='';}},200)" autocomplete="off">
+          <div class="ac-list" id="ac-qvb"></div>
+        </div>
+      </div>
+    </div>
+    <input type="hidden" id="qv-book-hidden">
+    <div class="form-actions" style="justify-content:flex-end">
+      <button class="btn-primary" onclick="saveBookToVault()">Add Book</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD QUOTE TO BOOK MODAL -->
+<div class="add-modal-bg" id="quote-entry-modal" onclick="if(event.target===this)closeQuoteEntryModal()">
+  <div class="add-modal-box">
+    <button class="add-modal-close" onclick="closeQuoteEntryModal()">&#10005;</button>
+    <div class="add-modal-title" id="qe-modal-title">Add Quote</div>
+    <input type="hidden" id="qe-book">
+    <input type="hidden" id="qe-id">
+    <div class="grid-1">
+      <div class="field">
+        <label>Quote</label>
+        <textarea id="qe-text" rows="4" placeholder="The quote, exactly as written…" style="font-family:'Georgia',serif;font-style:italic;font-size:.95rem;line-height:1.7"></textarea>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Page Number</label><input type="number" id="qe-page" placeholder="e.g. 142" min="1"></div>
+      <div class="field"><label>Personal Note (optional)</label><input type="text" id="qe-note" placeholder="Why this stayed with you…"></div>
+    </div>
+    <div class="form-actions" style="justify-content:flex-end">
+      <button class="btn-primary" onclick="saveQuoteEntry()">Save Quote</button>
+    </div>
+  </div>
+</div>
 
 <!-- EDIT BOOK MODAL -->
 <div class="modal-bg" id="edit-modal" style="display:none" onclick="if(event.target===this)closeEditBook()">
