@@ -166,24 +166,24 @@ html{overflow-x:hidden}
 body{overflow-x:hidden;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:300;min-height:100vh;background-image:radial-gradient(ellipse at 5% 0%,rgba(255,220,120,.15) 0%,transparent 40%),radial-gradient(ellipse at 95% 100%,rgba(140,80,10,.12) 0%,transparent 45%)}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);background:var(--surface2);border-bottom:2px solid var(--gold);display:flex;align-items:center;padding:0 2rem;gap:0;box-shadow:0 2px 18px rgba(50,8,0,.28)}
-.nav-brand{font-family:'Georgia',serif;font-weight:700;color:var(--light);letter-spacing:.04em;flex-shrink:0;display:flex;flex-direction:column;line-height:1.15;text-align:left}
-.nb-line1{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;opacity:.75;font-weight:400}
-.nb-line2{font-size:1.15rem;font-weight:700;letter-spacing:.04em}
-.nav-sep{width:1px;height:20px;background:rgba(245,234,212,.22);margin:0 1rem;flex-shrink:0}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);background:rgba(242,228,195,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(200,165,90,.35);display:flex;align-items:center;padding:0 2rem;gap:0;box-shadow:0 2px 24px rgba(160,110,40,.13)}
+.nav-brand{font-family:'Georgia',serif;font-weight:700;color:rgba(70,45,10,.92);letter-spacing:.04em;flex-shrink:0;display:flex;flex-direction:column;line-height:1.15;text-align:left}
+.nb-line1{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;opacity:.6;font-weight:400;color:rgba(110,75,20,.8)}
+.nb-line2{font-size:1.1rem;font-weight:700;letter-spacing:.04em;color:rgba(60,38,8,.95)}
+.nav-sep{width:1px;height:20px;background:rgba(180,140,60,.3);margin:0 1.2rem;flex-shrink:0}
 .nav-links{display:flex;align-items:stretch;list-style:none;height:var(--nav-h);flex:1}
 .nav-links li{display:flex;align-items:center;position:relative}
-.nav-links li>button{font-family:'Georgia',serif;font-size:.76rem;letter-spacing:.11em;text-transform:uppercase;color:rgba(245,234,212,.62);background:none;border:none;border-bottom:2px solid transparent;padding:0 .7rem;height:100%;cursor:pointer;transition:all .18s;white-space:nowrap}
-.nav-links li>button:hover{color:var(--light);background:rgba(255,255,255,.05)}
-.nav-links li>button.active{color:var(--light);border-bottom-color:var(--gold-l)}
+.nav-links li>button{font-family:'Georgia',serif;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(100,68,18,.65);background:none;border:none;border-bottom:2px solid transparent;padding:0 .85rem;height:100%;cursor:pointer;transition:all .18s;white-space:nowrap;font-weight:500}
+.nav-links li>button:hover{color:rgba(70,45,10,.95);background:rgba(200,160,70,.08)}
+.nav-links li>button.active{color:rgba(60,38,8,.95);border-bottom-color:var(--olive);background:rgba(200,160,70,.06)}
 /* dropdown */
-.nav-sub .sub-menu{display:none;position:absolute;top:100%;left:0;background:var(--surface2);border:1px solid var(--gold);border-top:none;min-width:185px;box-shadow:0 8px 24px rgba(40,8,0,.35);z-index:300}
+.nav-sub .sub-menu{display:none;position:absolute;top:100%;left:0;background:rgba(248,238,210,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(200,165,90,.3);border-top:none;min-width:200px;box-shadow:0 12px 32px rgba(140,90,20,.18);z-index:300;border-radius:0 0 10px 10px;overflow:hidden}
 .nav-sub:hover .sub-menu{display:block}
-.nav-sub .sub-menu a{display:block;padding:.55rem 1rem;font-family:'Georgia',serif;font-size:.76rem;color:rgba(245,234,212,.65);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.05);transition:all .15s}
-.nav-sub .sub-menu a:hover{color:var(--light);background:rgba(255,255,255,.05)}
-.nav-sync{display:flex;gap:.2rem;align-items:center;margin-left:auto;flex-shrink:0}
-.btn-disc{font-size:.68rem;color:rgba(245,234,212,.22);background:none;border:none;cursor:pointer;padding:.3rem .5rem;transition:color .2s}
-.btn-disc:hover{color:rgba(245,234,212,.55)}
+.nav-sub .sub-menu a{display:block;padding:.6rem 1.1rem;font-family:'Georgia',serif;font-size:.75rem;color:rgba(100,68,18,.75);text-decoration:none;border-bottom:1px solid rgba(200,165,90,.12);transition:all .15s;letter-spacing:.05em}
+.nav-sub .sub-menu a:hover{color:rgba(60,38,8,.95);background:rgba(200,160,70,.1);padding-left:1.4rem}
+.nav-sync{display:flex;gap:.4rem;align-items:center;margin-left:auto;flex-shrink:0}
+.btn-disc{font-size:.7rem;color:rgba(110,75,20,.45);background:rgba(200,160,70,.1);border:1px solid rgba(200,165,90,.25);border-radius:6px;cursor:pointer;padding:.32rem .75rem;transition:all .2s;font-family:'Georgia',serif;letter-spacing:.06em}
+.btn-disc:hover{color:rgba(60,38,8,.85);background:rgba(200,160,70,.2);border-color:rgba(200,165,90,.45)}
 #import-input{display:none}
 
 /* PAGES */
@@ -191,17 +191,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);backgrou
 .page.active{display:block}
 
 /* PAGE HERO */
-.p-hero{background:var(--surface2);border-bottom:1px solid var(--gold);padding:2rem 3rem 1.8rem;position:relative;overflow:hidden}
-.p-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,180,60,.06) 0%,transparent 60%);pointer-events:none}
+.p-hero{background:rgba(230,210,160,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(190,155,80,.25);padding:2rem 3rem 1.8rem;position:relative;overflow:hidden}
+.p-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,220,120,.08) 0%,transparent 60%);pointer-events:none}
 .p-hero-inner{max-width:1140px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;position:relative;z-index:1}
-.p-hero-title{font-family:'Georgia',serif;font-size:2.2rem;font-weight:700;color:var(--light);letter-spacing:.02em;line-height:1}
-.p-hero-sub{font-family:'Georgia',serif;font-size:.73rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,234,212,.42);margin-top:.3rem}
+.p-hero-title{font-family:'Georgia',serif;font-size:2.2rem;font-weight:700;color:rgba(60,38,8,.92);letter-spacing:.02em;line-height:1}
+.p-hero-sub{font-family:'Georgia',serif;font-size:.73rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(100,68,18,.55);margin-top:.3rem}
 
 /* INNER TABS */
-.page-tabs{background:var(--surface2);border-bottom:1px solid var(--gold);padding:0 3rem;display:flex;gap:0}
-.page-tab{font-family:'Georgia',serif;font-size:.76rem;letter-spacing:.13em;text-transform:uppercase;color:rgba(245,234,212,.48);background:none;border:none;border-bottom:3px solid transparent;padding:.85rem 1.2rem;cursor:pointer;transition:all .18s}
-.page-tab:hover{color:rgba(245,234,212,.8)}
-.page-tab.active{color:var(--light);border-bottom-color:var(--gold-l)}
+.page-tabs{background:rgba(240,220,165,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(190,155,80,.25);padding:0 3rem;display:flex;gap:0}
+.page-tab{font-family:'Georgia',serif;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(100,68,18,.55);background:none;border:none;border-bottom:3px solid transparent;padding:.85rem 1.2rem;cursor:pointer;transition:all .18s}
+.page-tab:hover{color:rgba(60,38,8,.85)}
+.page-tab.active{color:rgba(60,38,8,.95);border-bottom-color:var(--olive)}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
@@ -272,15 +272,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);backgrou
 .en::before{background:#4a8aaa}.sq::before{background:#aa4040}.de::before{background:#c8a020}.ot::before{background:#8a7060}
 
 /* ── PAGE 1: GREAT HALL ── */
-.gh-hero{background:var(--surface2);border-bottom:1px solid var(--gold);padding:2.8rem 3rem 2.4rem;position:relative;overflow:hidden}
+.gh-hero{background:rgba(230,210,160,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(190,155,80,.25);padding:2.8rem 3rem 2.4rem;position:relative;overflow:hidden}
 .gh-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,180,60,.06) 0%,transparent 60%);pointer-events:none}
 .gh-hero-inner{max-width:1140px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;position:relative;z-index:1}
-.gh-title{font-family:'Georgia',serif;font-size:2.8rem;font-weight:700;color:var(--light);line-height:1;letter-spacing:.02em}
-.gh-sub{font-family:'Georgia',serif;font-size:.76rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,234,212,.42);margin-top:.4rem}
+.gh-title{font-family:'Georgia',serif;font-size:2.8rem;font-weight:700;color:rgba(60,38,8,.92);line-height:1;letter-spacing:.02em}
+.gh-sub{font-family:'Georgia',serif;font-size:.76rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(100,68,18,.55);margin-top:.4rem}
 .gh-quote-wrap{max-width:390px;text-align:right}
-.gh-quote-wrap blockquote{font-family:'Georgia',serif;font-size:.97rem;font-style:italic;color:rgba(245,234,212,.8);line-height:1.75}
-.gh-quote-wrap cite{display:block;margin-top:.5rem;font-family:'Georgia',serif;font-size:.76rem;font-style:normal;color:rgba(245,234,212,.4);letter-spacing:.08em}
-.btn-edit-q{display:block;margin-top:.5rem;background:none;border:none;font-family:'Georgia',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,234,212,.28);cursor:pointer;transition:color .18s;width:100%;text-align:right}
+.gh-quote-wrap blockquote{font-family:'Georgia',serif;font-size:.97rem;font-style:italic;color:rgba(60,38,8,.8);line-height:1.75}
+.gh-quote-wrap cite{display:block;margin-top:.5rem;font-family:'Georgia',serif;font-size:.76rem;font-style:normal;color:rgba(100,68,18,.5);letter-spacing:.08em}
+.btn-edit-q{display:block;margin-top:.5rem;background:none;border:none;font-family:'Georgia',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(100,68,18,.3);cursor:pointer;transition:color .18s;width:100%;text-align:right}
 .btn-edit-q:hover{color:rgba(245,234,212,.6)}
 .quote-edit-form{display:none;margin-top:.6rem}
 .quote-edit-form textarea,.quote-edit-form input{width:100%;background:rgba(0,0,0,.18);border:1px solid rgba(245,234,212,.2);border-radius:2px;color:rgba(245,234,212,.85);font-family:'Georgia',serif;font-size:.9rem;font-style:italic;padding:.55rem .75rem;outline:none;resize:vertical;line-height:1.65;margin-bottom:.4rem;transition:border-color .18s}
