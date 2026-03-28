@@ -344,12 +344,13 @@ nav{display:none}
 .sb-toggle.collapsed { left: calc(var(--sidebar-collapsed) - 14px); }
 .sb-toggle:hover { background: rgba(240,225,180,.98); }
 
-/* Pages shift right on desktop */
-.page { padding-left: var(--sidebar-w); transition: padding-left .25s cubic-bezier(.4,0,.2,1); }
-.page.sb-collapsed { padding-left: var(--sidebar-collapsed); }
 
-/* Fix page top padding — no top nav on desktop */
-.page { padding-top: 0 !important; }
+/* ── DESKTOP ONLY (sidebar layout) ── */
+@media (min-width: 769px) {
+  /* Pages shift right on desktop */
+  .page { padding-left: var(--sidebar-w); padding-top: 0 !important; transition: padding-left .25s cubic-bezier(.4,0,.2,1); }
+  .page.sb-collapsed { padding-left: var(--sidebar-collapsed); }
+}
 
 /* Hero areas on desktop */
 .p-hero { background: rgba(235,215,155,.5); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(190,155,80,.25); padding: 2rem 3rem 1.8rem; }
@@ -712,6 +713,24 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 
   /* Restore page padding for mobile (top nav + no sidebar) */
   .page { padding-left: 0 !important; padding-top: var(--nav-h) !important; }
+
+  /* Restore btn-disc to original small text style on mobile */
+  .btn-disc {
+    font-size: .68rem !important;
+    color: rgba(245,234,212,.22) !important;
+    background: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: .3rem .5rem !important;
+    letter-spacing: normal !important;
+  }
+
+  /* Fix Post to Journal and similar long button labels */
+  .add-modal-bg .form-actions .btn-primary {
+    font-size: .68rem !important;
+    letter-spacing: .06em !important;
+    padding: .5rem .9rem !important;
+  }
 
   /* Hide desktop nav links */
   .nav-links { display: none !important; }
