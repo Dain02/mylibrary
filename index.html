@@ -350,6 +350,10 @@ nav{display:none}
   /* Pages shift right on desktop */
   .page { padding-left: var(--sidebar-w); padding-top: 0 !important; transition: padding-left .25s cubic-bezier(.4,0,.2,1); }
   .page.sb-collapsed { padding-left: var(--sidebar-collapsed); }
+
+  /* Align hero top with sidebar brand area */
+  .gh-hero { padding-top: 1.6rem !important; padding-bottom: 1.6rem !important; }
+  .p-hero  { padding-top: 1.4rem !important; padding-bottom: 1.4rem !important; }
 }
 
 /* Hero areas on desktop */
@@ -706,8 +710,23 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 ═══════════════════════════════════════ */
 @media (max-width: 768px) {
 
-  /* Show top nav on mobile, hide sidebar */
-  nav { display: flex !important; }
+  /* Show top nav on mobile with full positioning, hide sidebar */
+  nav {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: var(--nav-h) !important;
+    z-index: 200 !important;
+    background: rgba(242,228,195,.88) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+    border-bottom: 1px solid rgba(200,165,90,.3) !important;
+    box-shadow: 0 2px 20px rgba(160,110,40,.12) !important;
+    align-items: center !important;
+    padding: 0 1rem !important;
+  }
   .sidebar-nav { display: none !important; }
   .sb-toggle { display: none !important; }
 
@@ -1056,7 +1075,20 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
 @media(max-width:600px){.form-actions{justify-content:stretch}.form-actions .btn-ghost,.form-actions .btn-primary{flex:1;font-size:.7rem;padding:.45rem .5rem;text-align:center}.add-modal-bg .form-actions{justify-content:center !important;padding:0 !important;margin-top:1rem !important;margin-bottom:.5rem !important}.add-modal-bg .form-actions .btn-ghost,.add-modal-bg .form-actions .btn-primary{flex:0 0 auto !important;width:auto !important;min-width:140px !important;max-width:70% !important;padding:.6rem 1.4rem !important;font-size:.78rem !important;text-align:center !important}}
 .vault-book-panel { display: none !important; }
 .vault-book-panel.open { display: block !important; }
-.ac-wrap{position:relative}
+/* ── GENRE TAGS ── */
+.genre-tag-wrap { display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; min-height:2.2rem; background:var(--card2); border:1px solid var(--bsoft); border-radius:2px; padding:.3rem .5rem; cursor:text; transition:border-color .18s; }
+.genre-tag-wrap:focus-within { border-color:var(--olive); }
+.genre-tag { display:inline-flex; align-items:center; gap:.25rem; padding:.18rem .55rem; border-radius:3px; font-family:'Georgia',serif; font-size:.72rem; font-weight:500; letter-spacing:.04em; cursor:default; }
+.genre-tag-x { background:none; border:none; cursor:pointer; font-size:.75rem; line-height:1; padding:0 .1rem; opacity:.7; }
+.genre-tag-x:hover { opacity:1; }
+.genre-tag-input { border:none; background:none; outline:none; font-family:system-ui,sans-serif; font-size:.83rem; font-weight:300; color:var(--text); min-width:80px; flex:1; padding:.1rem .2rem; }
+.genre-suggestions { display:none; position:absolute; left:0; right:0; top:100%; background:var(--card); border:1px solid var(--olive); border-top:none; border-radius:0 0 4px 4px; z-index:500; padding:.5rem .6rem; box-shadow:0 4px 16px rgba(0,0,0,.1); }
+.genre-suggestions.open { display:block; }
+.genre-chips { display:flex; flex-wrap:wrap; gap:.3rem; }
+.genre-chip { padding:.22rem .6rem; border-radius:3px; font-family:'Georgia',serif; font-size:.7rem; cursor:pointer; border:1px solid transparent; transition:all .15s; background:var(--card2); color:var(--tsoft); border-color:var(--bsoft); }
+.genre-chip:hover { background:var(--olive); color:#fff; border-color:var(--olive); }
+.genre-chip.used { opacity:.45; }
+.ac-wrap { position:relative; }
 .ac-list{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--olive);border-top:none;border-radius:0 0 4px 4px;max-height:180px;overflow-y:auto;z-index:200;display:none;box-shadow:0 4px 12px rgba(0,0,0,.15)}
 .ac-list.open{display:block}
 .ac-item{padding:.5rem .8rem;font-family:Georgia,serif;font-size:.86rem;color:var(--tsoft);cursor:pointer;border-bottom:1px solid var(--bsoft)}
@@ -1750,7 +1782,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
     </div>
     <div class="filter-bar" id="filter-bar" style="display:none">
       <input type="text" id="f-search" placeholder="Search title or author…" oninput="renderTable()">
-      <select id="f-genre" onchange="renderTable()"><option value="">All Genres</option><option>Art & Culture</option><option>Biography</option><option>Classic Literature</option><option>Comics / Graphic Novel</option><option>Cooking</option><option>Drama / Plays</option><option>Economics</option><option>Education</option><option>Essays / Criticism</option><option>Fantasy</option><option>Gardening</option><option>History</option><option>Horror</option><option>Kids</option><option>Literature / Fiction</option><option>Memoir</option><option>Music</option><option>Mystery / Thriller</option><option>Novel</option><option>Nature</option><option>Philosophy</option><option>Poetry</option><option>Politics</option><option>Psychology</option><option>Religion / Spirituality</option><option>Science</option><option>Science Fiction</option><option>Self-Help</option><option>Short Stories</option><option>Travel / Adventure</option><option>Other</option></select>
+      <select id="f-genre" onchange="renderTable()"><option value="">All Genres</option></select>
       <select id="f-lang" onchange="renderTable()"><option value="">All Languages</option><option value="en">English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option></select>
       <select id="f-status" onchange="renderTable()"><option value="">All Status</option><option value="reading">Reading</option><option value="read">Read</option><option value="unread">Unread</option></select>
       <select id="f-banned" onchange="renderTable()"><option value="">All Books</option><option value="yes">Banned</option><option value="challenged">Challenged</option></select>
@@ -2219,6 +2251,17 @@ function toggleFilterBar() {
 function fabAddBook() {
   toggleAddForm();
 }
+function updateGenreFilter() {
+  var sel = document.getElementById('f-genre');
+  if (!sel) return;
+  var current = sel.value;
+  var allGenres = {};
+  data.books.forEach(function(b){ getBookGenres(b).forEach(function(g){ allGenres[g]=true; }); });
+  var sorted = Object.keys(allGenres).sort();
+  sel.innerHTML = '<option value="">All Genres</option>' + sorted.map(function(g){
+    return '<option value="'+esc(g)+'"'+(g===current?' selected':'')+'>'+esc(g)+'</option>';
+  }).join('');
+}
 function updateFab() {
   // FAB visibility is handled purely by CSS media query — no JS override needed
 }
@@ -2285,7 +2328,7 @@ async function isbnLookup() {
         document.getElementById('in-author').value = book.authors.map(function(a){return a.name;}).join(', ');
       if (book.publish_date) { var yr=book.publish_date.match(/\d{4}/); if(yr) document.getElementById('in-year').value=yr[0]; }
       var genre = isbnMapGenre(book.subjects);
-      if (genre) { var sel=document.getElementById('in-genre'); for(var i=0;i<sel.options.length;i++){ if(sel.options[i].text===genre){sel.value=sel.options[i].value;break;} } }
+      if (genre) { genreClear('in-genre-tag-wrap'); genreAddTag('in-genre-tag-wrap', genre); }
       var el = document.getElementById('in-isbn');
       el.__coverUrl = book.cover ? (book.cover.large||book.cover.medium||'') : '';
       el.__pages = book.number_of_pages ? String(book.number_of_pages) : '';
@@ -2312,7 +2355,7 @@ async function isbnLookup() {
         if (info.publishedDate) { var yr2=info.publishedDate.match(/\d{4}/); if(yr2) document.getElementById('in-year').value=yr2[0]; }
         var subjects2 = (info.categories||[]).map(function(c){ return {name:c}; });
         var genre2 = isbnMapGenre(subjects2);
-        if (genre2) { var sel2=document.getElementById('in-genre'); for(var j=0;j<sel2.options.length;j++){ if(sel2.options[j].text===genre2){sel2.value=sel2.options[j].value;break;} } }
+        if (genre2) { genreClear('in-genre-tag-wrap'); genreAddTag('in-genre-tag-wrap', genre2); }
         var el2 = document.getElementById('in-isbn');
         el2.__coverUrl = (info.imageLinks && info.imageLinks.thumbnail) ? info.imageLinks.thumbnail : '';
         el2.__pages = info.pageCount ? String(info.pageCount) : '';
@@ -2442,6 +2485,149 @@ function renderNowNext() {
   }
 }
 
+// ── GENRE TAG SYSTEM ──────────────────────────────────────────────
+var STARTER_GENRES = [
+  'Literary Fiction','Fantasy','Science Fiction','Historical Fiction',
+  'Mystery & Thriller','Horror','Romance','Adventure','Short Stories','Graphic Novel',
+  'Biography','Memoir','History','Philosophy','Psychology','Science','Politics',
+  'Economics','Essays','Self-Help','Travel','Nature',
+  'Poetry','Drama & Plays','Classic Literature','Children\'s','Young Adult',
+  'Art & Culture','Music','Religion & Spirituality','Cooking','Other'
+];
+
+var GENRE_COLORS = {
+  'Literary Fiction':'#6a4a9e','Fantasy':'#b09828','Science Fiction':'#3a6a9e',
+  'Historical Fiction':'#8a5a3a','Mystery & Thriller':'#4a6e5e','Horror':'#6e2a2a',
+  'Romance':'#b83a7a','Adventure':'#3a8e6e','Short Stories':'#6e8a3a','Graphic Novel':'#9e3a6e',
+  'Biography':'#6a4a9e','Memoir':'#8a5a3a','History':'#4a8a6e','Philosophy':'#4a6e9e',
+  'Psychology':'#6e4a9e','Science':'#8a3a4e','Politics':'#3a8e9e','Economics':'#3a6e5a',
+  'Essays':'#5a7a5a','Self-Help':'#9e7a38','Travel':'#3a8e6e','Nature':'#4a8e3a',
+  'Poetry':'#7a4a8e','Drama & Plays':'#9e5a30','Classic Literature':'#8e7a30',
+  'Children\'s':'#c07830','Young Adult':'#b07828','Art & Culture':'#8e3a9e',
+  'Music':'#b83a7a','Religion & Spirituality':'#9e8a3a','Cooking':'#b05828','Other':'#5a7a2a'
+};
+
+function getGenreColor(g) {
+  if (GENRE_COLORS[g]) return GENRE_COLORS[g];
+  // deterministic color for custom genres
+  var hash = 0; for (var i=0;i<g.length;i++) hash = g.charCodeAt(i) + ((hash<<5)-hash);
+  var colors = ['#6a4a9e','#4a8a6e','#b07828','#3a6a9e','#8a3a4e','#4a6e5e','#9e3a6e','#3a8e9e'];
+  return colors[Math.abs(hash) % colors.length];
+}
+
+function getBookGenres(book) {
+  // Backward compatible — handle both old string and new array
+  if (Array.isArray(book.genres) && book.genres.length) return book.genres;
+  if (book.genre) return [book.genre];
+  return [];
+}
+
+function genreTagsFromEl(wrapId) {
+  var wrap = document.getElementById(wrapId);
+  if (!wrap) return [];
+  var tags = wrap.querySelectorAll('.genre-tag');
+  return Array.from(tags).map(function(t){ return t.getAttribute('data-genre'); });
+}
+
+function genreAddTag(wrapId, genre) {
+  genre = genre.trim();
+  if (!genre) return;
+  var wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  // No duplicates
+  var existing = genreTagsFromEl(wrapId);
+  if (existing.indexOf(genre) > -1) return;
+  var color = getGenreColor(genre);
+  var input = wrap.querySelector('.genre-tag-input');
+  var tag = document.createElement('span');
+  tag.className = 'genre-tag';
+  tag.setAttribute('data-genre', genre);
+  tag.style.background = color + '22';
+  tag.style.color = color;
+  tag.style.border = '1px solid ' + color + '55';
+  tag.innerHTML = esc(genre) + '<button class="genre-tag-x" onclick="genreRemoveTag(this)" type="button">×</button>';
+  wrap.insertBefore(tag, input);
+  if (input) input.value = '';
+}
+
+function genreRemoveTag(btn) {
+  btn.parentElement.remove();
+}
+
+function genreInputKey(e, inputId, wrapId, sugId) {
+  var input = document.getElementById(inputId);
+  var val = input.value.trim();
+  if ((e.key === 'Enter' || e.key === ',') && val) {
+    e.preventDefault();
+    genreAddTag(wrapId, val);
+    genreUpdateChips(wrapId, sugId);
+  } else if (e.key === 'Backspace' && !val) {
+    var wrap = document.getElementById(wrapId);
+    var tags = wrap.querySelectorAll('.genre-tag');
+    if (tags.length) tags[tags.length-1].remove();
+  }
+}
+
+function genreShowSuggestions(inputId, sugId, wrapId) {
+  genreUpdateChips(wrapId, sugId);
+  document.getElementById(sugId).classList.add('open');
+}
+
+function genreHideSuggestions(sugId) {
+  var el = document.getElementById(sugId);
+  if (el) el.classList.remove('open');
+}
+
+function genreInputFilter(inputId, sugId) {
+  var q = document.getElementById(inputId).value.toLowerCase();
+  var chips = document.getElementById(sugId).querySelector('.genre-chips');
+  if (!chips) return;
+  chips.querySelectorAll('.genre-chip').forEach(function(c){
+    c.style.display = (!q || c.textContent.toLowerCase().includes(q)) ? '' : 'none';
+  });
+  document.getElementById(sugId).classList.add('open');
+}
+
+function genreUpdateChips(wrapId, sugId) {
+  var current = genreTagsFromEl(wrapId);
+  // Combine starter + custom genres already in library
+  var allGenres = STARTER_GENRES.slice();
+  data.books.forEach(function(b){
+    var gs = getBookGenres(b);
+    gs.forEach(function(g){ if (allGenres.indexOf(g)===-1) allGenres.push(g); });
+  });
+  var chips = document.getElementById(sugId) ? document.getElementById(sugId).querySelector('.genre-chips') : null;
+  if (!chips) return;
+  chips.innerHTML = allGenres.map(function(g){
+    var used = current.indexOf(g) > -1;
+    var color = getGenreColor(g);
+    return '<span class="genre-chip'+(used?' used':'')+'" style="background:'+color+'22;color:'+color+';border-color:'+color+'55" onclick="genreChipClick(\''+wrapId+'\',\''+sugId+'\',\''+esc(g)+'\')">'+esc(g)+'</span>';
+  }).join('');
+}
+
+function genreChipClick(wrapId, sugId, genre) {
+  genreAddTag(wrapId, genre);
+  genreUpdateChips(wrapId, sugId);
+}
+
+function genreSetTags(wrapId, sugId, genres) {
+  var wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  // Remove existing tags
+  wrap.querySelectorAll('.genre-tag').forEach(function(t){ t.remove(); });
+  // Add each genre
+  genres.forEach(function(g){ genreAddTag(wrapId, g); });
+  genreUpdateChips(wrapId, sugId);
+}
+
+function genreClear(wrapId) {
+  var wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  wrap.querySelectorAll('.genre-tag').forEach(function(t){ t.remove(); });
+  var input = wrap.querySelector('.genre-tag-input');
+  if (input) input.value = '';
+}
+
 function closeAddForm() {
   var w = document.getElementById('add-form-wrap');
   w.classList.remove('open');
@@ -2450,16 +2636,17 @@ function closeAddForm() {
 function addBook() {
   const title=document.getElementById('in-title').value.trim();
   const author=document.getElementById('in-author').value.trim();
-  const genre=document.getElementById('in-genre').value;
+  const genres=genreTagsFromEl('in-genre-tag-wrap');
   const lang=document.getElementById('in-lang').value;
-  if(!title||!author||!genre||!lang){ alert('Please fill in Title, Author, Genre and Language.'); return; }
+  if(!title||!author||!genres.length||!lang){ alert('Please fill in Title, Author, at least one Genre and Language.'); return; }
   var nextNum=data.books.length>0?Math.max.apply(null,data.books.map(function(b){return b.num||0;}))+1:1;
   var coverUrl = document.getElementById('in-isbn').__coverUrl || '';
   var pages    = document.getElementById('in-isbn').__pages    || '';
-  data.books.push({id:Date.now(),num:nextNum,title,author,genre,lang,status:document.getElementById('in-status').value,year:document.getElementById('in-year').value.trim(),banned:document.getElementById('in-banned').value,coverUrl,pages});
+  data.books.push({id:Date.now(),num:nextNum,title,author,genres,genre:genres[0],lang,status:document.getElementById('in-status').value,year:document.getElementById('in-year').value.trim(),banned:document.getElementById('in-banned').value,coverUrl,pages});
   save(); renderTable(); updateStats();
   ['in-title','in-author','in-year'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('in-genre').value=''; document.getElementById('in-lang').value=''; document.getElementById('in-status').value='unread'; document.getElementById('in-banned').value='no';
+  genreClear('in-genre-tag-wrap');
+  document.getElementById('in-lang').value=''; document.getElementById('in-status').value='unread'; document.getElementById('in-banned').value='no';
   var isbnEl = document.getElementById('in-isbn'); isbnEl.value=''; isbnEl.__coverUrl=''; isbnEl.__pages='';
   document.getElementById('isbn-msg').textContent='';
   closeAddForm();
@@ -2482,8 +2669,10 @@ function renderTable() {
   var fb=(document.getElementById('f-banned')||{value:''}).value;
   var sb=(document.getElementById('sort-by')||{value:'num'}).value;
   var filtered=data.books.filter(function(b){
+    var bGenres = getBookGenres(b);
+    var genreMatch = !fg || bGenres.some(function(g){ return g===fg; });
     return (!q||b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q))
-      &&(!fg||b.genre===fg)&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb);
+      &&genreMatch&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb);
   });
   filtered.sort(function(a,b){
     switch(sb){
@@ -2505,11 +2694,15 @@ function renderTable() {
     var rows='';
     filtered.forEach(function(b){
       var bc=b.banned==='yes'?'#a03030':b.banned==='challenged'?'#8a6010':'rgba(42,30,14,.28)';
+      var bGenres = getBookGenres(b);
+      var genreTags = bGenres.map(function(g){
+        var c = getGenreColor(g);
+        return '<span style="display:inline-block;padding:.1rem .45rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:'+c+'22;color:'+c+';border:1px solid '+c+'44;margin:.1rem .1rem 0 0">'+esc(g)+'</span>';
+      }).join('');
       rows+='<tr>'
-        
         +'<td class="t-title">'+esc(b.title)+'</td>'
         +'<td class="t-author">'+esc(b.author||'')+'</td>'
-        +'<td><span class="pill">'+esc(b.genre||'')+'</span></td>'
+        +'<td style="max-width:160px">'+genreTags+'</td>'
         +'<td><span class="lang-dot '+(b.lang||'ot')+'">'+(LANG_L[b.lang]||b.lang||'')+'</span></td>'
         +'<td class="t-year">'+esc(b.year||'--')+'</td>'
         +'<td><span class="badge badge-'+b.status+'">'+b.status+'</span></td>'
@@ -2526,6 +2719,7 @@ function renderTable() {
   if(fc) fc.textContent=filtered.length!==data.books.length
     ?filtered.length+' of '+data.books.length+' books'
     :data.books.length+' book'+(data.books.length!==1?'s':'');
+  updateGenreFilter();
   renderMobBooks();
 }
 
@@ -2633,7 +2827,7 @@ function renderCharts() {
   document.getElementById('pal-empty').style.display=has?'none':'block';
   document.getElementById('pal-content').style.display=has?'block':'none';
   if(!has) return;
-  const gm={};data.books.forEach(b=>gm[b.genre]=(gm[b.genre]||0)+1);
+  const gm={};data.books.forEach(b=>{ getBookGenres(b).forEach(function(g){ gm[g]=(gm[g]||0)+1; }); });
   const gL=Object.keys(gm),gD=Object.values(gm);
   makeDoughnut('ch-genre',gL,gD,gL.map(l=>GC[l]||'#7a6040'));
   const rc=data.books.filter(b=>b.status==='read').length;
@@ -2668,7 +2862,7 @@ function renderTimeline() {
       year: parseInt(b.year),
       type: type,
       title: b.title,
-      sub: b.author+(b.genre?' · '+b.genre:''),
+      sub: b.author+(getBookGenres(b).length?' · '+getBookGenres(b)[0]:''),
       banned: banned ? b.banned : null
     });
   });
@@ -3160,10 +3354,11 @@ function openEditBook(id) {
   document.getElementById('edit-title').value  = book.title  || '';
   document.getElementById('edit-author').value = book.author || '';
   document.getElementById('edit-year').value   = book.year   || '';
-  document.getElementById('edit-genre').value  = book.genre  || '';
   document.getElementById('edit-lang').value   = book.lang   || 'en';
   document.getElementById('edit-status').value = book.status || 'unread';
   document.getElementById('edit-banned').value = book.banned || 'no';
+  // Load existing genres
+  genreSetTags('edit-genre-tag-wrap','edit-genre-suggestions', getBookGenres(book));
   document.getElementById('edit-modal').style.display = 'flex';
 }
 function closeEditBook() {
@@ -3173,14 +3368,15 @@ function saveEditBook() {
   const id   = parseInt(document.getElementById('edit-id').value);
   const book = data.books.find(b=>b.id===id);
   if(!book) return;
+  const genres = genreTagsFromEl('edit-genre-tag-wrap');
   book.title  = document.getElementById('edit-title').value.trim();
   book.author = document.getElementById('edit-author').value.trim();
-  book.genre  = document.getElementById('edit-genre').value;
+  book.genres = genres;
+  book.genre  = genres[0] || book.genre; // keep legacy field for backward compat
   book.lang   = document.getElementById('edit-lang').value;
   book.year   = document.getElementById('edit-year').value.trim();
   book.banned = document.getElementById('edit-banned').value;
   const newStatus = document.getElementById('edit-status').value;
-  // If changing away from reading, clean up reading entries
   if(book.status === 'reading' && newStatus !== 'reading') {
     data.readingEntries = (data.readingEntries||[]).filter(e=>e.bookId!==id);
   }
@@ -3416,8 +3612,10 @@ function renderMobBooks() {
   var fb = (document.getElementById('f-banned')||{value:''}).value;
   var sb = (document.getElementById('sort-by')||{value:'num'}).value;
   var filtered = data.books.filter(function(b) {
+    var bGenres = getBookGenres(b);
+    var genreMatch = !fg || bGenres.some(function(g){ return g===fg; });
     return (!q||b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q))
-      &&(!fg||b.genre===fg)&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb);
+      &&genreMatch&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb);
   });
   filtered.sort(function(a,b){
     switch(sb){
@@ -3443,7 +3641,7 @@ function renderMobBooks() {
       +'<div style="font-family:Georgia,serif;font-size:.8rem;color:var(--tmuted);margin-top:.1rem">'+esc(b.author||'')+'</div>'
       +'</div>'
       +'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;align-items:center">'
-      +'<span class="pill" style="font-size:.68rem">'+esc(b.genre||'')+'</span>'
+      +getBookGenres(b).map(function(g){ var c=getGenreColor(g); return '<span style="padding:.1rem .45rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:'+c+'22;color:'+c+';border:1px solid '+c+'44">'+esc(g)+'</span>'; }).join('')
       +'<span class="badge badge-'+b.status+'" style="font-size:.65rem">'+b.status+'</span>'
       +(b.year?'<span style="font-size:.75rem;color:var(--tmuted)">'+esc(b.year)+'</span>':'')
       +(b.banned!=='no'?'<span style="font-size:.72rem;color:#a03030">&#128683; '+(b.banned==='yes'?'Banned':'Challenged')+'</span>':'')
@@ -3580,8 +3778,8 @@ function openPalDetail(type) {
   if(type==='genre'){
     title.textContent='Collection by Genre';
     var gm={},rg={};
-    books.forEach(function(b){gm[b.genre]=(gm[b.genre]||0)+1;});
-    books.filter(function(b){return b.status==='read';}).forEach(function(b){rg[b.genre]=(rg[b.genre]||0)+1;});
+    books.forEach(function(b){ getBookGenres(b).forEach(function(g){ gm[g]=(gm[g]||0)+1; }); });
+    books.filter(function(b){return b.status==='read';}).forEach(function(b){ getBookGenres(b).forEach(function(g){ rg[g]=(rg[g]||0)+1; }); });
     var gs=Object.entries(gm).sort(function(a,b){return b[1]-a[1];});
     html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+total+'</div><div class="psl">Total</div></div><div class="pal-stat-box"><div class="psn">'+gs.length+'</div><div class="psl">Genres</div></div><div class="pal-stat-box"><div class="psn">'+(gs[0]?esc(gs[0][0]):'--')+'</div><div class="psl">Top Genre</div></div></div>';
     html+='<div class="pal-table-wrap"><table class="pal-table"><thead><tr><th>Genre</th><th>Books</th><th>Read</th><th>Unread</th><th>%</th></tr></thead><tbody>';
@@ -3595,9 +3793,9 @@ function openPalDetail(type) {
     var pct=total?Math.round((read/total)*100):0;
     html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+read+'</div><div class="psl">Read</div></div><div class="pal-stat-box"><div class="psn">'+rdng+'</div><div class="psl">Reading Now</div></div><div class="pal-stat-box"><div class="psn">'+unrd+'</div><div class="psl">Unread</div></div></div>';
     html+='<div style="background:var(--card);border-radius:var(--r);padding:1.2rem 1.5rem;margin-bottom:1.5rem"><div style="display:flex;justify-content:space-between;margin-bottom:.5rem"><span style="font-family:Georgia,serif;font-size:.85rem;color:var(--tsoft)">'+read+' of '+total+' read</span><span style="font-family:Georgia,serif;font-size:.85rem;font-weight:700;color:var(--olive)">'+pct+'%</span></div><div class="pal-bar-bg" style="height:12px"><div class="pal-bar-fill" style="width:'+pct+'%"></div></div></div>';
-    var ug={};books.filter(function(b){return b.status==='unread';}).forEach(function(b){ug[b.genre]=(ug[b.genre]||0)+1;});
+    var ug={};books.filter(function(b){return b.status==='unread';}).forEach(function(b){ getBookGenres(b).forEach(function(g){ ug[g]=(ug[g]||0)+1; }); });
     var ugs=Object.entries(ug).sort(function(a,b){return b[1]-a[1];});
-    html+='<div class="pal-section-title">Unread by Genre</div><table class="pal-table"><thead><tr><th>Genre</th><th>Unread</th></tr></thead><tbody>';
+    html+='<div class="pal-section-title">Unread by Genre</div><div class="pal-table-wrap"><table class="pal-table"><thead><tr><th>Genre</th><th>Unread</th></tr></thead><tbody>';
     ugs.forEach(function(e){html+='<tr><td>'+esc(e[0])+'</td><td>'+e[1]+'</td></tr>';});
     html+='</tbody></table></div>';
   } else if(type==='language'){
@@ -3980,8 +4178,20 @@ function renderQuotes() {
       <div class="field"><label>Author</label><input type="text" id="in-author" placeholder="Author name…"></div>
     </div>
     <div class="grid-2">
-      <div class="field"><label>Genre</label>
-        <select id="in-genre"><option value="">Select…</option><option>Art & Culture</option><option>Biography</option><option>Classic Literature</option><option>Comics / Graphic Novel</option><option>Cooking</option><option>Drama / Plays</option><option>Economics</option><option>Education</option><option>Essays / Criticism</option><option>Fantasy</option><option>Gardening</option><option>History</option><option>Horror</option><option>Kids</option><option>Literature / Fiction</option><option>Memoir</option><option>Music</option><option>Mystery / Thriller</option><option>Novel</option><option>Nature</option><option>Philosophy</option><option>Poetry</option><option>Politics</option><option>Psychology</option><option>Religion / Spirituality</option><option>Science</option><option>Science Fiction</option><option>Self-Help</option><option>Short Stories</option><option>Travel / Adventure</option><option>Other</option></select>
+      <div class="field"><label>Genre(s)</label>
+        <div class="ac-wrap" id="in-genre-wrap">
+          <div class="genre-tag-wrap" id="in-genre-tag-wrap" onclick="document.getElementById('in-genre-input').focus()">
+            <input type="text" id="in-genre-input" class="genre-tag-input" placeholder="Type or pick below…" autocomplete="off"
+              oninput="genreInputFilter('in-genre-input','in-genre-suggestions')"
+              onkeydown="genreInputKey(event,'in-genre-input','in-genre-tag-wrap','in-genre-suggestions')"
+              onfocus="genreShowSuggestions('in-genre-input','in-genre-suggestions','in-genre-tag-wrap')"
+              onblur="setTimeout(function(){genreHideSuggestions('in-genre-suggestions')},200)">
+          </div>
+          <div class="genre-suggestions" id="in-genre-suggestions">
+            <div class="genre-chips" id="in-genre-chips"></div>
+          </div>
+        </div>
+        <input type="hidden" id="in-genre">
       </div>
       <div class="field"><label>Language</label>
         <select id="in-lang"><option value="">Select…</option><option value="en">English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option></select>
@@ -4149,8 +4359,20 @@ function renderQuotes() {
       <div class="field"><label>Author</label><input type="text" id="edit-author"></div>
     </div>
     <div class="grid-2">
-      <div class="field"><label>Genre</label>
-        <select id="edit-genre"><option>Art & Culture</option><option>Biography</option><option>Classic Literature</option><option>Comics / Graphic Novel</option><option>Cooking</option><option>Drama / Plays</option><option>Economics</option><option>Education</option><option>Essays / Criticism</option><option>Fantasy</option><option>Gardening</option><option>History</option><option>Horror</option><option>Kids</option><option>Literature / Fiction</option><option>Memoir</option><option>Music</option><option>Mystery / Thriller</option><option>Novel</option><option>Nature</option><option>Philosophy</option><option>Poetry</option><option>Politics</option><option>Psychology</option><option>Religion / Spirituality</option><option>Science</option><option>Science Fiction</option><option>Self-Help</option><option>Short Stories</option><option>Travel / Adventure</option><option>Other</option></select>
+      <div class="field"><label>Genre(s)</label>
+        <div class="ac-wrap" id="edit-genre-wrap">
+          <div class="genre-tag-wrap" id="edit-genre-tag-wrap" onclick="document.getElementById('edit-genre-input').focus()">
+            <input type="text" id="edit-genre-input" class="genre-tag-input" placeholder="Type or pick below…" autocomplete="off"
+              oninput="genreInputFilter('edit-genre-input','edit-genre-suggestions')"
+              onkeydown="genreInputKey(event,'edit-genre-input','edit-genre-tag-wrap','edit-genre-suggestions')"
+              onfocus="genreShowSuggestions('edit-genre-input','edit-genre-suggestions','edit-genre-tag-wrap')"
+              onblur="setTimeout(function(){genreHideSuggestions('edit-genre-suggestions')},200)">
+          </div>
+          <div class="genre-suggestions" id="edit-genre-suggestions">
+            <div class="genre-chips" id="edit-genre-chips"></div>
+          </div>
+        </div>
+        <input type="hidden" id="edit-genre">
       </div>
       <div class="field"><label>Language</label>
         <select id="edit-lang">
