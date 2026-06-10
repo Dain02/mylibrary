@@ -1785,6 +1785,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
       <select id="f-genre" onchange="renderTable()"><option value="">All Genres</option></select>
       <select id="f-lang" onchange="renderTable()"><option value="">All Languages</option><option value="en">English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option></select>
       <select id="f-status" onchange="renderTable()"><option value="">All Status</option><option value="reading">Reading</option><option value="read">Read</option><option value="unread">Unread</option></select>
+      <select id="f-reader" onchange="renderTable()"><option value="">All Readers</option><option value="Kreshnik">Kreshnik</option><option value="Inken">Inken</option></select>
       <select id="f-banned" onchange="renderTable()"><option value="">All Books</option><option value="yes">Banned</option><option value="challenged">Challenged</option></select>
       <span class="filter-count" id="filter-count"></span>
     </div>
@@ -2642,11 +2643,11 @@ function addBook() {
   var nextNum=data.books.length>0?Math.max.apply(null,data.books.map(function(b){return b.num||0;}))+1:1;
   var coverUrl = document.getElementById('in-isbn').__coverUrl || '';
   var pages    = document.getElementById('in-isbn').__pages    || '';
-  data.books.push({id:Date.now(),num:nextNum,title,author,genres,genre:genres[0],lang,status:document.getElementById('in-status').value,year:document.getElementById('in-year').value.trim(),banned:document.getElementById('in-banned').value,coverUrl,pages});
+  data.books.push({id:Date.now(),num:nextNum,title,author,genres,genre:genres[0],lang,status:document.getElementById('in-status').value,reader:document.getElementById('in-reader').value,year:document.getElementById('in-year').value.trim(),banned:document.getElementById('in-banned').value,coverUrl,pages});
   save(); renderTable(); updateStats();
   ['in-title','in-author','in-year'].forEach(id=>document.getElementById(id).value='');
   genreClear('in-genre-tag-wrap');
-  document.getElementById('in-lang').value=''; document.getElementById('in-status').value='unread'; document.getElementById('in-banned').value='no';
+  document.getElementById('in-lang').value=''; document.getElementById('in-status').value='unread'; document.getElementById('in-reader').value=''; document.getElementById('in-banned').value='no';
   var isbnEl = document.getElementById('in-isbn'); isbnEl.value=''; isbnEl.__coverUrl=''; isbnEl.__pages='';
   document.getElementById('isbn-msg').textContent='';
   closeAddForm();
@@ -2667,12 +2668,13 @@ function renderTable() {
   var fl=(document.getElementById('f-lang')||{value:''}).value;
   var fs=(document.getElementById('f-status')||{value:''}).value;
   var fb=(document.getElementById('f-banned')||{value:''}).value;
+  var fr=(document.getElementById('f-reader')||{value:''}).value;
   var sb=(document.getElementById('sort-by')||{value:'num'}).value;
   var filtered=data.books.filter(function(b){
     var bGenres = getBookGenres(b);
     var genreMatch = !fg || bGenres.some(function(g){ return g===fg; });
     return (!q||b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q))
-      &&genreMatch&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb);
+      &&genreMatch&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb)&&(!fr||b.reader===fr);
   });
   filtered.sort(function(a,b){
     switch(sb){
@@ -2693,7 +2695,9 @@ function renderTable() {
     empty.style.display='none';
     var rows='';
     filtered.forEach(function(b){
-      var bc=b.banned==='yes'?'#a03030':b.banned==='challenged'?'#8a6010':'rgba(42,30,14,.28)';
+      var readerTag = '';
+      if (b.reader === 'Kreshnik') readerTag = '<span style="display:inline-block;padding:.1rem .5rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#dbeeff;color:#2a6096;border:1px solid #a8d4f5">Kreshnik</span>';
+      else if (b.reader === 'Inken') readerTag = '<span style="display:inline-block;padding:.1rem .5rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#d6f5e3;color:#1a6640;border:1px solid #8fd4aa">Inken</span>';
       var bGenres = getBookGenres(b);
       var genreTags = bGenres.map(function(g){
         var c = getGenreColor(g);
@@ -2705,7 +2709,7 @@ function renderTable() {
         +'<td style="max-width:160px">'+genreTags+'</td>'
         +'<td><span class="lang-dot '+(b.lang||'ot')+'">'+(LANG_L[b.lang]||b.lang||'')+'</span></td>'
         +'<td class="t-year">'+esc(b.year||'--')+'</td>'
-        +'<td><span class="badge badge-'+b.status+'">'+b.status+'</span></td>'
+        +'<td><span class="badge badge-'+b.status+'">'+b.status+'</span>'+(readerTag?' '+readerTag:'')+'</td>'
         +'<td style="font-size:.8rem;color:'+bc+'">'+(BAN_L[b.banned]||'--')+'</td>'
         +'<td style="display:flex;gap:.3rem;align-items:center">'
         +'<button class="btn-icon-edit" title="Deep Dive" onclick="openBookDive('+b.id+')">&#128218;</button>'
@@ -3356,6 +3360,7 @@ function openEditBook(id) {
   document.getElementById('edit-year').value   = book.year   || '';
   document.getElementById('edit-lang').value   = book.lang   || 'en';
   document.getElementById('edit-status').value = book.status || 'unread';
+  document.getElementById('edit-reader').value = book.reader || '';
   document.getElementById('edit-banned').value = book.banned || 'no';
   // Load existing genres
   genreSetTags('edit-genre-tag-wrap','edit-genre-suggestions', getBookGenres(book));
@@ -3376,6 +3381,7 @@ function saveEditBook() {
   book.lang   = document.getElementById('edit-lang').value;
   book.year   = document.getElementById('edit-year').value.trim();
   book.banned = document.getElementById('edit-banned').value;
+  book.reader = document.getElementById('edit-reader').value;
   const newStatus = document.getElementById('edit-status').value;
   if(book.status === 'reading' && newStatus !== 'reading') {
     data.readingEntries = (data.readingEntries||[]).filter(e=>e.bookId!==id);
@@ -3610,12 +3616,13 @@ function renderMobBooks() {
   var fl = (document.getElementById('f-lang')||{value:''}).value;
   var fs = (document.getElementById('f-status')||{value:''}).value;
   var fb = (document.getElementById('f-banned')||{value:''}).value;
+  var fr = (document.getElementById('f-reader')||{value:''}).value;
   var sb = (document.getElementById('sort-by')||{value:'num'}).value;
   var filtered = data.books.filter(function(b) {
     var bGenres = getBookGenres(b);
     var genreMatch = !fg || bGenres.some(function(g){ return g===fg; });
     return (!q||b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q))
-      &&genreMatch&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb);
+      &&genreMatch&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb)&&(!fr||b.reader===fr);
   });
   filtered.sort(function(a,b){
     switch(sb){
@@ -3643,6 +3650,8 @@ function renderMobBooks() {
       +'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;align-items:center">'
       +getBookGenres(b).map(function(g){ var c=getGenreColor(g); return '<span style="padding:.1rem .45rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:'+c+'22;color:'+c+';border:1px solid '+c+'44">'+esc(g)+'</span>'; }).join('')
       +'<span class="badge badge-'+b.status+'" style="font-size:.65rem">'+b.status+'</span>'
+      +(b.reader==='Kreshnik'?'<span style="padding:.1rem .45rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#dbeeff;color:#2a6096;border:1px solid #a8d4f5">Kreshnik</span>':'')
+      +(b.reader==='Inken'?'<span style="padding:.1rem .45rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#d6f5e3;color:#1a6640;border:1px solid #8fd4aa">Inken</span>':'')
       +(b.year?'<span style="font-size:.75rem;color:var(--tmuted)">'+esc(b.year)+'</span>':'')
       +(b.banned!=='no'?'<span style="font-size:.72rem;color:#a03030">&#128683; '+(b.banned==='yes'?'Banned':'Challenged')+'</span>':'')
       +'</div>'
@@ -4201,6 +4210,9 @@ function renderQuotes() {
       <div class="field"><label>Status</label>
         <select id="in-status"><option value="unread">Unread</option><option value="reading">Currently Reading</option><option value="read">Read</option></select>
       </div>
+      <div class="field"><label>Read by</label>
+        <select id="in-reader"><option value="">— select —</option><option value="Kreshnik">Kreshnik</option><option value="Inken">Inken</option></select>
+      </div>
       <div class="field"><label>Year Published</label><input type="number" id="in-year" placeholder="e.g. 1954" min="0" max="2099"></div>
     </div>
     <div class="grid-2">
@@ -4388,9 +4400,16 @@ function renderQuotes() {
           <option value="read">Read</option>
         </select>
       </div>
-      <div class="field"><label>Year Published</label><input type="number" id="edit-year" min="0" max="2099"></div>
+      <div class="field"><label>Read by</label>
+        <select id="edit-reader">
+          <option value="">— select —</option>
+          <option value="Kreshnik">Kreshnik</option>
+          <option value="Inken">Inken</option>
+        </select>
+      </div>
     </div>
-    <div class="grid-1">
+    <div class="grid-2">
+      <div class="field"><label>Year Published</label><input type="number" id="edit-year" min="0" max="2099"></div>
       <div class="field"><label>Banned?</label>
         <select id="edit-banned">
           <option value="no">No</option><option value="yes">Banned</option><option value="challenged">Challenged</option>
