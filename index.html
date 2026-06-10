@@ -3818,18 +3818,69 @@ function openPalDetail(type) {
     gs.forEach(function(e){var pct=total?Math.round((e[1]/total)*100):0;html+='<tr><td>'+esc(e[0])+'</td><td><strong>'+e[1]+'</strong></td><td style="color:var(--olive)">'+(rg[e[0]]||0)+'</td><td>'+(e[1]-(rg[e[0]]||0))+'</td><td><div class="pal-bar-bg"><div class="pal-bar-fill" style="width:'+pct+'%"></div></div> '+pct+'%</td></tr>';});
     html+='</tbody></table></div>';
   } else if(type==='status'){
-    title.textContent='Reading Progress';
-    var read=books.filter(function(b){return b.status==='read';}).length;
-    var rdng=books.filter(function(b){return b.status==='reading';}).length;
-    var unrd=books.filter(function(b){return b.status==='unread';}).length;
-    var pct=total?Math.round((read/total)*100):0;
-    html+='<div class="pal-stat-row"><div class="pal-stat-box"><div class="psn">'+read+'</div><div class="psl">Read</div></div><div class="pal-stat-box"><div class="psn">'+rdng+'</div><div class="psl">Reading Now</div></div><div class="pal-stat-box"><div class="psn">'+unrd+'</div><div class="psl">Unread</div></div></div>';
-    html+='<div style="background:var(--card);border-radius:var(--r);padding:1.2rem 1.5rem;margin-bottom:1.5rem"><div style="display:flex;justify-content:space-between;margin-bottom:.5rem"><span style="font-family:Georgia,serif;font-size:.85rem;color:var(--tsoft)">'+read+' of '+total+' read</span><span style="font-family:Georgia,serif;font-size:.85rem;font-weight:700;color:var(--olive)">'+pct+'%</span></div><div class="pal-bar-bg" style="height:12px"><div class="pal-bar-fill" style="width:'+pct+'%"></div></div></div>';
-    var ug={};books.filter(function(b){return b.status==='unread';}).forEach(function(b){ getBookGenres(b).forEach(function(g){ ug[g]=(ug[g]||0)+1; }); });
-    var ugs=Object.entries(ug).sort(function(a,b){return b[1]-a[1];});
-    html+='<div class="pal-section-title">Unread by Genre</div><div class="pal-table-wrap"><table class="pal-table"><thead><tr><th>Genre</th><th>Unread</th></tr></thead><tbody>';
-    ugs.forEach(function(e){html+='<tr><td>'+esc(e[0])+'</td><td>'+e[1]+'</td></tr>';});
-    html+='</tbody></table></div>';
+    title.textContent='Reading Overview';
+
+    // Data prep
+    var readBooks = books.filter(function(b){ return b.status==='read'; });
+    var kBooks = readBooks.filter(function(b){ return b.reader==='Kreshnik' || b.reader==='Both'; });
+    var iBooks = readBooks.filter(function(b){ return b.reader==='Inken' || b.reader==='Both'; });
+    var unassigned = books.filter(function(b){ return b.status!=='read' || !b.reader; }).length;
+
+    // Helper: ranked genre/lang bars for a set of books
+    function readerBars(bks, keyFn, labelFn) {
+      var map = {};
+      bks.forEach(function(b){ var keys = keyFn(b); keys.forEach(function(k){ if(k) map[k]=(map[k]||0)+1; }); });
+      var entries = Object.entries(map).sort(function(a,b){ return b[1]-a[1]; });
+      if (!entries.length) return '<div style="font-family:Georgia,serif;font-size:.8rem;color:var(--tfaint);font-style:italic;padding:.5rem 0">No data yet</div>';
+      var max = entries[0][1];
+      return entries.map(function(e){
+        var pct = max ? Math.round((e[1]/max)*100) : 0;
+        return '<div style="margin-bottom:.55rem">'
+          +'<div style="display:flex;justify-content:space-between;margin-bottom:.2rem">'
+          +'<span style="font-family:Georgia,serif;font-size:.78rem;color:var(--tsoft)">'+esc(labelFn(e[0]))+'</span>'
+          +'<span style="font-family:Georgia,serif;font-size:.78rem;font-weight:600;color:var(--olive)">'+e[1]+'</span>'
+          +'</div>'
+          +'<div class="pal-bar-bg"><div class="pal-bar-fill" style="width:'+pct+'%"></div></div>'
+          +'</div>';
+      }).join('');
+    }
+
+    var LN = {en:'English',sq:'Albanian',de:'German',other:'Other'};
+
+    // Top stat boxes
+    html += '<div class="pal-stat-row">'
+      +'<div class="pal-stat-box"><div class="psn">'+readBooks.length+'</div><div class="psl">Total Read</div></div>'
+      +'<div class="pal-stat-box" style="border-top-color:#2a6096"><div class="psn" style="color:#2a6096">'+kBooks.length+'</div><div class="psl">Kreshnik</div></div>'
+      +'<div class="pal-stat-box" style="border-top-color:#1a6640"><div class="psn" style="color:#1a6640">'+iBooks.length+'</div><div class="psl">Inken</div></div>'
+      +'</div>';
+
+    // Two column breakdown
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem">';
+
+    // Kreshnik column
+    html += '<div style="background:var(--card);border:1px solid var(--bsoft);border-top:3px solid #2a6096;border-radius:var(--r);padding:1.1rem">'
+      +'<div style="font-family:Georgia,serif;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:#2a6096;margin-bottom:.9rem">Kreshnik</div>'
+      +'<div style="font-family:Georgia,serif;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tfaint);margin-bottom:.5rem">Genres</div>'
+      +readerBars(kBooks, function(b){ return getBookGenres(b); }, function(g){ return g; })
+      +'<div style="font-family:Georgia,serif;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tfaint);margin:1rem 0 .5rem">Languages</div>'
+      +readerBars(kBooks, function(b){ return [b.lang]; }, function(l){ return LN[l]||l; })
+      +'</div>';
+
+    // Inken column
+    html += '<div style="background:var(--card);border:1px solid var(--bsoft);border-top:3px solid #1a6640;border-radius:var(--r);padding:1.1rem">'
+      +'<div style="font-family:Georgia,serif;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:#1a6640;margin-bottom:.9rem">Inken</div>'
+      +'<div style="font-family:Georgia,serif;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tfaint);margin-bottom:.5rem">Genres</div>'
+      +readerBars(iBooks, function(b){ return getBookGenres(b); }, function(g){ return g; })
+      +'<div style="font-family:Georgia,serif;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tfaint);margin:1rem 0 .5rem">Languages</div>'
+      +readerBars(iBooks, function(b){ return [b.lang]; }, function(l){ return LN[l]||l; })
+      +'</div>';
+
+    html += '</div>';
+
+    // Bottom unassigned box
+    html += '<div class="pal-stat-row" style="grid-template-columns:1fr">'
+      +'<div class="pal-stat-box" style="border-top-color:var(--tmuted)"><div class="psn" style="color:var(--tmuted)">'+unassigned+'</div><div class="psl">Unread or Unassigned</div></div>'
+      +'</div>';
   } else if(type==='language'){
     title.textContent='By Language';
     var lm={},lr={};var LN={en:'English',sq:'Albanian',de:'German',other:'Other'};
