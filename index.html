@@ -2698,6 +2698,7 @@ function renderTable() {
       var readerTag = '';
       if (b.reader === 'Kreshnik') readerTag = '<span style="display:inline-block;padding:.1rem .5rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#dbeeff;color:#2a6096;border:1px solid #a8d4f5">Kreshnik</span>';
       else if (b.reader === 'Inken') readerTag = '<span style="display:inline-block;padding:.1rem .5rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#d6f5e3;color:#1a6640;border:1px solid #8fd4aa">Inken</span>';
+      var bc=b.banned==='yes'?'#a03030':b.banned==='challenged'?'#8a6010':'rgba(42,30,14,.28)';
       var bGenres = getBookGenres(b);
       var genreTags = bGenres.map(function(g){
         var c = getGenreColor(g);
