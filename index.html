@@ -1600,7 +1600,7 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
         <a href="#" onclick="showPage('the-stacks',null);showStacksTab('volumes',null);return false;">All Volumes</a>
         <a href="#" onclick="showPage('the-stacks',null);showStacksTab('borrowed',null);return false;">On Loan</a>
         <a href="#" onclick="showPage('the-stacks',null);showStacksTab('wanted',null);return false;">The Wish List</a>
-        <a href="#" onclick="showPage('the-stacks',null);showStacksTab('nownext',null);return false;">Now &amp; Next</a>
+        <a href="#" onclick="showPage('the-stacks',null);showStacksTab('reading',null);return false;">Now &amp; Next</a>
       </div>
     </li>
     <li><button onclick="showPage('palantir',this)">The Insights</button></li>
@@ -1785,7 +1785,8 @@ td.t-year,.t-actions{font-family:'Georgia',serif;font-size:.82rem;color:var(--tm
       <select id="f-genre" onchange="renderTable()"><option value="">All Genres</option></select>
       <select id="f-lang" onchange="renderTable()"><option value="">All Languages</option><option value="en">English</option><option value="sq">Albanian</option><option value="de">German</option><option value="other">Other</option></select>
       <select id="f-status" onchange="renderTable()"><option value="">All Status</option><option value="reading">Reading</option><option value="read">Read</option><option value="unread">Unread</option></select>
-      <select id="f-reader" onchange="renderTable()"><option value="">All Readers</option><option value="Kreshnik">Kreshnik</option><option value="Inken">Inken</option></select>
+      <select id="f-reader" onchange="renderTable()"><option value="">All Readers</option><option value="Kreshnik">Kreshnik</option><option value="Inken">Inken</option><option value="Both">Both</option></select>
+      <select id="f-location" onchange="renderTable()"><option value="">All Locations</option><option value="Living Room">Living Room</option><option value="Office">Office</option></select>
       <select id="f-banned" onchange="renderTable()"><option value="">All Books</option><option value="yes">Banned</option><option value="challenged">Challenged</option></select>
       <span class="filter-count" id="filter-count"></span>
     </div>
@@ -2111,6 +2112,7 @@ function showPage(name, btn) {
   if(btn) btn.classList.add('active');
   if(name==='palantir') renderCharts();
   if(name==='annals')   renderTimeline();
+  if(name==='the-stacks') renderTable();
   if(name==='red-book') { populateRBSelect(); renderDives(); renderJournal(); renderQuotes(); }
   updateFab();
 }
@@ -2643,11 +2645,14 @@ function addBook() {
   var nextNum=data.books.length>0?Math.max.apply(null,data.books.map(function(b){return b.num||0;}))+1:1;
   var coverUrl = document.getElementById('in-isbn').__coverUrl || '';
   var pages    = document.getElementById('in-isbn').__pages    || '';
-  data.books.push({id:Date.now(),num:nextNum,title,author,genres,genre:genres[0],lang,status:document.getElementById('in-status').value,reader:document.getElementById('in-reader').value,year:document.getElementById('in-year').value.trim(),banned:document.getElementById('in-banned').value,coverUrl,pages});
+  var locSel = document.getElementById('in-location-select').value;
+  var location = locSel === 'other' ? document.getElementById('in-location-custom').value.trim() : locSel;
+  data.books.push({id:Date.now(),num:nextNum,title,author,genres,genre:genres[0],lang,status:document.getElementById('in-status').value,reader:document.getElementById('in-reader').value,location,year:document.getElementById('in-year').value.trim(),banned:document.getElementById('in-banned').value,coverUrl,pages});
   save(); renderTable(); updateStats();
   ['in-title','in-author','in-year'].forEach(id=>document.getElementById(id).value='');
   genreClear('in-genre-tag-wrap');
   document.getElementById('in-lang').value=''; document.getElementById('in-status').value='unread'; document.getElementById('in-reader').value=''; document.getElementById('in-banned').value='no';
+  document.getElementById('in-location-select').value=''; document.getElementById('in-location-custom').value=''; document.getElementById('in-location-custom').style.display='none';
   var isbnEl = document.getElementById('in-isbn'); isbnEl.value=''; isbnEl.__coverUrl=''; isbnEl.__pages='';
   document.getElementById('isbn-msg').textContent='';
   closeAddForm();
@@ -2669,12 +2674,13 @@ function renderTable() {
   var fs=(document.getElementById('f-status')||{value:''}).value;
   var fb=(document.getElementById('f-banned')||{value:''}).value;
   var fr=(document.getElementById('f-reader')||{value:''}).value;
+  var floc=(document.getElementById('f-location')||{value:''}).value;
   var sb=(document.getElementById('sort-by')||{value:'num'}).value;
   var filtered=data.books.filter(function(b){
     var bGenres = getBookGenres(b);
     var genreMatch = !fg || bGenres.some(function(g){ return g===fg; });
     return (!q||b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q))
-      &&genreMatch&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb)&&(!fr||b.reader===fr);
+      &&genreMatch&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb)&&(!fr||b.reader===fr)&&(!floc||b.location===floc);
   });
   filtered.sort(function(a,b){
     switch(sb){
@@ -2698,6 +2704,8 @@ function renderTable() {
       var readerTag = '';
       if (b.reader === 'Kreshnik') readerTag = '<span style="display:inline-block;padding:.1rem .5rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#dbeeff;color:#2a6096;border:1px solid #a8d4f5">Kreshnik</span>';
       else if (b.reader === 'Inken') readerTag = '<span style="display:inline-block;padding:.1rem .5rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#d6f5e3;color:#1a6640;border:1px solid #8fd4aa">Inken</span>';
+      else if (b.reader === 'Both') readerTag = '<span style="display:inline-block;padding:.1rem .5rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#e8e0f5;color:#6a3a9e;border:1px solid #c4aae8">Both</span>';
+      var locationTag = b.location ? '<span style="display:inline-block;padding:.1rem .5rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:rgba(160,120,40,.1);color:var(--tmuted);border:1px solid rgba(160,120,40,.2)">📍 '+esc(b.location)+'</span>' : '';
       var bc=b.banned==='yes'?'#a03030':b.banned==='challenged'?'#8a6010':'rgba(42,30,14,.28)';
       var bGenres = getBookGenres(b);
       var genreTags = bGenres.map(function(g){
@@ -2710,7 +2718,7 @@ function renderTable() {
         +'<td style="max-width:160px">'+genreTags+'</td>'
         +'<td><span class="lang-dot '+(b.lang||'ot')+'">'+(LANG_L[b.lang]||b.lang||'')+'</span></td>'
         +'<td class="t-year">'+esc(b.year||'--')+'</td>'
-        +'<td><span class="badge badge-'+b.status+'">'+b.status+'</span>'+(readerTag?' '+readerTag:'')+'</td>'
+        +'<td><span class="badge badge-'+b.status+'">'+b.status+'</span>'+(readerTag?' '+readerTag:'')+(locationTag?' '+locationTag:'')+'</td>'
         +'<td style="font-size:.8rem;color:'+bc+'">'+(BAN_L[b.banned]||'--')+'</td>'
         +'<td style="display:flex;gap:.3rem;align-items:center">'
         +'<button class="btn-icon-edit" title="Deep Dive" onclick="openBookDive('+b.id+')">&#128218;</button>'
@@ -3363,6 +3371,15 @@ function openEditBook(id) {
   document.getElementById('edit-status').value = book.status || 'unread';
   document.getElementById('edit-reader').value = book.reader || '';
   document.getElementById('edit-banned').value = book.banned || 'no';
+  // Load location
+  var loc = book.location || '';
+  var locSel = document.getElementById('edit-location-select');
+  var locCustom = document.getElementById('edit-location-custom');
+  if (loc === 'Living Room' || loc === 'Office' || loc === '') {
+    locSel.value = loc; locCustom.style.display = 'none';
+  } else {
+    locSel.value = 'other'; locCustom.value = loc; locCustom.style.display = 'block';
+  }
   // Load existing genres
   genreSetTags('edit-genre-tag-wrap','edit-genre-suggestions', getBookGenres(book));
   document.getElementById('edit-modal').style.display = 'flex';
@@ -3383,6 +3400,8 @@ function saveEditBook() {
   book.year   = document.getElementById('edit-year').value.trim();
   book.banned = document.getElementById('edit-banned').value;
   book.reader = document.getElementById('edit-reader').value;
+  var editLocSel = document.getElementById('edit-location-select').value;
+  book.location = editLocSel === 'other' ? document.getElementById('edit-location-custom').value.trim() : editLocSel;
   const newStatus = document.getElementById('edit-status').value;
   if(book.status === 'reading' && newStatus !== 'reading') {
     data.readingEntries = (data.readingEntries||[]).filter(e=>e.bookId!==id);
@@ -3618,12 +3637,13 @@ function renderMobBooks() {
   var fs = (document.getElementById('f-status')||{value:''}).value;
   var fb = (document.getElementById('f-banned')||{value:''}).value;
   var fr = (document.getElementById('f-reader')||{value:''}).value;
+  var floc = (document.getElementById('f-location')||{value:''}).value;
   var sb = (document.getElementById('sort-by')||{value:'num'}).value;
   var filtered = data.books.filter(function(b) {
     var bGenres = getBookGenres(b);
     var genreMatch = !fg || bGenres.some(function(g){ return g===fg; });
     return (!q||b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q))
-      &&genreMatch&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb)&&(!fr||b.reader===fr);
+      &&genreMatch&&(!fl||b.lang===fl)&&(!fs||b.status===fs)&&(!fb||b.banned===fb)&&(!fr||b.reader===fr)&&(!floc||b.location===floc);
   });
   filtered.sort(function(a,b){
     switch(sb){
@@ -3653,6 +3673,8 @@ function renderMobBooks() {
       +'<span class="badge badge-'+b.status+'" style="font-size:.65rem">'+b.status+'</span>'
       +(b.reader==='Kreshnik'?'<span style="padding:.1rem .45rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#dbeeff;color:#2a6096;border:1px solid #a8d4f5">Kreshnik</span>':'')
       +(b.reader==='Inken'?'<span style="padding:.1rem .45rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#d6f5e3;color:#1a6640;border:1px solid #8fd4aa">Inken</span>':'')
+      +(b.reader==='Both'?'<span style="padding:.1rem .45rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:#e8e0f5;color:#6a3a9e;border:1px solid #c4aae8">Both</span>':'')
+      +(b.location?'<span style="padding:.1rem .45rem;border-radius:3px;font-family:Georgia,serif;font-size:.65rem;background:rgba(160,120,40,.1);color:var(--tmuted);border:1px solid rgba(160,120,40,.2)">📍 '+esc(b.location)+'</span>':'')
       +(b.year?'<span style="font-size:.75rem;color:var(--tmuted)">'+esc(b.year)+'</span>':'')
       +(b.banned!=='no'?'<span style="font-size:.72rem;color:#a03030">&#128683; '+(b.banned==='yes'?'Banned':'Challenged')+'</span>':'')
       +'</div>'
@@ -4212,7 +4234,7 @@ function renderQuotes() {
         <select id="in-status"><option value="unread">Unread</option><option value="reading">Currently Reading</option><option value="read">Read</option></select>
       </div>
       <div class="field"><label>Read by</label>
-        <select id="in-reader"><option value="">— select —</option><option value="Kreshnik">Kreshnik</option><option value="Inken">Inken</option></select>
+        <select id="in-reader"><option value="">— select —</option><option value="Kreshnik">Kreshnik</option><option value="Inken">Inken</option><option value="Both">Both</option></select>
       </div>
       <div class="field"><label>Year Published</label><input type="number" id="in-year" placeholder="e.g. 1954" min="0" max="2099"></div>
     </div>
@@ -4220,7 +4242,17 @@ function renderQuotes() {
       <div class="field"><label>Banned?</label>
         <select id="in-banned"><option value="no">No</option><option value="yes">Banned</option><option value="challenged">Challenged</option></select>
       </div>
-      <div class="field"></div>
+      <div class="field"><label>Location</label>
+        <div style="display:flex;gap:.4rem">
+          <select id="in-location-select" onchange="if(this.value!=='other')document.getElementById('in-location-custom').style.display='none';else document.getElementById('in-location-custom').style.display='block'">
+            <option value="">— select —</option>
+            <option value="Living Room">Living Room</option>
+            <option value="Office">Office</option>
+            <option value="other">Other…</option>
+          </select>
+        </div>
+        <input type="text" id="in-location-custom" placeholder="Custom location…" style="display:none;margin-top:.4rem">
+      </div>
     </div>
     <div class="form-actions" style="justify-content:flex-end">
       <button class="btn-primary" onclick="addBook()">Add to Vault</button>
@@ -4406,16 +4438,29 @@ function renderQuotes() {
           <option value="">— select —</option>
           <option value="Kreshnik">Kreshnik</option>
           <option value="Inken">Inken</option>
+          <option value="Both">Both</option>
         </select>
       </div>
     </div>
     <div class="grid-2">
+      <div class="field"><label>Location</label>
+        <select id="edit-location-select" onchange="if(this.value!=='other')document.getElementById('edit-location-custom').style.display='none';else document.getElementById('edit-location-custom').style.display='block'">
+          <option value="">— select —</option>
+          <option value="Living Room">Living Room</option>
+          <option value="Office">Office</option>
+          <option value="other">Other…</option>
+        </select>
+        <input type="text" id="edit-location-custom" placeholder="Custom location…" style="display:none;margin-top:.4rem">
+      </div>
       <div class="field"><label>Year Published</label><input type="number" id="edit-year" min="0" max="2099"></div>
+    </div>
+    <div class="grid-2">
       <div class="field"><label>Banned?</label>
         <select id="edit-banned">
           <option value="no">No</option><option value="yes">Banned</option><option value="challenged">Challenged</option>
         </select>
       </div>
+      <div class="field"></div>
     </div>
     <div class="form-actions">
       <button class="btn-ghost" onclick="closeEditBook()">Cancel</button>
